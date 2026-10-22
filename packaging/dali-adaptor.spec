@@ -10,9 +10,28 @@ License:    Apache-2.0 and BSD-3-Clause and MIT and CC0-1.0 and Unlicense and Zl
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
+# graphics_backend selects ENABLE_GRAPHICS_BACKEND (see build/tizen/deps-check.cmake):
+# DYNAMIC builds the GLES and Vulkan backends as separate libraries selectable
+# at runtime; GLES or VULKAN builds only that backend into the main library
+# (GLES needs no vulkan/glslang, neither produces the -vulkan subpackage).
+# Default: DYNAMIC on Tizen 9 or newer, GLES on Tizen 8 and older, whose glslang
+# packages cannot build the Vulkan backend.
+# Example: gbs build ... --define "graphics_backend GLES"
+%if 0%{?tizen_version_major} >= 9
+%{!?graphics_backend: %define graphics_backend DYNAMIC}
+%else
+%{!?graphics_backend: %define graphics_backend GLES}
+%endif
+%if "%{graphics_backend}" != "DYNAMIC" && "%{graphics_backend}" != "GLES" && "%{graphics_backend}" != "VULKAN"
+%{error:graphics_backend must be DYNAMIC, GLES or VULKAN}
+%endif
+
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       giflib
+%if "%{graphics_backend}" == "VULKAN"
+Requires:       glslang
+%endif
 
 %define tizen_platform_config_supported 1
 # BUILD_TCORE_ENABLE: 0 (default) = ECORE, 1 = TCORE, for Tizen 11 only.
@@ -28,6 +47,7 @@ Requires:       giflib
 %global tizen_wayland_backend TCORE
 %endif
 %endif
+
 BuildRequires:  pkgconfig(libtzplatform-config)
 
 # if 'mv_prj' is defined, this build targets the robot profile.
@@ -69,9 +89,11 @@ BuildRequires:  fribidi-devel
 BuildRequires:  pkgconfig(capi-system-info)
 BuildRequires:  pkgconfig(capi-system-sensor)
 
+%if "%{graphics_backend}" != "GLES"
 BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  glslang-devel
 BuildRequires:  glslang
+%endif
 BuildRequires:  pkgconfig(egl)
 BuildRequires:  pkgconfig(wayland-egl)
 
@@ -168,12 +190,14 @@ platform abstraction and application shell
 ###########################################
 # Vulkan Graphics Backend
 ###########################################
+%if "%{graphics_backend}" == "DYNAMIC"
 %package vulkan
 Summary:        The DALi Tizen Adaptor with the Vulkan library
 Requires:       %{name}
 Requires:       glslang
 %description vulkan
 The DALi Tizen Adaptor with the Vulkan library.
+%endif
 
 ##############################
 # devel
@@ -256,6 +280,9 @@ cmake_flags="$cmake_flags -DTIZEN_WAYLAND_BACKEND=TCORE"
 %else
 cmake_flags="$cmake_flags -DTIZEN_WAYLAND_BACKEND=ECORE"
 %endif
+
+# Graphics backend (see default at top of spec)
+cmake_flags="$cmake_flags -DENABLE_GRAPHICS_BACKEND=%{graphics_backend}"
 
 # Enable preinitialized adaptor as default if not defined
 %{!?enable_preinitialize_adaptor: %global enable_preinitialize_adaptor 1}
@@ -417,7 +444,11 @@ exit 0
 %{_libdir}/libdali2-adaptor.so.2.0.0
 
 # Internal so files
+# Separate graphics libraries exist only in the DYNAMIC configuration;
+# GLES / VULKAN builds integrate the backend into libdali2-adaptor.so
+%if "%{graphics_backend}" == "DYNAMIC"
 %{_libdir}/libdali2-adaptor-gles.so
+%endif
 %{_libdir}/libdali2-adaptor-gl-window-addon.so
 %{_libdir}/libdali2-adaptor-application-normal.so*
 %{_libdir}/libdali2-file-download-plugin-curl.so
@@ -430,10 +461,12 @@ exit 0
 
 #################################################
 
+%if "%{graphics_backend}" == "DYNAMIC"
 %files vulkan
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libdali2-adaptor-vulkan.so
+%endif
 
 #################################################
 

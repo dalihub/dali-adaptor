@@ -54,6 +54,9 @@ IF( (NOT UBUNTU_PROFILE) )
     ${APPLICATION_MODEL_EXTRA_CFLAGS}
     -I../../../
     -Wall
+    # widget_base_* APIs are deprecated on newer Tizen but must still be called
+    # to keep widget application support; they must not fail -Werror builds.
+    -Wno-deprecated-declarations
   )
 
   TARGET_LINK_LIBRARIES( ${APPLICATION_COMPONENT_BASED_TARGET} PUBLIC
