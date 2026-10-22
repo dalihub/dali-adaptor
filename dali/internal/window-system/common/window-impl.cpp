@@ -664,7 +664,7 @@ bool Window::IsFocused() const
 
 void Window::Show()
 {
-  mVisible = true;
+  mVisibility = Visibility::VISIBLE;
 
   mWindowBase->Show();
 
@@ -687,12 +687,12 @@ void Window::Show()
 
   mSurface->SetFullSwapNextFrame();
 
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Show(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Show(): iconified = %d, visibility = %d\n", this, mNativeWindowId, mIconified, static_cast<int>(mVisibility));
 }
 
 void Window::Hide()
 {
-  mVisible = false;
+  mVisibility = Visibility::HIDDEN;
 
   mWindowBase->Hide();
 
@@ -713,13 +713,13 @@ void Window::Hide()
     observer->OnWindowHidden();
   }
 
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Hide(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Hide(): iconified = %d, visibility = %d\n", this, mNativeWindowId, mIconified, static_cast<int>(mVisibility));
 }
 
 bool Window::IsVisible() const
 {
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), IsVisible(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible);
-  return mVisible && !mIconified;
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), IsVisible(): iconified = %d, visibility = %d\n", this, mNativeWindowId, mIconified, static_cast<int>(mVisibility));
+  return mVisibility != Visibility::HIDDEN && !mIconified;
 }
 
 unsigned int Window::GetSupportedAuxiliaryHintCount() const
@@ -979,7 +979,7 @@ void Window::OnIconifyChanged(bool iconified)
   {
     mIconified = true;
 
-    if(mVisible)
+    if(mVisibility != Visibility::HIDDEN)
     {
       mScene.Hide();
 
@@ -1001,13 +1001,13 @@ void Window::OnIconifyChanged(bool iconified)
       }
     }
 
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Iconified: visible = %d\n", this, mNativeWindowId, mVisible);
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Iconified: visibility = %d\n", this, mNativeWindowId, static_cast<int>(mVisibility));
   }
   else
   {
     mIconified = false;
 
-    if(mVisible)
+    if(mVisibility != Visibility::HIDDEN)
     {
       mScene.Show();
 
@@ -1029,7 +1029,7 @@ void Window::OnIconifyChanged(bool iconified)
       }
     }
 
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Deiconified: visible = %d\n", this, mNativeWindowId, mVisible);
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Deiconified: visibility = %d\n", this, mNativeWindowId, static_cast<int>(mVisibility));
   }
 
   mSurface->SetFullSwapNextFrame();

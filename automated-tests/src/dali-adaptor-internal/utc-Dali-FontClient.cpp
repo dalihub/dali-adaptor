@@ -161,7 +161,7 @@ int UtcDaliFontClientPreloadedDataSurvivesPeerDestruction(void)
   TestApplication application;
 
   const std::string path = std::string(TEST_RESOURCE_DIR) + "/fonts/dejavu/DejaVuSans.ttf";
-  std::ifstream    file(path, std::ios::binary | std::ios::ate);
+  std::ifstream     file(path, std::ios::binary | std::ios::ate);
   DALI_TEST_CHECK(file.good());
   const auto size = file.tellg();
   DALI_TEST_CHECK(size > 0);
@@ -178,14 +178,16 @@ int UtcDaliFontClientPreloadedDataSurvivesPeerDestruction(void)
   DALI_TEST_CHECK(manager.FindFontFile(path, cachedBytes, cachedSize));
   auto* const backing = AnyCast<uint8_t*>(cachedBytes);
 
-  auto       survivor = TextAbstraction::FontClient::New(96, 96);
-  const auto fontId   = survivor.GetFontId(path, 24 * 64);
+  auto survivor = TextAbstraction::FontClient::New(96, 96);
+  survivor.InitDefaultFontDescription(); ///< To make ensure that mFontConfig is initialized.
+  const auto fontId = survivor.GetFontId(path, 24 * 64);
   DALI_TEST_CHECK(fontId != 0u);
   const auto glyph = survivor.GetGlyphIndex(fontId, 'A');
   DALI_TEST_CHECK(glyph != 0u);
 
   {
     auto peer = TextAbstraction::FontClient::New(96, 96);
+    peer.InitDefaultFontDescription(); ///< To make ensure that mFontConfig is initialized.
     DALI_TEST_CHECK(peer.GetFontId(path, 24 * 64) != 0u);
   }
 
