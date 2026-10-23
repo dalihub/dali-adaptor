@@ -84,6 +84,21 @@ void BridgeObject::Emit(Dali::SharedPtr<Accessible> obj, Dali::Devel::Accessibil
     return;
   }
 
+  if(event == Dali::Devel::Accessibility::ObjectPropertyChangeEvent::NAME ||
+     event == Dali::Devel::Accessibility::ObjectPropertyChangeEvent::DESCRIPTION)
+  {
+    bool isTarget = obj->IsHighlighted() || obj->GetStates()[State::FOCUSED];
+    if(!isTarget)
+    {
+      auto attrs = obj->GetAttributes();
+      auto it    = attrs.find("container-live");
+      if(it == attrs.end() || it->second == "off")
+      {
+        return;
+      }
+    }
+  }
+
   auto eventName = eventMap.find(event);
 
   if(eventName != eventMap.end())
