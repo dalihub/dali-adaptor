@@ -21,8 +21,11 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/signals/callback.h>
 #include <dali/public-api/update/frame-callback-interface.h>
 #include <dali/public-api/update/update-proxy.h>
+
+#include <cstdint>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
@@ -70,6 +73,12 @@ public:
   };
 
   /**
+   * @brief Identifier of an idle callback added with AddIdle(). 0 is never a valid ID.
+   * @SINCE_2_5.46
+   */
+  using IdleCallbackId = uint32_t;
+
+  /**
    * @brief Retrieves the singleton UiContext instance.
    *
    * @return A handle to the UiContext instance
@@ -115,6 +124,7 @@ public:
    *
    * @note Ownership of the callback is passed onto this class.
    * @SINCE_2_5.10
+   * @DEPRECATED_2_5.46 Use AddIdle(Callback<bool()>) instead.
    */
   bool AddIdle(CallbackBase* callback);
 
@@ -126,8 +136,37 @@ public:
    * @note Function must be called from main event thread only
    * @note Ownership of the callback is NOT returned; the callback is deleted.
    * @SINCE_2_5.20
+   * @DEPRECATED_2_5.46 Use RemoveIdle(IdleCallbackId) instead.
    */
   void RemoveIdle(CallbackBase* callback);
+
+  /**
+   * @brief Ensures that the given callback is called from the main loop when it is idle.
+   *
+   * The callback is called repeatedly as long as it returns @c true. Returning
+   * @c false removes and destroys the callback.
+   *
+   * @param[in] callback The callback to call
+   * @return An ID that can be passed to RemoveIdle(), or @c 0 if the callback
+   * could not be added (an empty callback is never added)
+   *
+   * @note Function must be called from main event thread only
+   * @SINCE_2_5.46
+   */
+  IdleCallbackId AddIdle(Callback<bool()> callback);
+
+  /**
+   * @brief Removes a previously added idle callback by its ID.
+   *
+   * The callback is destroyed. Does nothing if the callback has already removed
+   * itself by returning @c false, or has been removed before.
+   *
+   * @param[in] id The ID returned by AddIdle()
+   *
+   * @note Function must be called from main event thread only
+   * @SINCE_2_5.46
+   */
+  void RemoveIdle(IdleCallbackId id);
 
   /**
    * @brief Ensures all pending operations are flushed to the render thread.
