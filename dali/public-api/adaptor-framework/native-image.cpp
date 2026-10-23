@@ -23,6 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/string-utils.h>
+#include <dali/internal/graphics/common/graphics-factory.h> ///< For Dali::Internal::Adaptor::GetGraphicsBackendModule
 #include <dali/internal/imaging/common/native-image-factory.h>
 #include <dali/internal/imaging/common/native-image-impl.h>
 
@@ -161,10 +162,21 @@ NativeImage::NativeImage(uint32_t width, uint32_t height, ColorDepth depth, Any 
   DALI_ASSERT_DEBUG(factory && "Unable to get NativeImageFactory\n");
 
   mImpl = factory->CreateNativeImage(width, height, depth, nativeImage).release();
+
+  if(mImpl)
+  {
+    // For the dynamic backend case, mImpl's code lives in the backend library; keep it loaded
+    // while mImpl is alive, even if this object outlives the Adaptor. The module must be
+    // fetched here, as the backend library binds to its own copy of the accessor.
+    mImpl->SetGraphicsLibrary(Dali::Internal::Adaptor::GetGraphicsBackendModule());
+  }
 }
 
 NativeImage::~NativeImage()
 {
+  // Take a copy so the backend library, where mImpl's code lives, is unloaded only after
+  // the delete below has completed.
+  std::shared_ptr<void> graphicsLibrary = mImpl ? mImpl->GetGraphicsLibrary() : nullptr;
   delete mImpl;
 }
 

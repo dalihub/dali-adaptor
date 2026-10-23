@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/native-image-queue.h>
 #include <dali/integration-api/string-utils.h>
+#include <dali/internal/graphics/common/graphics-factory.h> ///< For Dali::Internal::Adaptor::GetGraphicsBackendModule
 #include <dali/internal/imaging/common/native-image-factory.h>
 #include <dali/internal/imaging/common/native-image-queue-impl.h>
 
@@ -132,10 +133,21 @@ NativeImageSourceQueue::NativeImageSourceQueue(uint32_t queueCount, uint32_t wid
 {
   auto factory = Dali::Internal::Adaptor::GetNativeImageFactory();
   mImpl        = factory->CreateNativeImageQueue(queueCount, width, height, static_cast<NativeImageQueue::ColorFormat>(colorFormat), nativeImageSourceQueue).release();
+
+  if(mImpl)
+  {
+    // For the dynamic backend case, mImpl's code lives in the backend library; keep it loaded
+    // while mImpl is alive, even if this object outlives the Adaptor. The module must be
+    // fetched here, as the backend library binds to its own copy of the accessor.
+    mImpl->SetGraphicsLibrary(Dali::Internal::Adaptor::GetGraphicsBackendModule());
+  }
 }
 
 NativeImageSourceQueue::~NativeImageSourceQueue()
 {
+  // Take a copy so the backend library, where mImpl's code lives, is unloaded only after
+  // the delete below has completed.
+  std::shared_ptr<void> graphicsLibrary = mImpl ? mImpl->GetGraphicsLibrary() : nullptr;
   delete mImpl;
 }
 
