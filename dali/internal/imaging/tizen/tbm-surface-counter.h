@@ -19,8 +19,9 @@
 #define DALI_TBM_SURFACE_COUNTER_H
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/debug.h>
+#include <atomic>
+#include <cstdint>
 
 namespace DALI_NAMESPACE
 {
@@ -45,6 +46,8 @@ public:
    */
   static TbmSurfaceCounter& GetInstance()
   {
+    // Trivially destructible, so it is never destroyed at process exit.
+    // Native images held in static storage can still use it when they are destroyed.
     static TbmSurfaceCounter instance;
     return instance;
   }
@@ -54,8 +57,7 @@ public:
    */
   void AddNativeImage()
   {
-    Mutex::ScopedLock lock(mMutex);
-    mNativeImageCount++;
+    ++mNativeImageCount;
     LogTotalCount();
   }
 
@@ -64,11 +66,7 @@ public:
    */
   void RemoveNativeImage()
   {
-    Mutex::ScopedLock lock(mMutex);
-    if(mNativeImageCount > 0)
-    {
-      mNativeImageCount--;
-    }
+    Decrease(mNativeImageCount, 1u);
     LogTotalCount();
   }
 
@@ -77,8 +75,7 @@ public:
    */
   void AddBackBufferSurface()
   {
-    Mutex::ScopedLock lock(mMutex);
-    mBackBufferCount++;
+    ++mBackBufferCount;
     LogTotalCount();
   }
 
@@ -87,11 +84,7 @@ public:
    */
   void RemoveBackBufferSurface()
   {
-    Mutex::ScopedLock lock(mMutex);
-    if(mBackBufferCount > 0)
-    {
-      mBackBufferCount--;
-    }
+    Decrease(mBackBufferCount, 1u);
     LogTotalCount();
   }
 
@@ -101,8 +94,7 @@ public:
    */
   void AddNativeImageQueue(uint32_t queueSize)
   {
-    Mutex::ScopedLock lock(mMutex);
-    mNativeImageQueueCount++;
+    ++mNativeImageQueueCount;
     mQueueSurfaceCount += queueSize;
     LogTotalCount();
   }
@@ -113,26 +105,36 @@ public:
    */
   void RemoveNativeImageQueue(uint32_t queueSize)
   {
-    Mutex::ScopedLock lock(mMutex);
-    if(mNativeImageQueueCount > 0)
-    {
-      mNativeImageQueueCount--;
-    }
-    if(mQueueSurfaceCount >= queueSize)
-    {
-      mQueueSurfaceCount -= queueSize;
-    }
+    Decrease(mNativeImageQueueCount, 1u);
+    Decrease(mQueueSurfaceCount, queueSize);
     LogTotalCount();
   }
 
 private:
   /**
+   * @brief Decrease the count by the amount, only if the count is not less than the amount
+   * @param[in,out] count The count to decrease
+   * @param[in] amount The amount to decrease
+   */
+  static void Decrease(std::atomic<uint32_t>& count, uint32_t amount)
+  {
+    uint32_t current = count.load();
+    while(current >= amount && !count.compare_exchange_weak(current, current - amount))
+    {
+    }
+  }
+
+  /**
    * @brief Log the current total count
    */
   void LogTotalCount()
   {
+    const uint32_t nativeImageCount      = mNativeImageCount.load();
+    const uint32_t backBufferCount       = mBackBufferCount.load();
+    const uint32_t nativeImageQueueCount = mNativeImageQueueCount.load();
+    const uint32_t queueSurfaceCount     = mQueueSurfaceCount.load();
     DALI_LOG_DEBUG_INFO("NativeImage=%u, NativeImageQueue=%u, QueueSurfaceCount=%u, TotalSurfaceCount=%u\n",
-                        mNativeImageCount, mNativeImageQueueCount, mQueueSurfaceCount, mNativeImageCount + mQueueSurfaceCount + mBackBufferCount);
+                        nativeImageCount, nativeImageQueueCount, queueSurfaceCount, nativeImageCount + queueSurfaceCount + backBufferCount);
   }
 
 private:
@@ -141,11 +143,10 @@ private:
   TbmSurfaceCounter(const TbmSurfaceCounter&)            = delete;
   TbmSurfaceCounter& operator=(const TbmSurfaceCounter&) = delete;
 
-  Dali::Mutex mMutex;
-  uint32_t    mNativeImageCount      = 0;
-  uint32_t    mBackBufferCount       = 0;
-  uint32_t    mNativeImageQueueCount = 0;
-  uint32_t    mQueueSurfaceCount     = 0;
+  std::atomic<uint32_t> mNativeImageCount{0u};
+  std::atomic<uint32_t> mBackBufferCount{0u};
+  std::atomic<uint32_t> mNativeImageQueueCount{0u};
+  std::atomic<uint32_t> mQueueSurfaceCount{0u};
 };
 
 } // namespace Adaptor
