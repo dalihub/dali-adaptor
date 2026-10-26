@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/window-system/common/window-base.h>
 
+// INTERNAL INCLUDES
+#include <dali/internal/system/common/time-service.h>
+
 namespace DALI_NAMESPACE
 {
 namespace Internal
@@ -53,6 +56,76 @@ WindowBase::WindowBase()
 
 WindowBase::~WindowBase()
 {
+}
+
+bool WindowBase::SetMouseInputEnabled(bool enabled)
+{
+  if(!mMouseInputState.SetEnabled(enabled, MouseInputState::UNKNOWN_BUTTONS))
+  {
+    return true;
+  }
+
+  Integration::Point interruptedPoint;
+  const bool         hasPoint = !enabled && mMouseInputState.TakeInterruptedPoint(interruptedPoint);
+  OnMouseInputEnabledChanged(enabled);
+  if(hasPoint)
+  {
+    // This terminal event bypasses the native input filter.
+    mTouchEventSignal.Emit(interruptedPoint, TimeService::GetMilliSeconds());
+    mMouseFrameEventSignal.Emit();
+  }
+  return true;
+}
+
+bool WindowBase::IsMouseInputEnabled() const
+{
+  return mMouseInputState.IsEnabled();
+}
+
+void WindowBase::OnMouseInputEnabledChanged(bool /* enabled */)
+{
+}
+
+void WindowBase::EmitTouchEvent(Integration::Point& point, uint32_t timeStamp, uint32_t pressedButtons)
+{
+  if(mMouseInputState.OnPoint(point, pressedButtons))
+  {
+    mTouchEventSignal.Emit(point, timeStamp);
+  }
+}
+
+void WindowBase::EmitWheelEvent(Integration::WheelEvent& wheelEvent)
+{
+  if(IsMouseInputEnabled())
+  {
+    mWheelEventSignal.Emit(wheelEvent);
+  }
+}
+
+void WindowBase::EmitMouseInOutEvent(const Dali::MouseInOutEvent& event)
+{
+  if(IsMouseInputEnabled())
+  {
+    mMouseInOutEventSignal.Emit(event);
+  }
+}
+
+void WindowBase::EmitMouseRelativeEvent(const Dali::DevelWindow::MouseRelativeEvent& event)
+{
+  if(IsMouseInputEnabled())
+  {
+    mMouseRelativeEventSignal.Emit(event);
+  }
+}
+
+void WindowBase::SetSuppressedMouseButtons(uint32_t pressedButtons)
+{
+  mMouseInputState.SetSuppressedButtons(pressedButtons);
+}
+
+int32_t WindowBase::AccumulateMouseWheel(int32_t delta, bool horizontal, int32_t deltaPerStep)
+{
+  return mMouseInputState.OnWheel(delta, horizontal, deltaPerStep);
 }
 
 WindowBase::IconifySignalType& WindowBase::IconifyChangedSignal()

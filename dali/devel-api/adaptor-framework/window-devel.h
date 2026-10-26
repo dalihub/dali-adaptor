@@ -276,6 +276,41 @@ DALI_ADAPTOR_API bool PointerWarp(Window window, int32_t x, int32_t y);
 DALI_ADAPTOR_API void CursorVisibleSet(Window window, bool visible);
 
 /**
+ * @brief Enables or disables native mouse input for the window.
+ *
+ * Input is enabled by default. This controls the window system callbacks that deliver
+ * mouse, touchscreen and other pointing-device events as DALi touch and hover
+ * events, regardless of the device class.
+ * Disabling interrupts active touch and hover sequences and discards subsequent
+ * native touch, hover, boundary and relative motion events, as well as both mouse
+ * and custom wheel events.
+ * Enabling starts fresh input sequences; events received while disabled are not replayed.
+ * Keyboard input and device-change notifications are managed independently.
+ *
+ * @param[in] window The window instance
+ * @param[in] enabled Whether native mouse input is enabled
+ * @return True when the input mode is applied
+ * @pre The window handle is initialized.
+ * @note This function must be called on the event thread. To finish cancellation
+ * before notifying a device change from a key callback, schedule both operations
+ * in a single idle callback and disable mouse input before notifying the change.
+ * @note This function does not change the operating system cursor. Events delivered
+ * directly through event-feeding APIs, such as Window::Feed*Event(), bypass this filter.
+ * @see IsMouseInputEnabled()
+ */
+DALI_ADAPTOR_API bool SetMouseInputEnabled(Window window, bool enabled);
+
+/**
+ * @brief Returns whether native mouse input is enabled for the window.
+ *
+ * @param[in] window The window instance
+ * @return Whether native mouse input is enabled
+ * @pre The window handle is initialized.
+ * @see SetMouseInputEnabled()
+ */
+DALI_ADAPTOR_API bool IsMouseInputEnabled(Window window);
+
+/**
  * @brief Requests grab key events according to the requested device subtype
  *
  * @param[in] window The window instance.

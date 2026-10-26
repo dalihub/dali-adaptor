@@ -17,6 +17,7 @@ SET(TC_SOURCES
     utc-Dali-EncodedImageBuffer.cpp
     utc-Dali-UiContext.cpp
     utc-Dali-MouseInOutEvent.cpp
+    utc-Dali-MouseInputState.cpp
     utc-Dali-WindowData.cpp
     utc-Dali-FileLoader.cpp
     utc-Dali-GifLoading.cpp
@@ -36,6 +37,10 @@ SET(TC_SOURCES
     utc-Dali-WindowExtension.cpp
     utc-Dali-WindowSystem.cpp
 )
+
+IF(WIN32)
+  LIST(APPEND TC_SOURCES windows/utc-Dali-WindowsMouseInput.cpp)
+ENDIF()
 
 IF(ENABLE_VULKAN)
 ELSE()

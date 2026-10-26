@@ -475,6 +475,7 @@ void WindowBaseX::OnMouseButtonDown(void* data, WindowSystemX::Event type, Windo
 
     Integration::Point point;
     point.SetDeviceId(touchEvent->device);
+    point.SetDeviceClass(touchEvent->device == 0 ? Device::Class::MOUSE : Device::Class::TOUCH);
     point.SetState(state);
     point.SetScreenPosition(Vector2(touchEvent->x, touchEvent->y));
     point.SetRadius(touchEvent->multi.radius, Vector2(touchEvent->multi.radiusX, touchEvent->multi.radiusY));
@@ -485,7 +486,7 @@ void WindowBaseX::OnMouseButtonDown(void* data, WindowSystemX::Event type, Windo
       point.SetMouseButton(static_cast<MouseButton::Type>(touchEvent->buttons));
     }
 
-    mTouchEventSignal.Emit(point, touchEvent->timestamp);
+    EmitTouchEvent(point, touchEvent->timestamp);
 
     mMouseFrameEventSignal.Emit();
   }
@@ -500,6 +501,7 @@ void WindowBaseX::OnMouseButtonUp(void* data, WindowSystemX::Event type, WindowS
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window::ButtonUp\n");
     Integration::Point point;
     point.SetDeviceId(touchEvent->device);
+    point.SetDeviceClass(touchEvent->device == 0 ? Device::Class::MOUSE : Device::Class::TOUCH);
     point.SetState(PointState::UP);
     point.SetScreenPosition(Vector2(touchEvent->x, touchEvent->y));
     point.SetRadius(touchEvent->multi.radius, Vector2(touchEvent->multi.radiusX, touchEvent->multi.radiusY));
@@ -510,7 +512,7 @@ void WindowBaseX::OnMouseButtonUp(void* data, WindowSystemX::Event type, WindowS
       point.SetMouseButton(static_cast<MouseButton::Type>(touchEvent->buttons));
     }
 
-    mTouchEventSignal.Emit(point, touchEvent->timestamp);
+    EmitTouchEvent(point, touchEvent->timestamp);
 
     mMouseFrameEventSignal.Emit();
   }
@@ -524,13 +526,14 @@ void WindowBaseX::OnMouseButtonMove(void* data, WindowSystemX::Event type, Windo
   {
     Integration::Point point;
     point.SetDeviceId(touchEvent->device);
+    point.SetDeviceClass(touchEvent->device == 0 ? Device::Class::MOUSE : Device::Class::TOUCH);
     point.SetState(PointState::MOTION);
     point.SetScreenPosition(Vector2(static_cast<float>(touchEvent->x), static_cast<float>(touchEvent->y)));
     point.SetRadius(static_cast<float>(touchEvent->multi.radius), Vector2(static_cast<float>(touchEvent->multi.radiusX), static_cast<float>(touchEvent->multi.radiusY)));
     point.SetPressure(static_cast<float>(touchEvent->multi.pressure));
     point.SetAngle(Degree(static_cast<float>(touchEvent->multi.angle)));
 
-    mTouchEventSignal.Emit(point, touchEvent->timestamp);
+    EmitTouchEvent(point, touchEvent->timestamp);
 
     mMouseFrameEventSignal.Emit();
   }
@@ -546,7 +549,7 @@ void WindowBaseX::OnMouseWheel(void* data, WindowSystemX::Event type, WindowSyst
 
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(static_cast<float>(mouseWheelEvent->x), static_cast<float>(mouseWheelEvent->y)), mouseWheelEvent->z, mouseWheelEvent->timestamp);
 
-    mWheelEventSignal.Emit(wheelEvent);
+    EmitWheelEvent(wheelEvent);
   }
 }
 

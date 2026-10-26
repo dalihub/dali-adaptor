@@ -1687,6 +1687,16 @@ void Window::CursorVisibleSet(bool visible)
   mWindowBase->CursorVisibleSet(visible);
 }
 
+bool Window::SetMouseInputEnabled(bool enabled)
+{
+  return mWindowBase->SetMouseInputEnabled(enabled);
+}
+
+bool Window::IsMouseInputEnabled() const
+{
+  return mWindowBase->IsMouseInputEnabled();
+}
+
 bool Window::KeyboardGrab(Device::Subclass::Type deviceSubclass)
 {
   bool result = mWindowBase->KeyboardGrab(deviceSubclass);

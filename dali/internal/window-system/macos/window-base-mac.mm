@@ -210,6 +210,14 @@ void WindowBaseCocoa::Impl::OnMouse(NSEvent *event, PointState::Type state)
     Integration::Point point;
     point.SetDeviceId(event.deviceID);
     point.SetState(state);
+    point.SetDeviceClass(Device::Class::MOUSE);
+    if(state == PointState::DOWN || state == PointState::UP)
+    {
+      const NSInteger button = event.buttonNumber;
+      point.SetMouseButton(button == 0 ? MouseButton::PRIMARY : button == 1 ? MouseButton::SECONDARY
+                                                              : button == 2 ? MouseButton::TERTIARY
+                                                                            : MouseButton::INVALID);
+    }
     auto p = [event locationInWindow];
     auto [x, y] = [mWindow.contentView convertPoint:p fromView:nil];
     point.SetScreenPosition(Vector2(x, y));
@@ -234,7 +242,7 @@ void WindowBaseCocoa::Impl::OnMouse(NSEvent *event, PointState::Type state)
     );
 
     // timestamp is given in seconds, the signal expects it in milliseconds
-    mThis->mTouchEventSignal.Emit(point, event.timestamp * 1000);
+    mThis->EmitTouchEvent(point, event.timestamp * 1000);
 
     mThis->mMouseFrameEventSignal.Emit();
   }
@@ -262,7 +270,7 @@ void WindowBaseCocoa::Impl::OnMouseWheel(NSEvent *event)
         timestamp
       );
 
-      mThis->mWheelEventSignal.Emit(wheelEvent);
+      mThis->EmitWheelEvent(wheelEvent);
     }
 
     if (event.scrollingDeltaX)
@@ -276,7 +284,7 @@ void WindowBaseCocoa::Impl::OnMouseWheel(NSEvent *event)
         timestamp
       );
 
-      mThis->mWheelEventSignal.Emit(wheelEvent);
+      mThis->EmitWheelEvent(wheelEvent);
     }
   }
 }

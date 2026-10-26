@@ -292,7 +292,7 @@ bool RegisterTizenCoreEventListener(tizen_core_event_h                          
   }
 
   tizen_core_wl_event_listener_h handle = nullptr;
-  int err    = tizen_core_wl_event_add_listener(event, eventType, callback, userData, &handle);
+  int                            err    = tizen_core_wl_event_add_listener(event, eventType, callback, userData, &handle);
   if(err == TIZEN_CORE_WL_ERROR_NONE && handle)
   {
     listeners.push_back(handle);
@@ -1547,7 +1547,7 @@ void WindowBaseTcoreWl::OnMouseButtonDown(void* data, int type, void* event)
     point.SetMouseButton(static_cast<MouseButton::Type>(buttons));
     point.SetDeviceName(deviceName);
 
-    mTouchEventSignal.Emit(point, timestamp);
+    EmitTouchEvent(point, timestamp);
 
     if(dev)
     {
@@ -1600,7 +1600,7 @@ void WindowBaseTcoreWl::OnMouseButtonUp(void* data, int type, void* event)
     point.SetMouseButton(static_cast<MouseButton::Type>(buttons));
     point.SetDeviceName(deviceName);
 
-    mTouchEventSignal.Emit(point, timestamp);
+    EmitTouchEvent(point, timestamp);
 
     if(dev)
     {
@@ -1652,7 +1652,7 @@ void WindowBaseTcoreWl::OnMouseButtonMove(void* data, int type, void* event)
     point.SetDeviceSubclass(deviceSubclass);
     point.SetDeviceName(deviceName);
 
-    mTouchEventSignal.Emit(point, timestamp);
+    EmitTouchEvent(point, timestamp);
 
     if(dev)
     {
@@ -1712,7 +1712,7 @@ void WindowBaseTcoreWl::OnMouseButtonRelativeMove(void* data, int type, void* ev
 
     Dali::DevelWindow::MouseRelativeEvent mouseRelativeEvent(Dali::DevelWindow::MouseRelativeEvent::Type::RELATIVE_MOVE, modifiers, timestamp, Vector2(dx, dy), Vector2(dx_unaccel, dy_unaccel), deviceClass, deviceSubclass);
 
-    mMouseRelativeEventSignal.Emit(mouseRelativeEvent);
+    EmitMouseRelativeEvent(mouseRelativeEvent);
 
     if(dev)
     {
@@ -1760,7 +1760,7 @@ void WindowBaseTcoreWl::OnMouseButtonCancel(void* data, int type, void* event)
     point.SetDeviceSubclass(deviceSubclass);
     point.SetDeviceName(deviceName);
 
-    mTouchEventSignal.Emit(point, timestamp);
+    EmitTouchEvent(point, timestamp);
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseTcoreWl::OnMouseButtonCancel\n");
 
     if(dev)
@@ -1827,7 +1827,7 @@ void WindowBaseTcoreWl::OnMouseWheel(void* data, int type, void* event)
 
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, direction, modifiers, Vector2(x, y), z, timestamp);
 
-    mWheelEventSignal.Emit(wheelEvent);
+    EmitWheelEvent(wheelEvent);
   }
   else
   {
@@ -1869,7 +1869,7 @@ void WindowBaseTcoreWl::OnMouseInOut(void* data, int type, void* event)
 
     Dali::MouseInOutEvent inOutEvent(action, modifiers, Vector2(x, y), timestamp, deviceClass, deviceSubclass);
 
-    mMouseInOutEventSignal.Emit(inOutEvent);
+    EmitMouseInOutEvent(inOutEvent);
 
     if(action == Dali::MouseInOutEvent::Type::IN)
     {
@@ -1880,7 +1880,7 @@ void WindowBaseTcoreWl::OnMouseInOut(void* data, int type, void* event)
       point.SetDeviceSubclass(deviceSubclass);
       point.SetDeviceName(deviceName);
 
-      mTouchEventSignal.Emit(point, timestamp);
+      EmitTouchEvent(point, timestamp);
     }
 
     if(dev)
@@ -1911,7 +1911,7 @@ void WindowBaseTcoreWl::OnDetentRotation(void* data, int type, void* event)
 
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::CUSTOM_WHEEL, direction, 0, Vector2(0.0f, 0.0f), clockwise, timestamp);
 
-    mWheelEventSignal.Emit(wheelEvent);
+    EmitWheelEvent(wheelEvent);
   }
 }
 
@@ -3660,7 +3660,7 @@ bool WindowBaseTcoreWl::UngrabKey(Dali::Key key)
   // Release the key in every grab mode, as ecore_wl2_window_keygrab_unset() does.
   KeyGrabs keyGrabs = mKeyGrabs;
   keyGrabs.erase(std::remove_if(keyGrabs.begin(), keyGrabs.end(), [keyName](const KeyGrabs::value_type& keyGrab)
-                                { return keyGrab.first == keyName; }),
+  { return keyGrab.first == keyName; }),
                  keyGrabs.end());
   return ApplyKeyGrabs(keyGrabs);
 }
@@ -3743,7 +3743,7 @@ bool WindowBaseTcoreWl::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::
     }
 
     keyGrabs.erase(std::remove_if(keyGrabs.begin(), keyGrabs.end(), [keyName](const KeyGrabs::value_type& keyGrab)
-                                  { return keyGrab.first == keyName; }),
+    { return keyGrab.first == keyName; }),
                    keyGrabs.end());
   }
 
