@@ -3331,6 +3331,33 @@ Dali::WindowType WindowBaseTcoreWl::GetType() const
   return mType;
 }
 
+namespace
+{
+/// Maps a tizen_core_wl_error_e value to the window operation result.
+Dali::WindowOperationResult ConvertTcoreResult(int ret)
+{
+  switch(ret)
+  {
+    case TIZEN_CORE_WL_ERROR_NONE:
+      return Dali::WindowOperationResult::SUCCEED;
+    case TIZEN_CORE_WL_ERROR_INVALID_PARAMETER:
+      return Dali::WindowOperationResult::INVALID_PARAMETER;
+    case TIZEN_CORE_WL_ERROR_OUT_OF_MEMORY:
+      return Dali::WindowOperationResult::OUT_OF_MEMORY;
+    case TIZEN_CORE_WL_ERROR_NOT_SUPPORTED:
+      return Dali::WindowOperationResult::NOT_SUPPORTED;
+    case TIZEN_CORE_WL_ERROR_PERMISSION_DENIED:
+      return Dali::WindowOperationResult::PERMISSION_DENIED;
+    case TIZEN_CORE_WL_ERROR_NOT_CONNECTED:
+      return Dali::WindowOperationResult::NOT_CONNECTED;
+    case TIZEN_CORE_WL_ERROR_NO_RESOURCE_AVAILABLE:
+      return Dali::WindowOperationResult::NO_RESOURCE_AVAILABLE;
+    default:
+      return Dali::WindowOperationResult::UNKNOWN_ERROR;
+  }
+}
+} // namespace
+
 Dali::WindowOperationResult WindowBaseTcoreWl::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
@@ -3372,13 +3399,17 @@ Dali::WindowOperationResult WindowBaseTcoreWl::SetNotificationLevel(Dali::Window
     }
   }
 
-  if(mTcoreWindow)
+  if(!mTcoreWindow)
   {
-    tizen_core_wl_notification_set_level(mTcoreWindow, notificationLevel);
-    return Dali::WindowOperationResult::SUCCEED;
+    return Dali::WindowOperationResult::UNKNOWN_ERROR;
   }
 
-  return Dali::WindowOperationResult::UNKNOWN_ERROR;
+  const int ret = tizen_core_wl_notification_set_level(mTcoreWindow, notificationLevel);
+  if(ret != TIZEN_CORE_WL_ERROR_NONE)
+  {
+    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::SetNotificationLevel: Error! [%d]\n", ret);
+  }
+  return ConvertTcoreResult(ret);
 }
 
 Dali::WindowNotificationLevel WindowBaseTcoreWl::GetNotificationLevel() const
@@ -3482,7 +3513,7 @@ Dali::WindowOperationResult WindowBaseTcoreWl::SetScreenOffMode(WindowScreenOffM
   if(ret != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::SetScreenOffMode: Error! [%d]\n", ret);
-    return Dali::WindowOperationResult::UNKNOWN_ERROR;
+    return ConvertTcoreResult(ret);
   }
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::SetScreenOffMode: Screen mode is changed [%d]\n", screenOffMode);
@@ -3545,7 +3576,7 @@ Dali::WindowOperationResult WindowBaseTcoreWl::SetBrightness(int brightness)
   if(ret != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::SetBrightness: Error! [%d]\n", ret);
-    return Dali::WindowOperationResult::UNKNOWN_ERROR;
+    return ConvertTcoreResult(ret);
   }
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::SetBrightness: Brightness is changed [%d]\n", brightness);
@@ -4287,6 +4318,24 @@ void WindowBaseTcoreWl::IncludeInputRegion(const Rect<int>& inputRegion)
 void WindowBaseTcoreWl::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
   Rect<int> convertRegion = RecalculateInputRect(inputRegion, mWindowPositionSize);
+
+  if(mTcoreWindow && mTcoreDisplay && !mDisplayRegion)
+  {
+    // No input region yet: the whole window receives input, so subtract from a full-window region
+    // (ecore_wl2_window_input_rect_subtract behaves the same way).
+    if(tizen_core_wl_display_create_region(mTcoreDisplay, &mDisplayRegion) != TIZEN_CORE_WL_ERROR_NONE || !mDisplayRegion)
+    {
+      DALI_LOG_ERROR("Failed to create input region\n");
+      mDisplayRegion = nullptr;
+      return;
+    }
+    tizen_core_wl_rect_s whole;
+    whole.x = 0;
+    whole.y = 0;
+    whole.w = mWindowPositionSize.width;
+    whole.h = mWindowPositionSize.height;
+    tizen_core_wl_region_add_rect(mDisplayRegion, whole);
+  }
 
   if(mTcoreWindow && mTcoreDisplay && mDisplayRegion)
   {

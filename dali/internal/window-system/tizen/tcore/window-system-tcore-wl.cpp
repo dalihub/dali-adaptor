@@ -271,10 +271,17 @@ public:
             DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "screen[%d] size 0, width(%d), height(%d)", DALI_LOG_FORMAT_PREFIX_ARGS, i, w, h);
             continue;
           }
-          char screenName[32];
-          snprintf(screenName, sizeof(screenName), "Screen-%d", i);
-          DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "Get screen[%d] name: %s size(%d x %d)", DALI_LOG_FORMAT_PREFIX_ARGS, i, screenName, w, h);
-          mScreenList.push_back(Dali::ScreenInformation{std::string(screenName), w, h});
+          // Use the server's screen name: WindowBaseTcoreWl::SetScreen() matches against tizen_core_wl_screen_get_name().
+          char* name = nullptr;
+          if(tizen_core_wl_screen_get_name(screens[i], &name) != TIZEN_CORE_WL_ERROR_NONE || !name)
+          {
+            DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "screen[%d] name is empty", DALI_LOG_FORMAT_PREFIX_ARGS, i);
+            free(name);
+            continue;
+          }
+          DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "Get screen[%d] name: %s size(%d x %d)", DALI_LOG_FORMAT_PREFIX_ARGS, i, name, w, h);
+          mScreenList.push_back(Dali::ScreenInformation{std::string(name), w, h});
+          free(name);
         }
         free(screens);
       }
