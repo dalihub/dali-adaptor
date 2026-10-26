@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/core-enumerations.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -41,6 +42,36 @@ static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::UiCo
 // The public enumeration mirrors the integration one, so a simple cast is enough.
 static_assert(static_cast<int>(Dali::UiContext::RenderingBehavior::IF_REQUIRED) == static_cast<int>(Dali::Integration::RenderingBehavior::IF_REQUIRED));
 static_assert(static_cast<int>(Dali::UiContext::RenderingBehavior::CONTINUOUSLY) == static_cast<int>(Dali::Integration::RenderingBehavior::CONTINUOUSLY));
+
+/**
+ * @brief Executes an idle callback added by ID, keeping the ID registry in sync
+ * when the callback removes itself by returning false.
+ */
+class IdleCallbackEntry
+{
+public:
+  IdleCallbackEntry(UiContext& uiContext, Dali::UiContext::IdleCallbackId id, CallbackBase* callback)
+  : mUiContext(&uiContext),
+    mId(id),
+    mCallback(callback)
+  {
+  }
+
+  bool operator()()
+  {
+    bool repeat = CallbackBase::ExecuteReturn<bool>(*mCallback);
+    if(!repeat)
+    {
+      mUiContext->OnIdleCallbackFinished(mId);
+    }
+    return repeat;
+  }
+
+private:
+  UiContext*                      mUiContext;
+  Dali::UiContext::IdleCallbackId mId;
+  std::shared_ptr<CallbackBase>   mCallback; ///< Shared because CallbackFunctorReturn0 stores a copy of this entry
+};
 } // unnamed namespace
 
 Dali::UiContext UiContext::Get()
@@ -105,6 +136,48 @@ bool UiContext::AddIdle(CallbackBase* callback)
 void UiContext::RemoveIdle(CallbackBase* callback)
 {
   mAdaptor->RemoveIdle(callback);
+}
+
+Dali::UiContext::IdleCallbackId UiContext::AddIdle(Dali::Callback<bool()> callback)
+{
+  CallbackBase* innerCallback = callback.Release();
+  if(!innerCallback)
+  {
+    return 0u;
+  }
+
+  Dali::UiContext::IdleCallbackId id = ++mNextIdleCallbackId;
+  while(id == 0u || mIdleCallbacks.count(id) != 0u) // 0 is reserved for failure; IDs may wrap around
+  {
+    id = ++mNextIdleCallbackId;
+  }
+
+  // The adaptor takes ownership of the registered callback: it deletes it on
+  // failure, on removal, and when the entry stops repeating.
+  CallbackBase* registeredCallback = new CallbackFunctorReturn0<IdleCallbackEntry, bool>(IdleCallbackEntry(*this, id, innerCallback));
+  if(!mAdaptor->AddIdle(registeredCallback, true))
+  {
+    return 0u;
+  }
+
+  mIdleCallbacks[id] = registeredCallback;
+  return id;
+}
+
+void UiContext::RemoveIdle(Dali::UiContext::IdleCallbackId id)
+{
+  auto iter = mIdleCallbacks.find(id);
+  if(iter != mIdleCallbacks.end())
+  {
+    CallbackBase* registeredCallback = iter->second;
+    mIdleCallbacks.erase(iter);
+    mAdaptor->RemoveIdle(registeredCallback);
+  }
+}
+
+void UiContext::OnIdleCallbackFinished(Dali::UiContext::IdleCallbackId id)
+{
+  mIdleCallbacks.erase(id);
 }
 
 void UiContext::FlushPendingChanges()
