@@ -682,13 +682,6 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 
   auto describedByObject = findObjectByRelationType(RelationType::DESCRIBED_BY);
   auto attributes        = self->GetAttributes();
-  Dali::Window window    = GetWindow(self->GetInternalActor()).GetHandle();
-
-  if(mIsScreenReaderSuppressed ||
-     (window && !window.IsScreenReaderAutoReadEnabled()))
-  {
-    attributes.insert({"suppress-screen-reader", "true"});
-  }
 
   double      currentValue = 0.0;
   std::string currentValueText;
