@@ -29,6 +29,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/window-system/common/damage-observer.h>
+#include <dali/internal/window-system/common/mouse-input-state.h>
 #include <dali/internal/window-system/common/rotation-event.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/mouse-in-out-event.h>
@@ -104,6 +105,16 @@ public:
    * @brief Destructor
    */
   virtual ~WindowBase();
+
+  /**
+   * @copydoc Dali::DevelWindow::SetMouseInputEnabled()
+   */
+  bool SetMouseInputEnabled(bool enabled);
+
+  /**
+   * @copydoc Dali::DevelWindow::IsMouseInputEnabled()
+   */
+  bool IsMouseInputEnabled() const;
 
 public:
   /**
@@ -893,6 +904,53 @@ public:
   PointerConstraintsSignalType& PointerConstraintsSignal();
 
 protected:
+  /**
+   * @brief Applies native mouse state changes after the common mode changes.
+   * @param[in] enabled Whether native mouse input is enabled
+   */
+  virtual void OnMouseInputEnabledChanged(bool enabled);
+
+  /**
+   * @brief Emits a native point after applying the mouse input policy.
+   * @param[in,out] point The native input point
+   * @param[in] timeStamp The native event time
+   * @param[in] pressedButtons Normalized native buttons, if available
+   */
+  void EmitTouchEvent(Integration::Point& point, uint32_t timeStamp, uint32_t pressedButtons = MouseInputState::UNKNOWN_BUTTONS);
+
+  /**
+   * @brief Emits a wheel event unless native mouse input is disabled.
+   * @param[in,out] wheelEvent The native wheel event
+   */
+  void EmitWheelEvent(Integration::WheelEvent& wheelEvent);
+
+  /**
+   * @brief Emits mouse boundary events while native mouse input is enabled.
+   * @param[in] event The native boundary event
+   */
+  void EmitMouseInOutEvent(const Dali::MouseInOutEvent& event);
+
+  /**
+   * @brief Emits relative motion while native mouse input is enabled.
+   * @param[in] event The native relative motion event
+   */
+  void EmitMouseRelativeEvent(const Dali::DevelWindow::MouseRelativeEvent& event);
+
+  /**
+   * @brief Updates held buttons after a platform takes a native snapshot.
+   * @param[in] pressedButtons The normalized native button state
+   */
+  void SetSuppressedMouseButtons(uint32_t pressedButtons);
+
+  /**
+   * @brief Accumulates native wheel deltas into complete steps.
+   * @param[in] delta The signed native delta in DALi coordinates
+   * @param[in] horizontal Whether this is horizontal scrolling
+   * @param[in] deltaPerStep The native delta for one complete wheel step
+   * @return The number of wheel steps
+   */
+  int32_t AccumulateMouseWheel(int32_t delta, bool horizontal, int32_t deltaPerStep);
+
   // Undefined
   WindowBase(const WindowBase&) = delete;
 
@@ -924,6 +982,9 @@ protected:
   ResizeCompletedSignalType       mResizeCompletedSignal;
   InsetsChangedSignalType         mInsetsChangedSignal;
   PointerConstraintsSignalType    mPointerConstraintsSignal;
+
+private:
+  MouseInputState mMouseInputState;
 };
 
 } // namespace Adaptor

@@ -43,9 +43,9 @@ static constexpr uint32_t DEFAULT_JPG_QUALITY = 100;
  */
 DALI_ADAPTOR_API bool EncodeToFile(const unsigned char* const pixelBuffer,
                                    const std::string&         filename,
-                                   const Pixel::Format        pixelFormat,
-                                   const std::size_t          width,
-                                   const std::size_t          height);
+                                   Pixel::Format              pixelFormat,
+                                   std::size_t                width,
+                                   std::size_t                height);
 
 /**
  * Store the given pixel data to a file.
@@ -63,10 +63,10 @@ DALI_ADAPTOR_API bool EncodeToFile(const unsigned char* const pixelBuffer,
  */
 DALI_ADAPTOR_API bool EncodeToFile(const unsigned char* const pixelBuffer,
                                    const std::string&         filename,
-                                   const Pixel::Format        pixelFormat,
-                                   const std::size_t          width,
-                                   const std::size_t          height,
-                                   const uint32_t             quality);
+                                   Pixel::Format              pixelFormat,
+                                   std::size_t                width,
+                                   std::size_t                height,
+                                   uint32_t                   quality);
 
 } //namespace DALI_NAMESPACE
 

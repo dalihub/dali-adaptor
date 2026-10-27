@@ -116,11 +116,15 @@ enum class WindowEffectType
  */
 enum class WindowOperationResult
 {
-  UNKNOWN_ERROR = 0, ///< Failed for unknown reason. @SINCE_2_0.0
-  SUCCEED,           ///< Succeed. @SINCE_2_0.0
-  PERMISSION_DENIED, ///< Permission denied. @SINCE_2_0.0
-  NOT_SUPPORTED,     ///< The operation is not supported. @SINCE_2_0.0
-  INVALID_OPERATION, ///< The operation is invalid. (e.g. Try to operate to the wrong window) @SINCE_2_0.0
+  UNKNOWN_ERROR = 0,     ///< Failed for unknown reason. @SINCE_2_0.0
+  SUCCEED,               ///< Succeed. @SINCE_2_0.0
+  PERMISSION_DENIED,     ///< Permission denied. @SINCE_2_0.0
+  NOT_SUPPORTED,         ///< The operation is not supported. @SINCE_2_0.0
+  INVALID_OPERATION,     ///< The operation is invalid. (e.g. Try to operate to the wrong window) @SINCE_2_0.0
+  INVALID_PARAMETER,     ///< Invalid parameter. @SINCE_2_5.46
+  OUT_OF_MEMORY,         ///< Out of memory. @SINCE_2_5.46
+  NOT_CONNECTED,         ///< No connection to the display server. @SINCE_2_5.46
+  NO_RESOURCE_AVAILABLE, ///< Resource is not available. @SINCE_2_5.46
 };
 
 /**

@@ -66,7 +66,7 @@ void Capture::Start(Actor source, const Vector2& position, const Vector2& size, 
   GetImpl(*this).Start(source, position, size, ToStdString(path), clearColor);
 }
 
-void Capture::Start(Actor source, const Vector2& size, const Dali::String& path, const Vector4& clearColor, const uint32_t quality)
+void Capture::Start(Actor source, const Vector2& size, const Dali::String& path, const Vector4& clearColor, uint32_t quality)
 {
   GetImpl(*this).Start(source, Vector2::ZERO, size, ToStdString(path), clearColor, quality);
 }

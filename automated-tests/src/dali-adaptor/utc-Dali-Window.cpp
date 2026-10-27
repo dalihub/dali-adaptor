@@ -71,6 +71,36 @@ int UtcDaliWindowConstructorP(void)
   END_TEST;
 }
 
+int UtcDaliWindowSetMouseInputEnabledN(void)
+{
+  Window window;
+  try
+  {
+    DevelWindow::SetMouseInputEnabled(window, false);
+    DALI_TEST_CHECK(false);
+  }
+  catch(DaliException& exception)
+  {
+    DALI_TEST_ASSERT(exception, "Window handle is empty", TEST_LOCATION);
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowIsMouseInputEnabledN(void)
+{
+  Window window;
+  try
+  {
+    DevelWindow::IsMouseInputEnabled(window);
+    DALI_TEST_CHECK(false);
+  }
+  catch(DaliException& exception)
+  {
+    DALI_TEST_ASSERT(exception, "Window handle is empty", TEST_LOCATION);
+  }
+  END_TEST;
+}
+
 int UtcDaliWindowCopyConstructorP(void)
 {
   Dali::Window window;
@@ -1421,6 +1451,33 @@ int UtcDaliWindowAddFrameRenderedCallbackNegative(void)
   END_TEST;
 }
 
+int UtcDaliWindowAddFrameRenderedCallbackTypedNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    arg1.AddFrameRenderedCallback(Dali::Callback<void(int32_t)>::New([](int32_t) {}), 0);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+
+  // An empty callback is ignored, even on an empty handle
+  try
+  {
+    Dali::Window arg1;
+    arg1.AddFrameRenderedCallback(Dali::Callback<void(int32_t)>(), 0);
+    DALI_TEST_CHECK(true);
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  END_TEST;
+}
+
 int UtcDaliWindowSetAvailableOrientationsNegative(void)
 {
   try
@@ -1450,6 +1507,33 @@ int UtcDaliWindowAddFramePresentedCallbackNegative(void)
   catch(...)
   {
     DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowAddFramePresentedCallbackTypedNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    arg1.AddFramePresentedCallback(Dali::Callback<void(int32_t)>::New([](int32_t) {}), 0);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+
+  // An empty callback is ignored, even on an empty handle
+  try
+  {
+    Dali::Window arg1;
+    arg1.AddFramePresentedCallback(Dali::Callback<void(int32_t)>(), 0);
+    DALI_TEST_CHECK(true);
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(false); // Should not get here
   }
   END_TEST;
 }

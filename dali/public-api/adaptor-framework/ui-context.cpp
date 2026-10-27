@@ -66,6 +66,16 @@ void UiContext::RemoveIdle(CallbackBase* callback)
   Internal::Adaptor::GetImplementation(*this).RemoveIdle(callback);
 }
 
+UiContext::IdleCallbackId UiContext::AddIdle(Callback<bool()> callback)
+{
+  return Internal::Adaptor::GetImplementation(*this).AddIdle(std::move(callback));
+}
+
+void UiContext::RemoveIdle(IdleCallbackId id)
+{
+  Internal::Adaptor::GetImplementation(*this).RemoveIdle(id);
+}
+
 void UiContext::FlushPendingChanges()
 {
   Internal::Adaptor::GetImplementation(*this).FlushPendingChanges();

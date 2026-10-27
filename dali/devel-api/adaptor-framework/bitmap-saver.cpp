@@ -111,19 +111,19 @@ bool EncodeToFormat(const unsigned char*   pixelBuffer,
 
 bool EncodeToFile(const unsigned char* const pixelBuffer,
                   const std::string&         filename,
-                  const Pixel::Format        pixelFormat,
-                  const std::size_t          width,
-                  const std::size_t          height)
+                  Pixel::Format              pixelFormat,
+                  std::size_t                width,
+                  std::size_t                height)
 {
   return EncodeToFile(pixelBuffer, filename, pixelFormat, width, height, DEFAULT_JPG_QUALITY);
 }
 
 bool EncodeToFile(const unsigned char* const pixelBuffer,
                   const std::string&         filename,
-                  const Pixel::Format        pixelFormat,
-                  const std::size_t          width,
-                  const std::size_t          height,
-                  const uint32_t             quality)
+                  Pixel::Format              pixelFormat,
+                  std::size_t                width,
+                  std::size_t                height,
+                  uint32_t                   quality)
 {
   DALI_ASSERT_DEBUG(pixelBuffer != 0 && filename.size() > 4 && width > 0 && height > 0);
   Vector<unsigned char> pixbufEncoded;

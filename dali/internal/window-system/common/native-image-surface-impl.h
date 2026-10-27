@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <memory> ///< for std::shared_ptr
 
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/base-object.h>
@@ -76,6 +77,32 @@ public:
    * @copydoc Dali::NativeImageSurface::SetGraphicsConfig()
    */
   virtual bool SetGraphicsConfig(bool depth, bool stencil, int msaa, int version) = 0;
+
+public: // graphics library lifetime
+  /**
+   * @brief Sets the graphics backend module that keeps the library loaded while this object is alive.
+   * @note Only the public wrapper may call this: implementation code must not fetch the module
+   *       itself, as the backend library binds to its own copy of the accessor.
+   * @param[in] graphicsLibrary The graphics backend module
+   */
+  void SetGraphicsLibrary(std::shared_ptr<void> graphicsLibrary)
+  {
+    mGraphicsLibrary = std::move(graphicsLibrary);
+  }
+
+  /**
+   * @brief Gets the graphics backend module.
+   * @note Deleting code must copy this first, so the last reference is released only after this
+   *       object's destructor, whose code lives in the backend library, has returned.
+   * @return The graphics backend module
+   */
+  std::shared_ptr<void> GetGraphicsLibrary() const
+  {
+    return mGraphicsLibrary;
+  }
+
+private:
+  std::shared_ptr<void> mGraphicsLibrary; ///< Keeps the graphics backend library loaded while this object is alive
 };
 
 } // namespace Adaptor

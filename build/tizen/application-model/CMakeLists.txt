@@ -54,12 +54,16 @@ IF( (NOT UBUNTU_PROFILE) )
     ${APPLICATION_MODEL_EXTRA_CFLAGS}
     -I../../../
     -Wall
+    # widget_base_* APIs are deprecated on newer Tizen but must still be called
+    # to keep widget application support; they must not fail -Werror builds.
+    -Wno-deprecated-declarations
   )
 
   TARGET_LINK_LIBRARIES( ${APPLICATION_COMPONENT_BASED_TARGET} PUBLIC
     ${DLOG_LDFLAGS}
     ${DALICORE_LDFLAGS}
     ${ELDBUS_LDFLAGS}
+    ${COMPONENT_BASED_CORE_BASE_LDFLAGS}
     ${APPLICATION_MODEL_EXTRA_LDFLAGS}
     dali2-adaptor
   )
@@ -68,6 +72,7 @@ IF( (NOT UBUNTU_PROFILE) )
     ${DLOG_CFLAGS}
     ${DALICORE_CFLAGS}
     ${ELDBUS_CFLAGS}
+    ${COMPONENT_BASED_CORE_BASE_CFLAGS}
     ${APPLICATION_MODEL_EXTRA_CFLAGS}
     -I../../../
     -Wall

@@ -96,7 +96,7 @@ DALI_ADAPTOR_API void ApplySettings(const Property::Map& settingsMap);
  * @brief Set the specific return key into the virtual keyboard.
  * @param[in] type the kind of return key types.
  */
-DALI_ADAPTOR_API void SetReturnKeyType(const InputMethod::ReturnKeyType type);
+DALI_ADAPTOR_API void SetReturnKeyType(InputMethod::ReturnKeyType type);
 
 /**
  * @brief Retrieve the current return key type.
@@ -111,7 +111,7 @@ DALI_ADAPTOR_API InputMethod::ReturnKeyType GetReturnKeyType();
  * @param[in] enable true or false to enable or disable
  * Prediction can not be changed while the keyboard is visible. It must be set in advance of showing keyboard.
  */
-DALI_ADAPTOR_API void EnablePrediction(const bool enable);
+DALI_ADAPTOR_API void EnablePrediction(bool enable);
 
 /**
  * @brief Returns whether prediction is enabled in the virtual keyboard

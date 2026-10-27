@@ -471,6 +471,7 @@ void WindowBaseEcoreX::OnMouseButtonDown(void* data, int type, void* event)
 
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
+    point.SetDeviceClass(touchEvent->multi.device == 0 ? Device::Class::MOUSE : Device::Class::TOUCH);
     point.SetState(state);
     point.SetScreenPosition(Vector2(touchEvent->x, touchEvent->y));
     point.SetRadius(touchEvent->multi.radius, Vector2(touchEvent->multi.radius_x, touchEvent->multi.radius_y));
@@ -481,7 +482,7 @@ void WindowBaseEcoreX::OnMouseButtonDown(void* data, int type, void* event)
       point.SetMouseButton(static_cast<MouseButton::Type>(touchEvent->buttons));
     }
 
-    mTouchEventSignal.Emit(point, touchEvent->timestamp);
+    EmitTouchEvent(point, touchEvent->timestamp);
 
     mMouseFrameEventSignal.Emit();
   }
@@ -495,6 +496,7 @@ void WindowBaseEcoreX::OnMouseButtonUp(void* data, int type, void* event)
   {
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
+    point.SetDeviceClass(touchEvent->multi.device == 0 ? Device::Class::MOUSE : Device::Class::TOUCH);
     point.SetState(PointState::UP);
     point.SetScreenPosition(Vector2(touchEvent->x, touchEvent->y));
     point.SetRadius(touchEvent->multi.radius, Vector2(touchEvent->multi.radius_x, touchEvent->multi.radius_y));
@@ -505,7 +507,7 @@ void WindowBaseEcoreX::OnMouseButtonUp(void* data, int type, void* event)
       point.SetMouseButton(static_cast<MouseButton::Type>(touchEvent->buttons));
     }
 
-    mTouchEventSignal.Emit(point, touchEvent->timestamp);
+    EmitTouchEvent(point, touchEvent->timestamp);
 
     mMouseFrameEventSignal.Emit();
   }
@@ -519,13 +521,14 @@ void WindowBaseEcoreX::OnMouseButtonMove(void* data, int type, void* event)
   {
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
+    point.SetDeviceClass(touchEvent->multi.device == 0 ? Device::Class::MOUSE : Device::Class::TOUCH);
     point.SetState(PointState::MOTION);
     point.SetScreenPosition(Vector2(static_cast<float>(touchEvent->x), static_cast<float>(touchEvent->y)));
     point.SetRadius(static_cast<float>(touchEvent->multi.radius), Vector2(static_cast<float>(touchEvent->multi.radius_x), static_cast<float>(touchEvent->multi.radius_y)));
     point.SetPressure(static_cast<float>(touchEvent->multi.pressure));
     point.SetAngle(Degree(static_cast<float>(touchEvent->multi.angle)));
 
-    mTouchEventSignal.Emit(point, touchEvent->timestamp);
+    EmitTouchEvent(point, touchEvent->timestamp);
 
     mMouseFrameEventSignal.Emit();
   }
@@ -541,7 +544,7 @@ void WindowBaseEcoreX::OnMouseWheel(void* data, int type, void* event)
 
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(static_cast<float>(mouseWheelEvent->x), static_cast<float>(mouseWheelEvent->y)), mouseWheelEvent->z, mouseWheelEvent->timestamp);
 
-    mWheelEventSignal.Emit(wheelEvent);
+    EmitWheelEvent(wheelEvent);
   }
 }
 

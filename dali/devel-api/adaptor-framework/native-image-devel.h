@@ -40,7 +40,7 @@ namespace DevelNativeImage
  * @param[in] quality The value to control image quality for jpeg file format in the range [1, 100]
  * @return    @c true if the pixels were written, and @c false otherwise
  */
-DALI_ADAPTOR_API bool EncodeToFile(NativeImage& image, const std::string& filename, const uint32_t quality);
+DALI_ADAPTOR_API bool EncodeToFile(NativeImage& image, const std::string& filename, uint32_t quality);
 
 /**
  * @brief Acquire buffer and information of an internal native image.

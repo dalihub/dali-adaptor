@@ -25,7 +25,7 @@ namespace DALI_NAMESPACE
 {
 namespace DevelNativeImage
 {
-bool EncodeToFile(NativeImage& image, const std::string& filename, const uint32_t quality)
+bool EncodeToFile(NativeImage& image, const std::string& filename, uint32_t quality)
 {
   return Dali::Internal::Adaptor::NativeImage::GetImplementation(image).EncodeToFile(filename, quality);
 }

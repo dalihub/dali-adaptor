@@ -219,7 +219,7 @@ public:
 
   std::string GetFragmentShaderPrefix() override;
 
-  bool TextureRequiresConverting(const GLenum imageGlFormat, const GLenum textureGlFormat, const bool isSubImage) const override
+  bool TextureRequiresConverting(GLenum imageGlFormat, GLenum textureGlFormat, bool isSubImage) const override
   {
     bool convert = ((imageGlFormat == GL_RGB) && (textureGlFormat == GL_RGBA));
     if(mGlesVersion >= 30)

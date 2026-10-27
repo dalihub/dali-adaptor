@@ -88,6 +88,12 @@ GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
   return gGraphicsLibraryHandle;
 }
 
+std::shared_ptr<void> GetGraphicsBackendModule()
+{
+  // Static library case: nothing to keep loaded.
+  return nullptr;
+}
+
 std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
 {
   DALI_LOG_RELEASE_INFO("DALi Graphics Backend: GLES\n");

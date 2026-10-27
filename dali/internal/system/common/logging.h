@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/locale-numeric-guard.h>
 #include <cstdarg>
 #include <cstdio>
 
@@ -48,7 +49,9 @@ inline void LogMessageFormat(Dali::Integration::Log::DebugPriority level, const 
 
   va_list args;
   va_start(args, format);
-  va_list argsCopy;
+  // TODO: Replace vsnprintf with locale-independent formatting.
+  Dali::LocaleNumericGuard localeGuard;
+  va_list                  argsCopy;
   va_copy(argsCopy, args);
   const int length = vsnprintf(nullptr, 0, format, args);
   va_end(args);

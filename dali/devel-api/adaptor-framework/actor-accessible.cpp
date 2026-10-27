@@ -226,7 +226,7 @@ bool ActorAccessible::IsScrollable() const
 Dali::Bounds ActorAccessible::GetExtents(Dali::Devel::Accessibility::CoordinateType type) const
 {
   Dali::Actor actor   = Self();
-  auto        extents = DevelActor::CalculateCurrentScreenExtents(actor);
+  auto        extents = actor.CalculateCurrentScreenBounds();
 
   if(Dali::EqualsZero(extents.width) && Dali::EqualsZero(extents.height) && CanAcceptZeroSize())
   {

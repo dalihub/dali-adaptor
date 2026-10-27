@@ -49,6 +49,10 @@ SET( adaptor_integration_api_system_header_files
   ${adaptor_integration_api_dir}/system/system-settings.h
 )
 
+SET( adaptor_integration_api_ime_bridge_header_files
+  ${adaptor_integration_api_dir}/adaptor-framework/ime-bridge.h
+)
+
 SET( adaptor_integration_api_file_download_plugin_header_files
     ${adaptor_integration_api_dir}/adaptor-framework/file-download/file-download-plugin-proxy.h
     ${adaptor_integration_api_dir}/adaptor-framework/file-download/remote-file-download-manager.h
