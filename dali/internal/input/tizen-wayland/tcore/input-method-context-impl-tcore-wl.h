@@ -496,8 +496,6 @@ private:
 
   int mIMFCursorPosition;
 
-  Dali::Integration::InputMethodContext::InputPanelLanguage mInputPanelLanguage; ///< Input panel language of mIMFContext; Tizen Core IMF has no slot for it.
-
   bool mRestoreAfterFocusLost : 1; ///< Whether the keyboard needs to be restored (activated) after focus regained.
   bool mIdleCallbackConnected : 1; ///< Whether the idle callback is already connected.
   bool mTxCapturing : 1;

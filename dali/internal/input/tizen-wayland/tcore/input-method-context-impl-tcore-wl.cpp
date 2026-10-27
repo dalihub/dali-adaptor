@@ -617,7 +617,6 @@ InputMethodContextTcoreWl::InputMethodContextTcoreWl(Dali::Actor actor)
   mIMFContext(),
   mWindow(GetWindowFromActor(actor)),
   mIMFCursorPosition(0),
-  mInputPanelLanguage(Dali::Integration::InputMethodContext::InputPanelLanguage::AUTOMATIC),
   mRestoreAfterFocusLost(false),
   mIdleCallbackConnected(false),
   mTxCapturing(false)
@@ -656,8 +655,6 @@ void InputMethodContextTcoreWl::CreateContext()
     mIMFContext = nullptr;
   }
 
-  mInputPanelLanguage = Dali::Integration::InputMethodContext::InputPanelLanguage::AUTOMATIC;
-
   if(!IsTcoreSuccess(tizen_core_imf_context_create(&mIMFContext)) || !mIMFContext)
   {
     DALI_LOG_ERROR("InputMethodContext Unable to create Tizen Core IMF context\n");
@@ -680,8 +677,6 @@ void InputMethodContextTcoreWl::DeleteContext()
     tizen_core_imf_context_destroy(mIMFContext);
     mIMFContext = nullptr;
   }
-
-  mInputPanelLanguage = Dali::Integration::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
 // Callbacks for predicitive text support.
@@ -1732,12 +1727,7 @@ bool InputMethodContextTcoreWl::IsFullScreenMode() const
 bool InputMethodContextTcoreWl::SetInputPanelLanguage(Dali::Integration::InputMethodContext::InputPanelLanguage language)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetInputPanelLanguage\n");
-  if(mIMFContext)
-  {
-    // Tizen Core IMF has no input panel language API, so the value is only kept here, the way
-    // ecore_imf_context_input_panel_language_set() keeps it in the context.
-    mInputPanelLanguage = language;
-  }
+  // Tizen Core IMF does not expose a simple language enum; keep value only at Dali level.
 
   mBackupOperations[Operation::SET_INPUT_PANEL_LANGUAGE] = std::bind(&InputMethodContextTcoreWl::SetInputPanelLanguage, this, language);
   return true;
@@ -1746,10 +1736,6 @@ bool InputMethodContextTcoreWl::SetInputPanelLanguage(Dali::Integration::InputMe
 Dali::Integration::InputMethodContext::InputPanelLanguage InputMethodContextTcoreWl::GetInputPanelLanguage() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetInputPanelLanguage\n");
-  if(mIMFContext)
-  {
-    return mInputPanelLanguage;
-  }
   return Dali::Integration::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
