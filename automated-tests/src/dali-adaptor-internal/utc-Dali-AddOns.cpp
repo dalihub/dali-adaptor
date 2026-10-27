@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,6 +131,12 @@ int UtcDaliTestAddOnManager(void)
   auto* instance         = createInstance();
   auto  answer           = instanceFunction(instance);
   DALI_TEST_EQUALS(answer, 42, TEST_LOCATION);
+
+  // Addon instances are caller-owned, free it via the addon's destroy function
+  auto destroyInstance = addonManager->GetGlobalProc<void(void*)>(testAddon, "DestroyInstance");
+  result               = destroyInstance != nullptr;
+  DALI_TEST_EQUALS(result, true, TEST_LOCATION);
+  destroyInstance(instance);
 
   // Test lifecycle
   auto GetLifecycleStatus = addonManager->GetGlobalProc<bool()>(testAddon, "GetLifecycleStatus");
