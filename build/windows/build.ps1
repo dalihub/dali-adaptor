@@ -3,6 +3,10 @@ param(
   [ValidateSet("Debug", "Release")]
   [string]$Configuration = "Debug",
   [string]$VcpkgRoot = "",
+  # PLATFORM uses Win32 IMM; BRIDGE uses the in-process ImeBridge backend.
+  # When omitted, CMake keeps its cached selection or defaults to PLATFORM.
+  [ValidateSet("PLATFORM", "BRIDGE")]
+  [string]$ImeBackend,
   [switch]$Clean,
   [int]$Jobs = 8
 )
@@ -66,6 +70,10 @@ $Arguments = (Get-DaliCommonCMakeArguments -Context $Context -Configuration $Con
   "-Ddali-windows-dependencies_DIR=$WindowsDependenciesPackage",
   "-Ddali2-core_DIR=$CorePackage"
 )
+if($PSBoundParameters.ContainsKey("ImeBackend"))
+{
+  $Arguments += "-DIME_BACKEND=$ImeBackend"
+}
 Invoke-DaliCMakeProject `
   -Name "dali-adaptor" `
   -SourceDirectory (Join-Path $RepoRoot "build\tizen") `

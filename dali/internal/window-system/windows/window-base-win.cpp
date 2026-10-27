@@ -121,19 +121,69 @@ uint32_t GetKeyModifiers(uintptr_t wParam = 0u)
 
 MouseButton::Type GetMouseButton(uint32_t message, uintptr_t buttonState)
 {
-  if(message == WM_LBUTTONDOWN || message == WM_LBUTTONUP || (buttonState & MK_LBUTTON) != 0u)
+  if(message == WM_LBUTTONDOWN || message == WM_LBUTTONUP)
   {
     return MouseButton::PRIMARY;
   }
-  if(message == WM_MBUTTONDOWN || message == WM_MBUTTONUP || (buttonState & MK_MBUTTON) != 0u)
+  if(message == WM_MBUTTONDOWN || message == WM_MBUTTONUP)
   {
     return MouseButton::TERTIARY;
   }
-  if(message == WM_RBUTTONDOWN || message == WM_RBUTTONUP || (buttonState & MK_RBUTTON) != 0u)
+  if(message == WM_RBUTTONDOWN || message == WM_RBUTTONUP)
+  {
+    return MouseButton::SECONDARY;
+  }
+  if((buttonState & MK_LBUTTON) != 0u)
+  {
+    return MouseButton::PRIMARY;
+  }
+  if((buttonState & MK_MBUTTON) != 0u)
+  {
+    return MouseButton::TERTIARY;
+  }
+  if((buttonState & MK_RBUTTON) != 0u)
   {
     return MouseButton::SECONDARY;
   }
   return MouseButton::INVALID;
+}
+
+uint32_t GetMouseButtonState(uintptr_t nativeButtons)
+{
+  uint32_t buttons = 0u;
+  if((nativeButtons & MK_LBUTTON) != 0u)
+  {
+    buttons |= MouseInputState::GetButtonMask(MouseButton::PRIMARY);
+  }
+  if((nativeButtons & MK_MBUTTON) != 0u)
+  {
+    buttons |= MouseInputState::GetButtonMask(MouseButton::TERTIARY);
+  }
+  if((nativeButtons & MK_RBUTTON) != 0u)
+  {
+    buttons |= MouseInputState::GetButtonMask(MouseButton::SECONDARY);
+  }
+  return buttons;
+}
+
+uint32_t GetPressedMouseButtons()
+{
+  // GetAsyncKeyState reports physical buttons; mouse messages use logical buttons.
+  const bool swapped = GetSystemMetrics(SM_SWAPBUTTON) != 0;
+  uint32_t   buttons = 0u;
+  if((GetAsyncKeyState(swapped ? VK_RBUTTON : VK_LBUTTON) & 0x8000) != 0)
+  {
+    buttons |= MK_LBUTTON;
+  }
+  if((GetAsyncKeyState(VK_MBUTTON) & 0x8000) != 0)
+  {
+    buttons |= MK_MBUTTON;
+  }
+  if((GetAsyncKeyState(swapped ? VK_LBUTTON : VK_RBUTTON) & 0x8000) != 0)
+  {
+    buttons |= MK_RBUTTON;
+  }
+  return GetMouseButtonState(buttons);
 }
 
 std::string WideStringToUtf8(const wchar_t* text, int length)
@@ -338,8 +388,6 @@ Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false
 WindowBaseWin::WindowBaseWin(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 : mWin32Window(0),
   mNativeWindowId(GetNextNativeWindowId()),
-  mVerticalWheelRemainder(0),
-  mHorizontalWheelRemainder(0),
   mOwnSurface(false),
   mIsTransparent(false),
   mIsIconifiedState(false),
@@ -460,7 +508,10 @@ void WindowBaseWin::OnMouseButtonDown(int type, TWinEventInfo* event)
 
   if(touchEvent.window == mWin32Window && Dali::Adaptor::IsAvailable())
   {
-    SetCapture(reinterpret_cast<HWND>(mWin32Window));
+    if(IsMouseInputEnabled())
+    {
+      SetCapture(reinterpret_cast<HWND>(mWin32Window));
+    }
 
     Integration::Point point;
     point.SetDeviceId(touchEvent.multi.device);
@@ -472,7 +523,7 @@ void WindowBaseWin::OnMouseButtonDown(int type, TWinEventInfo* event)
     point.SetAngle(Degree(static_cast<float>(touchEvent.multi.angle)));
     point.SetMouseButton(GetMouseButton(static_cast<uint32_t>(type), event->wParam));
 
-    mTouchEventSignal.Emit(point, touchEvent.timestamp);
+    EmitTouchEvent(point, touchEvent.timestamp);
 
     mMouseFrameEventSignal.Emit();
   }
@@ -505,7 +556,7 @@ void WindowBaseWin::OnMouseButtonUp(int type, TWinEventInfo* event)
     point.SetAngle(Degree(static_cast<float>(touchEvent.multi.angle)));
     point.SetMouseButton(GetMouseButton(static_cast<uint32_t>(type), event->wParam));
 
-    mTouchEventSignal.Emit(point, touchEvent.timestamp);
+    EmitTouchEvent(point, touchEvent.timestamp);
 
     mMouseFrameEventSignal.Emit();
   }
@@ -537,7 +588,7 @@ void WindowBaseWin::OnMouseButtonMove(int, TWinEventInfo* event)
       point.SetMouseButton(mouseButton);
     }
 
-    mTouchEventSignal.Emit(point, touchEvent.timestamp);
+    EmitTouchEvent(point, touchEvent.timestamp, GetMouseButtonState(event->wParam));
 
     mMouseFrameEventSignal.Emit();
   }
@@ -545,6 +596,11 @@ void WindowBaseWin::OnMouseButtonMove(int, TWinEventInfo* event)
 
 void WindowBaseWin::OnMouseWheel(int type, TWinEventInfo* event)
 {
+  if(event->mWindow != mWin32Window || !IsMouseInputEnabled() || !Dali::Adaptor::IsAvailable())
+  {
+    return;
+  }
+
   Event_Mouse_Wheel mouseWheelEvent = {};
   mouseWheelEvent.window            = event->mWindow;
   mouseWheelEvent.timestamp         = event->timestamp;
@@ -556,21 +612,31 @@ void WindowBaseWin::OnMouseWheel(int type, TWinEventInfo* event)
   mouseWheelEvent.x = point.x;
   mouseWheelEvent.y = point.y;
 
-  int32_t&      remainder   = type == WM_MOUSEHWHEEL ? mHorizontalWheelRemainder : mVerticalWheelRemainder;
   const int32_t nativeDelta = GET_WHEEL_DELTA_WPARAM(static_cast<WPARAM>(event->wParam));
   // Win32 vertical positive means up, while DALi/X11 represents up as -1.
   // Horizontal positive already means right on both backends.
-  remainder += type == WM_MOUSEHWHEEL ? nativeDelta : -nativeDelta;
-  mouseWheelEvent.z = remainder / WHEEL_DELTA;
-  remainder %= WHEEL_DELTA;
+  const bool horizontal = type == WM_MOUSEHWHEEL;
+  mouseWheelEvent.z     = AccumulateMouseWheel(horizontal ? nativeDelta : -nativeDelta, horizontal, WHEEL_DELTA);
 
-  if(mouseWheelEvent.window == mWin32Window && mouseWheelEvent.z != 0 && Dali::Adaptor::IsAvailable())
+  if(mouseWheelEvent.z != 0)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent.direction, mouseWheelEvent.modifiers, mouseWheelEvent.x, mouseWheelEvent.y, mouseWheelEvent.z);
 
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent.direction, mouseWheelEvent.modifiers, Vector2(static_cast<float>(mouseWheelEvent.x), static_cast<float>(mouseWheelEvent.y)), mouseWheelEvent.z, mouseWheelEvent.timestamp);
 
-    mWheelEventSignal.Emit(wheelEvent);
+    EmitWheelEvent(wheelEvent);
+  }
+}
+
+void WindowBaseWin::OnMouseInputEnabledChanged(bool enabled)
+{
+  if(enabled)
+  {
+    SetSuppressedMouseButtons(GetPressedMouseButtons());
+  }
+  else if(GetCapture() == reinterpret_cast<HWND>(mWin32Window))
+  {
+    ReleaseCapture();
   }
 }
 

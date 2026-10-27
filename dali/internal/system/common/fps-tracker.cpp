@@ -22,6 +22,9 @@
 #include <sys/stat.h>
 #include <cmath>
 #include <cstdio>
+#include <iomanip>
+#include <locale>
+#include <sstream>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
@@ -116,9 +119,10 @@ void FpsTracker::OutputFPSRecord()
 #endif
   if(outputFile)
   {
-    char fpsString[10];
-    snprintf(fpsString, sizeof(fpsString), "%.2f \n", fps);
-    fputs(fpsString, outputFile); // ignore the error on purpose
+    std::ostringstream stream;
+    stream.imbue(std::locale::classic());
+    stream << std::fixed << std::setprecision(2) << fps << " \n";
+    fputs(stream.str().c_str(), outputFile); // ignore the error on purpose
     fclose(outputFile);
   }
 }

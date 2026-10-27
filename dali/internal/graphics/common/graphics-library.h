@@ -55,6 +55,18 @@ void ResetGraphicsLibrary(bool reload);
 GraphicsLibraryHandlePtr GetGraphicsLibraryHandle();
 
 /**
+ * @brief Gets the graphics backend module, whose reference keeps the library loaded.
+ *
+ * Use this to keep the code of the library mapped (e.g. vtables of objects implemented there) while an
+ * object is alive. Unlike GetGraphicsLibraryHandle(), it does not keep the GraphicsInterface alive, so
+ * the graphics is still destroyed when the Adaptor is destroyed. dlclose() is called once, when the
+ * last module reference is released.
+ * @warning We MUST NOT call this API inside of graphics library functions. It might return invalid variables.
+ * @return The graphics backend module, or nullptr if no dynamic library is loaded.
+ */
+std::shared_ptr<void> GetGraphicsBackendModule();
+
+/**
  * @brief Creates a graphics factory with the given environment options.
  * @param[in] environmentOptions The environment options for graphics configuration.
  * @return A unique pointer to the graphics factory interface.

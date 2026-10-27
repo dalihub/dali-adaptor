@@ -35,17 +35,20 @@ namespace
 const char* const DALI_ADAPTOR_GRAPHICS_GLES_SO("libdali2-adaptor-gles.so");
 const char* const DALI_ADAPTOR_GRAPHICS_VULKAN_SO("libdali2-adaptor-vulkan.so");
 
-class DynamicGraphicsLibraryHandle : public Dali::Internal::Adaptor::GraphicsLibraryHandleBase
+/**
+ * The dynamically loaded graphics backend library. dlopen()/dlclose() are called exactly once:
+ * ownership is shared between the DynamicGraphicsLibraryHandle and every reference returned
+ * by GetGraphicsBackendModule(), and dlclose() runs when the last of them is released.
+ */
+class GraphicsBackendModule
 {
 public:
-  DynamicGraphicsLibraryHandle()
+  GraphicsBackendModule()
+  : mBackend(Graphics::GetCurrentGraphicsBackend()),
+    mHandle(dlopen((mBackend == Graphics::Backend::GLES) ? DALI_ADAPTOR_GRAPHICS_GLES_SO : DALI_ADAPTOR_GRAPHICS_VULKAN_SO,
+                   GetLibraryOpenMode()))
   {
-    mBackend = Graphics::GetCurrentGraphicsBackend();
-
     DALI_LOG_DEBUG_INFO("dlopen for Graphics Backend : %s\n", mBackend == Graphics::Backend::GLES ? "GLES" : "VULKAN");
-
-    mHandle = dlopen((mBackend == Graphics::Backend::GLES) ? DALI_ADAPTOR_GRAPHICS_GLES_SO : DALI_ADAPTOR_GRAPHICS_VULKAN_SO,
-                     GetLibraryOpenMode());
     if(!mHandle)
     {
       // The shared library failed to load
@@ -54,14 +57,8 @@ public:
     }
   }
 
-  ~DynamicGraphicsLibraryHandle()
+  ~GraphicsBackendModule()
   {
-    if(DALI_LIKELY(mGraphics))
-    {
-      // Release graphics before dlclose()
-      mGraphics->Destroy();
-      mGraphics.reset();
-    }
     if(mHandle)
     {
       DALI_LOG_DEBUG_INFO("dlclose for Graphics Backend : %s\n", mBackend == Graphics::Backend::GLES ? "GLES" : "VULKAN");
@@ -69,9 +66,36 @@ public:
     }
   }
 
+  // Not copyable: a copy would dlclose() the same handle twice.
+  GraphicsBackendModule(const GraphicsBackendModule&)            = delete;
+  GraphicsBackendModule& operator=(const GraphicsBackendModule&) = delete;
+
 public:
-  Graphics::Backend mBackend{Graphics::Backend::DEFAULT};
-  void*             mHandle{nullptr};
+  // mBackend must be declared before mHandle; its initializer selects the library to open.
+  const Graphics::Backend mBackend;
+  void* const             mHandle;
+};
+
+class DynamicGraphicsLibraryHandle : public Dali::Internal::Adaptor::GraphicsLibraryHandleBase
+{
+public:
+  DynamicGraphicsLibraryHandle()
+  : mModule(new GraphicsBackendModule())
+  {
+  }
+
+  ~DynamicGraphicsLibraryHandle()
+  {
+    if(DALI_LIKELY(mGraphics))
+    {
+      // Release graphics before the module can dlclose()
+      mGraphics->Destroy();
+      mGraphics.reset();
+    }
+  }
+
+public:
+  std::shared_ptr<GraphicsBackendModule> mModule;
 };
 std::shared_ptr<DynamicGraphicsLibraryHandle> gGraphicsLibraryHandle;
 
@@ -85,7 +109,7 @@ FunctionSignature GetFunction(const char* const functionName)
 
   if(DALI_LIKELY(gGraphicsLibraryHandle))
   {
-    FunctionSignature func = reinterpret_cast<FunctionSignature>(dlsym(gGraphicsLibraryHandle->mHandle,
+    FunctionSignature func = reinterpret_cast<FunctionSignature>(dlsym(gGraphicsLibraryHandle->mModule->mHandle,
                                                                        functionName));
     if(!func)
     {
@@ -137,7 +161,7 @@ Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend()
 {
   if(DALI_LIKELY(gGraphicsLibraryHandle))
   {
-    return gGraphicsLibraryHandle->mBackend;
+    return gGraphicsLibraryHandle->mModule->mBackend;
   }
   return Graphics::Backend::DEFAULT;
 }
@@ -177,6 +201,15 @@ void ResetGraphicsLibrary(bool reload)
 GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
 {
   return std::static_pointer_cast<Dali::Internal::Adaptor::GraphicsLibraryHandleBase>(gGraphicsLibraryHandle);
+}
+
+std::shared_ptr<void> GetGraphicsBackendModule()
+{
+  if(DALI_LIKELY(gGraphicsLibraryHandle))
+  {
+    return gGraphicsLibraryHandle->mModule;
+  }
+  return nullptr;
 }
 
 std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)

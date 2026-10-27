@@ -52,7 +52,7 @@ struct DALI_ADAPTOR_API MouseRelativeEvent
    * @param[in] deviceClass The device class the event originated from.
    * @param[in] deviceSubclass The device subclass the event originated from.
    */
-  MouseRelativeEvent(Type type, uint32_t modifiers, uint32_t timeStamp, Vector2 diffPosition, Vector2 unaccelatedPosition, const Device::Class::Type deviceClass, const Device::Subclass::Type deviceSubclass)
+  MouseRelativeEvent(Type type, uint32_t modifiers, uint32_t timeStamp, Vector2 diffPosition, Vector2 unaccelatedPosition, Device::Class::Type deviceClass, Device::Subclass::Type deviceSubclass)
   : type(type),
     modifiers(modifiers),
     timeStamp(timeStamp),

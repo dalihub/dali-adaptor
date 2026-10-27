@@ -57,6 +57,11 @@ AddOnDataInstance* CreateInstance()
   return new AddOnDataInstance();
 }
 
+void DestroyInstance(AddOnDataInstance* instance)
+{
+  delete instance;
+}
+
 class TestDummyAddOn : public Dali::AddOns::AddOnBase
 {
 public:
@@ -82,6 +87,7 @@ public:
       dispatchTable["StringLen"]          = StringLen;
       dispatchTable["GetLifecycleStatus"] = GetLifecycleStatus;
       dispatchTable["CreateInstance"]     = CreateInstance;
+      dispatchTable["DestroyInstance"]    = DestroyInstance;
     }
     return &dispatchTable;
   }

@@ -27,6 +27,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <limits>
+#include <locale>
 #include <mutex>
 #include <sstream>
 
@@ -130,6 +131,7 @@ std::string ConvertDataReadable(uint8_t* data, const size_t size, const size_t w
 int FUNCTION_CALL_FROM_CURL_PREFIX CurloptVerboseLogTrace(CURL* handle, curl_infotype type, char* data, size_t size, void* clientp)
 {
   std::ostringstream oss;
+  oss.imbue(std::locale::classic());
   (void)handle; /* prevent compiler warning */
   (void)clientp;
 

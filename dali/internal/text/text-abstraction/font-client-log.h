@@ -19,24 +19,30 @@
 #include <cstdio>
 #include <string>
 
+#include <dali/integration-api/locale-numeric-guard.h>
 #include <dali/internal/system/common/logging.h>
 
 // Use this macro only if need to log messages before the log function is set.
-#define FONT_LOG_MESSAGE(level, format, ...)                                    \
-  do                                                                            \
-  {                                                                             \
-    if(DALI_UNLIKELY(Dali::Integration::Log::IsLogDisabled()))                  \
-    {                                                                           \
-      break;                                                                    \
-    }                                                                           \
-    char buffer[256];                                                           \
-    int  result = std::snprintf(buffer, sizeof(buffer), format, ##__VA_ARGS__); \
-    if(result >= static_cast<int>(sizeof(buffer)))                              \
-    {                                                                           \
-      std::string log("Font log message is too long to fit in the buffer.\n");  \
-      Dali::TizenPlatform::LogMessage(Dali::Integration::Log::ERROR, log);      \
-      break;                                                                    \
-    }                                                                           \
-    std::string log(buffer);                                                    \
-    Dali::TizenPlatform::LogMessage(level, log);                                \
+#define FONT_LOG_MESSAGE(level, format, ...)                                   \
+  do                                                                           \
+  {                                                                            \
+    if(DALI_UNLIKELY(Dali::Integration::Log::IsLogDisabled()))                 \
+    {                                                                          \
+      break;                                                                   \
+    }                                                                          \
+    char buffer[256];                                                          \
+    int  result;                                                               \
+    {                                                                          \
+      /* TODO: Replace snprintf with locale-independent formatting. */         \
+      Dali::LocaleNumericGuard localeGuard;                                    \
+      result = std::snprintf(buffer, sizeof(buffer), format, ##__VA_ARGS__);   \
+    }                                                                          \
+    if(result >= static_cast<int>(sizeof(buffer)))                             \
+    {                                                                          \
+      std::string log("Font log message is too long to fit in the buffer.\n"); \
+      Dali::TizenPlatform::LogMessage(Dali::Integration::Log::ERROR, log);     \
+      break;                                                                   \
+    }                                                                          \
+    std::string log(buffer);                                                   \
+    Dali::TizenPlatform::LogMessage(level, log);                               \
   } while(0)

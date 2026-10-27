@@ -153,6 +153,41 @@ int UtcDaliUiContextRemoveIdleN(void)
   END_TEST;
 }
 
+int UtcDaliUiContextAddIdleTypedN(void)
+{
+  UiContext uiContext;
+
+  try
+  {
+    uiContext.AddIdle(Callback<bool()>::New([]()
+    { return false; }));
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliUiContextRemoveIdleTypedN(void)
+{
+  UiContext uiContext;
+
+  try
+  {
+    uiContext.RemoveIdle(1u);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
 int UtcDaliUiContextFlushPendingChangesN(void)
 {
   UiContext uiContext;

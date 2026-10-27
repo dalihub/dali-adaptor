@@ -215,7 +215,7 @@ public:
    * @param[in] clearColor background color of captured scene
    * @param[in] quality The value to control image quality for jpeg file format in the range [1, 100]
    */
-  void Start(Actor source, const Vector2& size, const Dali::String& path, const Vector4& clearColor, const uint32_t quality);
+  void Start(Actor source, const Vector2& size, const Dali::String& path, const Vector4& clearColor, uint32_t quality);
 
   /**
    * @brief Start capture and save the image as a file.

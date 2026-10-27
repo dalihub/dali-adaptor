@@ -37,6 +37,11 @@ DALI_ADAPTOR_WEAK_SYMBOL GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
   return GraphicsLibrary::GetGraphicsLibraryHandle();
 }
 
+DALI_ADAPTOR_WEAK_SYMBOL std::shared_ptr<void> GetGraphicsBackendModule()
+{
+  return GraphicsLibrary::GetGraphicsBackendModule();
+}
+
 DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
 {
   return GraphicsLibrary::CreateGraphicsFactory(environmentOptions);

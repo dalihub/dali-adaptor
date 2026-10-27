@@ -24,6 +24,7 @@
 #include <dali/public-api/update/frame-callback-interface.h>
 #include <dali/public-api/update/update-proxy.h>
 #include <string>
+#include <unordered_map>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/ui-context.h>
@@ -85,6 +86,23 @@ public:
   void RemoveIdle(CallbackBase* callback);
 
   /**
+   * @copydoc Dali::UiContext::AddIdle(Callback<bool()>)
+   */
+  Dali::UiContext::IdleCallbackId AddIdle(Dali::Callback<bool()> callback);
+
+  /**
+   * @copydoc Dali::UiContext::RemoveIdle(Dali::UiContext::IdleCallbackId)
+   */
+  void RemoveIdle(Dali::UiContext::IdleCallbackId id);
+
+  /**
+   * @brief Called when an idle callback added by ID stops repeating by returning false.
+   *
+   * @param[in] id The ID of the finished idle callback
+   */
+  void OnIdleCallbackFinished(Dali::UiContext::IdleCallbackId id);
+
+  /**
    * @copydoc Dali::UiContext::FlushPendingChanges()
    */
   void FlushPendingChanges();
@@ -136,6 +154,9 @@ private:
 private:
   Dali::Adaptor* mAdaptor{nullptr}; ///< Pointer to the adaptor instance
   Dali::Window   mDefaultWindow;    ///< The default window handle
+
+  std::unordered_map<Dali::UiContext::IdleCallbackId, CallbackBase*> mIdleCallbacks;         ///< Idle callbacks added by ID; the adaptor owns the callbacks
+  Dali::UiContext::IdleCallbackId                                    mNextIdleCallbackId{0}; ///< The last issued idle callback ID
 };
 
 /**

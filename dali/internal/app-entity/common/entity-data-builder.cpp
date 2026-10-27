@@ -24,7 +24,6 @@
 #include <utility>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/actors/actor-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/integration-api/debug.h>
@@ -147,11 +146,11 @@ EntityData MakeEntityData(Dali::Actor actor, FocusedActorProvider* provider, Ent
   }
   else
   {
-    // Match ActorAccessible::GetExtents(): CalculateCurrentScreenExtents() is
+    // Match ActorAccessible::GetExtents(): CalculateCurrentScreenBounds() is
     // window-relative, and screen coordinates add the window origin.
     data.description = "";
 
-    const Dali::Bounds extents = Dali::DevelActor::CalculateCurrentScreenExtents(actor);
+    const Dali::Bounds extents = actor.CalculateCurrentScreenBounds();
     const Dali::Bounds rounded{std::round(extents.x), std::round(extents.y),
                                std::round(extents.width), std::round(extents.height)};
     data.windowBounds.x      = rounded.x;
@@ -228,8 +227,8 @@ Dali::Bounds GetActorWindowBounds(Dali::Actor actor)
     return bounds;
   }
 
-  // Match ActorAccessible::GetExtents(): CalculateCurrentScreenExtents() is window-relative.
-  const Dali::Bounds extents = Dali::DevelActor::CalculateCurrentScreenExtents(actor);
+  // Match ActorAccessible::GetExtents(): CalculateCurrentScreenBounds() is window-relative.
+  const Dali::Bounds extents = actor.CalculateCurrentScreenBounds();
   bounds.x                   = std::round(extents.x);
   bounds.y                   = std::round(extents.y);
   bounds.width               = std::round(extents.width);

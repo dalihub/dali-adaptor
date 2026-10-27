@@ -41,6 +41,11 @@ extern void ResetGraphicsLibrary(bool reload);
 extern GraphicsLibraryHandlePtr GetGraphicsLibraryHandle();
 
 /**
+ * @copydoc Dali::Internal::Adaptor::GraphicsLibrary::GetGraphicsBackendModule()
+ */
+extern std::shared_ptr<void> GetGraphicsBackendModule();
+
+/**
  * @copydoc Dali::Internal::Adaptor::GraphicsLibrary::CreateGraphicsFactory()
  */
 extern std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions);

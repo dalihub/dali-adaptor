@@ -18,7 +18,6 @@
 // CLASS HEADER
 
 //INTERNAL INCLUDES
-#include <dali/devel-api/actors/actor-devel.h>
 #include <dali/devel-api/adaptor-framework/accessibility-types.h>
 #include <dali/devel-api/adaptor-framework/proxy-accessible.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
@@ -455,7 +454,7 @@ std::string DumpJson(Accessible* node, Accessible::DumpDetailLevel detailLevel, 
   if(ExcludeWorldIgnored(detailLevel))
   {
     const auto actor = node->GetInternalActor();
-    if(actor && actor.GetProperty<bool>(Dali::DevelActor::Property::WORLD_IGNORED))
+    if(actor && actor.GetProperty<bool>(Dali::Actor::Property::WORLD_IGNORED))
     {
       return {};
     }
