@@ -36,7 +36,7 @@ namespace Adaptor
 namespace
 {
 // The default plugin name
-const char* DEFAULT_OBJECT_NAME("libdali2-vector-animation-renderer-plugin.so");
+const char* DEFAULT_OBJECT_NAME(DALI_LIBRARY_PREFIX "vector-animation-renderer-plugin.so");
 
 } // namespace
 #endif

@@ -35,7 +35,7 @@ namespace Adaptor
 {
 namespace // unnamed namespace
 {
-const char* CAMERA_PLUGIN_SO("libdali2-camera-player-plugin.so");
+const char* CAMERA_PLUGIN_SO(DALI_LIBRARY_PREFIX "camera-player-plugin.so");
 
 Dali::BaseHandle Create()
 {

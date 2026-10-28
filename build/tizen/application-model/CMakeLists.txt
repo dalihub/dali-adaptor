@@ -1,6 +1,6 @@
 IF( (NOT UBUNTU_PROFILE) )
-  SET(APPLICATION_WIDGET_TARGET dali2-adaptor-application-widget )
-  SET(APPLICATION_COMPONENT_BASED_TARGET dali2-adaptor-application-component-based )
+  SET(APPLICATION_WIDGET_TARGET ${name}-application-widget )
+  SET(APPLICATION_COMPONENT_BASED_TARGET ${name}-application-component-based )
 
   MESSAGE(STATUS ${ROOT_SRC_DIR}/dali/internal/application-model )
   SET( appmodel_src_dir ${ROOT_SRC_DIR}/dali/internal/application-model )
@@ -25,8 +25,8 @@ IF( (NOT UBUNTU_PROFILE) )
     PKG_CHECK_MODULES(APPCORECOMMONCPP appcore-common)
     PKG_CHECK_MODULES(ELDBUS eldbus)
 
-    SET(CORE_PKG_CFG_FILE dali2-adaptor-application-model.pc)
-    CONFIGURE_FILE(${CMAKE_CURRENT_LIST_DIR}/${CORE_PKG_CFG_FILE}.in ${CORE_PKG_CFG_FILE} @ONLY)
+    SET(CORE_PKG_CFG_FILE ${name}-application-model.pc)
+    CONFIGURE_FILE(${CMAKE_CURRENT_LIST_DIR}/dali-adaptor-application-model.pc.in ${CORE_PKG_CFG_FILE} @ONLY)
   ENDIF()
 
   IF( USE_TCORE_BACKEND )
@@ -43,7 +43,7 @@ IF( (NOT UBUNTU_PROFILE) )
     ${ELDBUS_LDFLAGS}
     ${CAPI_APPFW_WIDGET_BASE_LDFLAGS}
     ${APPLICATION_MODEL_EXTRA_LDFLAGS}
-    dali2-adaptor
+    ${name}
   )
 
   TARGET_COMPILE_OPTIONS( ${APPLICATION_WIDGET_TARGET} PUBLIC
@@ -65,7 +65,7 @@ IF( (NOT UBUNTU_PROFILE) )
     ${ELDBUS_LDFLAGS}
     ${COMPONENT_BASED_CORE_BASE_LDFLAGS}
     ${APPLICATION_MODEL_EXTRA_LDFLAGS}
-    dali2-adaptor
+    ${name}
   )
 
   TARGET_COMPILE_OPTIONS( ${APPLICATION_COMPONENT_BASED_TARGET} PUBLIC

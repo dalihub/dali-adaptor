@@ -25,10 +25,10 @@ if(-not (Test-Path -LiteralPath $CommonScript))
 $Context = New-DaliBuildContext -WindowsDependenciesRoot $WindowsDependenciesRoot -VcpkgRoot $VcpkgRoot
 Initialize-DaliBuildEnvironment -Context $Context
 $WindowsDependenciesPackage = Join-Path $Context.SdkRoot "share\dali-windows-dependencies"
-$CorePackage = Join-Path $Context.InstallPrefix "share\dali2-core"
+$CorePackage = Join-Path $Context.InstallPrefix "share\dali3-core"
 Assert-DaliPaths -Paths @(
   (Join-Path $WindowsDependenciesPackage "dali-windows-dependencies-config.cmake"),
-  (Join-Path $CorePackage "dali2-core-config.cmake")
+  (Join-Path $CorePackage "dali3-core-config.cmake")
 ) -Description "prerequisite package; install dependencies and build dali-core first"
 
 $ConfigurationName = $Configuration.ToLowerInvariant()
@@ -68,7 +68,7 @@ $Arguments = (Get-DaliCommonCMakeArguments -Context $Context -Configuration $Con
   "-DENABLE_VECTOR_BASED_TEXT_RENDERING=OFF",
   "-Dthorvg_support=$ThorVgSupport",
   "-Ddali-windows-dependencies_DIR=$WindowsDependenciesPackage",
-  "-Ddali2-core_DIR=$CorePackage"
+  "-Ddali3-core_DIR=$CorePackage"
 )
 if($PSBoundParameters.ContainsKey("ImeBackend"))
 {
@@ -84,7 +84,7 @@ Invoke-DaliCMakeProject `
 
 Install-DaliRuntimeScripts -Context $Context -Configuration $Configuration
 Assert-DaliPaths -Paths @(
-  (Join-Path $Context.InstallPrefix "bin\dali2-adaptor.dll"),
-  (Join-Path $Context.InstallPrefix "share\dali2-adaptor\dali2-adaptor-config.cmake")
+  (Join-Path $Context.InstallPrefix "bin\dali3-adaptor.dll"),
+  (Join-Path $Context.InstallPrefix "share\dali3-adaptor\dali3-adaptor-config.cmake")
 ) -Description "dali-adaptor installation output"
 Write-Host "`ndali-adaptor installed in $($Context.InstallPrefix)." -ForegroundColor Green

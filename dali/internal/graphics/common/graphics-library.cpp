@@ -32,8 +32,8 @@ namespace DALI_NAMESPACE::Internal::Adaptor::GraphicsLibrary
 {
 namespace
 {
-const char* const DALI_ADAPTOR_GRAPHICS_GLES_SO("libdali2-adaptor-gles.so");
-const char* const DALI_ADAPTOR_GRAPHICS_VULKAN_SO("libdali2-adaptor-vulkan.so");
+const char* const DALI_ADAPTOR_GRAPHICS_GLES_SO(DALI_LIBRARY_PREFIX "adaptor-gles.so");
+const char* const DALI_ADAPTOR_GRAPHICS_VULKAN_SO(DALI_LIBRARY_PREFIX "adaptor-vulkan.so");
 
 /**
  * The dynamically loaded graphics backend library. dlopen()/dlclose() are called exactly once:

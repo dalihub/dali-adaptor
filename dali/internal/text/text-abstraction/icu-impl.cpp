@@ -26,7 +26,7 @@
 
 namespace
 {
-const char* ICU_PLUGIN_SO("libdali2-icu-plugin.so");
+const char* ICU_PLUGIN_SO(DALI_LIBRARY_PREFIX "icu-plugin.so");
 } // namespace
 
 namespace DALI_NAMESPACE
