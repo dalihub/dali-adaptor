@@ -87,8 +87,8 @@ IF(DALI_TEST_SOURCE_LIST_ONLY)
 ENDIF()
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
-    dali2-core
-    dali2-adaptor
+    dali3-core
+    dali3-adaptor
     ecore
     ecore-x
 )

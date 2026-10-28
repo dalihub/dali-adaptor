@@ -35,7 +35,7 @@ namespace Adaptor
 {
 namespace // unnamed namespace
 {
-const char* VIDEO_PLUGIN_SO("libdali2-video-player-plugin.so");
+const char* VIDEO_PLUGIN_SO(DALI_LIBRARY_PREFIX "video-player-plugin.so");
 
 Dali::BaseHandle Create()
 {

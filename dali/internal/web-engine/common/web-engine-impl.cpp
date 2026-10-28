@@ -55,11 +55,11 @@ static constexpr int32_t USE_LIGHT_WEIGHT_WEB_ENGINE    = 1;
 static constexpr int32_t DEFAULT_WEB_ENGINE_PLUGIN_TYPE = USE_ENVIRONMENT_VALUE;
 static int32_t           webEnginePluginType            = DEFAULT_WEB_ENGINE_PLUGIN_TYPE;
 
-constexpr char const* const kPluginFullNamePrefix   = "libdali2-web-engine-";
+constexpr char const* const kPluginFullNamePrefix   = DALI_LIBRARY_PREFIX "web-engine-";
 constexpr char const* const kPluginFullNamePostfix  = "-plugin.so";
-constexpr char const* const kPluginFullNameDefault  = "libdali2-web-engine-plugin.so";
-constexpr char const* const kPluginFullNameChromium = "libdali2-web-engine-chromium-plugin.so";
-constexpr char const* const kPluginFullNameLwe      = "libdali2-web-engine-lwe-plugin.so";
+constexpr char const* const kPluginFullNameDefault  = DALI_LIBRARY_PREFIX "web-engine-plugin.so";
+constexpr char const* const kPluginFullNameChromium = DALI_LIBRARY_PREFIX "web-engine-chromium-plugin.so";
+constexpr char const* const kPluginFullNameLwe      = DALI_LIBRARY_PREFIX "web-engine-lwe-plugin.so";
 
 std::string MakePluginName(const char* environmentName)
 {

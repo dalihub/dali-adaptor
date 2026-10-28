@@ -17,7 +17,7 @@
 
 // NOTE: the Ubuntu UTC executable compiles the production ime-bridge.cpp and
 // input-method-context-impl-bridge.cpp from dali/internal/input/windows/bridge/.
-// It links the installed platform libdali2-adaptor.so for the remaining adaptor
+// It links the installed platform libdali3-adaptor.so for the remaining adaptor
 // implementation, without compiling the bridge factory or replacing Ubuntu's
 // input backend. The registry tests in utc-Dali-ImeBridge.cpp use the same
 // bridge implementation in this executable.
@@ -40,44 +40,56 @@ namespace
 class RecordingBridge : public Dali::Integration::ImeBridge
 {
 public:
-  std::vector<Dali::Integration::ImeBridgeHost*> attached;
-  int                                             showCount{0};
-  int                                             hideCount{0};
-  int                                             filterCount{0};
-  int                                             returnKeyCount{0};
-  int                                             panelPositionCount{0};
-  int                                             activateCount{0};
-  int                                             deactivateCount{0};
-  int                                             resetCount{0};
-  int                                             cursorPositionCount{0};
-  int                                             surroundingTextCount{0};
-  uint32_t                                        lastCursorPosition{0u};
-  Dali::String                                    lastSurroundingText;
-  bool                                            filterResult{false};
-  bool                                            hideResult{false};
-  Dali::InputMethod::PanelLayout                  lastLayout{Dali::InputMethod::PanelLayout::NORMAL};
-  Dali::InputMethod::PanelLayoutVariation         lastVariation{Dali::InputMethod::PanelLayoutVariation::NORMAL_NORMAL};
-  Dali::InputMethod::ReturnKeyType                lastReturnKeyType{Dali::InputMethod::ReturnKeyType::DEFAULT};
-  bool                                            lastReturnKeyEnabled{true};
-  bool                                            lastMultiLine{false};
-  int32_t                                         lastPanelPositionX{-1};
-  int32_t                                         lastPanelPositionY{-1};
+  std::vector<Dali::Integration::ImeBridgeHost*>            attached;
+  int                                                       showCount{0};
+  int                                                       hideCount{0};
+  int                                                       filterCount{0};
+  int                                                       returnKeyCount{0};
+  int                                                       panelPositionCount{0};
+  int                                                       activateCount{0};
+  int                                                       deactivateCount{0};
+  int                                                       resetCount{0};
+  int                                                       cursorPositionCount{0};
+  int                                                       surroundingTextCount{0};
+  uint32_t                                                  lastCursorPosition{0u};
+  Dali::String                                              lastSurroundingText;
+  bool                                                      filterResult{false};
+  bool                                                      hideResult{false};
+  Dali::InputMethod::PanelLayout                            lastLayout{Dali::InputMethod::PanelLayout::NORMAL};
+  Dali::InputMethod::PanelLayoutVariation                   lastVariation{Dali::InputMethod::PanelLayoutVariation::NORMAL_NORMAL};
+  Dali::InputMethod::ReturnKeyType                          lastReturnKeyType{Dali::InputMethod::ReturnKeyType::DEFAULT};
+  bool                                                      lastReturnKeyEnabled{true};
+  bool                                                      lastMultiLine{false};
+  int32_t                                                   lastPanelPositionX{-1};
+  int32_t                                                   lastPanelPositionY{-1};
   Dali::Integration::InputMethodContext::InputPanelLanguage lastLanguage{
     Dali::Integration::InputMethodContext::InputPanelLanguage::AUTOMATIC};
-  bool lastTextPrediction{true};
+  bool         lastTextPrediction{true};
   int          userDataSetCount{0};
   int          userDataGetCount{0};
   Dali::String lastUserDataSet;
   Dali::String userDataToReturn;
 
-  void AttachHost(Dali::Integration::ImeBridgeHost* host) override { attached.push_back(host); }
+  void AttachHost(Dali::Integration::ImeBridgeHost* host) override
+  {
+    attached.push_back(host);
+  }
   void DetachHost(Dali::Integration::ImeBridgeHost* host) override
   {
     attached.erase(std::remove(attached.begin(), attached.end(), host), attached.end());
   }
-  void Activate(Dali::Integration::ImeBridgeHost*) override { ++activateCount; }
-  void Deactivate(Dali::Integration::ImeBridgeHost*) override { ++deactivateCount; }
-  void Reset(Dali::Integration::ImeBridgeHost*) override { ++resetCount; }
+  void Activate(Dali::Integration::ImeBridgeHost*) override
+  {
+    ++activateCount;
+  }
+  void Deactivate(Dali::Integration::ImeBridgeHost*) override
+  {
+    ++deactivateCount;
+  }
+  void Reset(Dali::Integration::ImeBridgeHost*) override
+  {
+    ++resetCount;
+  }
   bool ShowInputPanel(Dali::Integration::ImeBridgeHost*) override
   {
     ++showCount;
@@ -114,8 +126,13 @@ public:
     lastReturnKeyType    = type;
     lastReturnKeyEnabled = enabled;
   }
-  void SetAutoCapital(Dali::Integration::ImeBridgeHost*, Dali::InputMethod::AutoCapitalType) override {}
-  void SetTextPrediction(Dali::Integration::ImeBridgeHost*, bool allowed) override { lastTextPrediction = allowed; }
+  void SetAutoCapital(Dali::Integration::ImeBridgeHost*, Dali::InputMethod::AutoCapitalType) override
+  {
+  }
+  void SetTextPrediction(Dali::Integration::ImeBridgeHost*, bool allowed) override
+  {
+    lastTextPrediction = allowed;
+  }
   void SetUserData(Dali::Integration::ImeBridgeHost*, const Dali::String& data) override
   {
     ++userDataSetCount;
@@ -126,16 +143,26 @@ public:
     ++userDataGetCount;
     return userDataToReturn;
   }
-  void SetLanguage(Dali::Integration::ImeBridgeHost*, Dali::Integration::InputMethodContext::InputPanelLanguage language) override { lastLanguage = language; }
-  void SetContentMimeTypes(Dali::Integration::ImeBridgeHost*, const Dali::String&) override {}
+  void SetLanguage(Dali::Integration::ImeBridgeHost*, Dali::Integration::InputMethodContext::InputPanelLanguage language) override
+  {
+    lastLanguage = language;
+  }
+  void SetContentMimeTypes(Dali::Integration::ImeBridgeHost*, const Dali::String&) override
+  {
+  }
   void SetPanelPosition(Dali::Integration::ImeBridgeHost*, int32_t x, int32_t y) override
   {
     ++panelPositionCount;
     lastPanelPositionX = x;
     lastPanelPositionY = y;
   }
-  void SetPanelPositionAlign(Dali::Integration::ImeBridgeHost*, int32_t, int32_t, Dali::InputMethodContext::InputPanelAlign) override {}
-  void SetMultiLine(Dali::Integration::ImeBridgeHost*, bool multiLine) override { lastMultiLine = multiLine; }
+  void SetPanelPositionAlign(Dali::Integration::ImeBridgeHost*, int32_t, int32_t, Dali::InputMethodContext::InputPanelAlign) override
+  {
+  }
+  void SetMultiLine(Dali::Integration::ImeBridgeHost*, bool multiLine) override
+  {
+    lastMultiLine = multiLine;
+  }
 };
 
 /// Construct the backend directly. InputMethodContextBridge::New() requires an
@@ -167,13 +194,13 @@ Dali::Internal::Adaptor::InputMethodContextPtr MakeBridgeContext()
 // Free functions for signal-connect tests: DALi's Signal<>::Connect() only
 // takes a plain function pointer without a ConnectionTracker (see e.g.
 // utc-Dali-Application.cpp's *SignalCallback functions for the same idiom).
-bool                             gStatusChangedFired = false;
-Dali::InputMethodContext::State  gLastStatusChangedState{Dali::InputMethodContext::State::HIDE};
-bool                             gResizedFired = false;
+bool                            gStatusChangedFired = false;
+Dali::InputMethodContext::State gLastStatusChangedState{Dali::InputMethodContext::State::HIDE};
+bool                            gResizedFired = false;
 
 void RecordStatusChanged(Dali::InputMethodContext, Dali::InputMethodContext::State state)
 {
-  gStatusChangedFired    = true;
+  gStatusChangedFired     = true;
   gLastStatusChangedState = state;
 }
 
@@ -182,7 +209,7 @@ void RecordResized(Dali::InputMethodContext)
   gResizedFired = true;
 }
 
-bool                                   gLanguageChangedFired = false;
+bool                                   gLanguageChangedFired     = false;
 bool                                   gKeyboardTypeChangedFired = false;
 Dali::InputMethodContext::KeyboardType gLastKeyboardType{Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD};
 
@@ -587,7 +614,7 @@ int UtcDaliImeBridgeContextHostCallbacksUpdateCacheAndEmitSignals(void)
   // the cache round-trip and, per review round 1 finding I5, that the
   // corresponding app-facing signal actually fires.
   gStatusChangedFired = false;
-  gResizedFired        = false;
+  gResizedFired       = false;
 
   auto context = MakeBridgeContext();
 
@@ -596,9 +623,9 @@ int UtcDaliImeBridgeContextHostCallbacksUpdateCacheAndEmitSignals(void)
   // (input-method-context-impl-bridge.h:45); static_cast between them directly
   // is an ill-formed cross-cast. Go down to the most-derived type once, then
   // let both references bind by implicit (well-formed) upcast.
-  auto&                                         sim  = static_cast<Dali::Internal::Adaptor::InputMethodContextBridge&>(*context);
-  Dali::Internal::Adaptor::InputMethodContext&  impl = sim;
-  Dali::Integration::ImeBridgeHost&             host = sim;
+  auto&                                        sim  = static_cast<Dali::Internal::Adaptor::InputMethodContextBridge&>(*context);
+  Dali::Internal::Adaptor::InputMethodContext& impl = sim;
+  Dali::Integration::ImeBridgeHost&            host = sim;
 
   impl.StatusChangedSignal().Connect(&RecordStatusChanged);
   impl.ResizedSignal().Connect(&RecordResized);

@@ -4,11 +4,18 @@ IF(POLICY CMP0177)
   CMAKE_POLICY(SET CMP0177 NEW) # install() DESTINATION paths are normalized.
 ENDIF()
 
+# API major version (Not DALi release version). It also names the libraries,
+# the pkg-config files and the CMake package (dali<major>-adaptor), and selects
+# dali<major>-core.
+IF(NOT DALI_API_MAJOR)
+  SET(DALI_API_MAJOR 3)
+ENDIF()
+SET(name "dali${DALI_API_MAJOR}-adaptor")
+SET(core_name "dali${DALI_API_MAJOR}-core")
 
 SET(CMAKE_C_STANDARD 99)
 SET(CMAKE_CXX_STANDARD 17)
-PROJECT(dali2-adaptor CXX C)
-SET(name "dali2-adaptor")
+PROJECT(${name} CXX C)
 SET(PKG_NAME ${name})
 
 SET(GCC_COMPILER_VERSION_REQUIRED "6")
@@ -162,16 +169,19 @@ ENDIF()
 GET_FILENAME_COMPONENT(ROOT_SRC_DIR ${ROOT_SRC_DIR} ABSOLUTE)
 
 # API VERSION (Not DALi release version)
-SET(${name}_VERSION_MAJOR 2)
+SET(${name}_VERSION_MAJOR ${DALI_API_MAJOR})
 SET(${name}_VERSION_MINOR 0)
 SET(${name}_VERSION_PATCH 0)
 SET(${name}_VERSION ${${name}_VERSION_MAJOR}.${${name}_VERSION_MINOR}.${${name}_VERSION_PATCH})
 
 SET(DALI_ADAPTOR_VERSION ${${name}_VERSION} )
 
+# Prefix of the DALi libraries and plugins loaded at runtime
+ADD_DEFINITIONS(-DDALI_LIBRARY_PREFIX="libdali${DALI_API_MAJOR}-")
+
 IF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
   FIND_PACKAGE( dali-windows-dependencies CONFIG REQUIRED)
-  FIND_PACKAGE( dali2-core REQUIRED)
+  FIND_PACKAGE( ${core_name} REQUIRED)
   GET_TARGET_PROPERTY(DALI_WINDOWS_DEPENDENCIES_INCLUDE_DIRS
     dali-windows-dependencies::dali-windows-dependencies
     INTERFACE_INCLUDE_DIRECTORIES)
@@ -327,10 +337,10 @@ IF( ENABLE_PKG_CONFIGURE )
   # Requires the following variables to be setup:
   # @PREFIX@ @EXEC_PREFIX@ @DALI_ADAPTOR_VERSION@ @LIB_DIR@ @DEV_INCLUDE_PATH@
   SET( DEV_INCLUDE_PATH ${INCLUDE_DIR} )
-  SET( ADAPTOR_PKG_CFG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/dali2-adaptor.pc )
-  SET( ADAPTOR_INTEGRATION_PKG_CFG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/dali2-adaptor-integration.pc )
-  CONFIGURE_FILE( ${ADAPTOR_PKG_CFG_FILE}.in ${ADAPTOR_PKG_CFG_FILE} @ONLY )
-  CONFIGURE_FILE( ${ADAPTOR_INTEGRATION_PKG_CFG_FILE}.in ${ADAPTOR_INTEGRATION_PKG_CFG_FILE} @ONLY )
+  SET( ADAPTOR_PKG_CFG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${name}.pc )
+  SET( ADAPTOR_INTEGRATION_PKG_CFG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${name}-integration.pc )
+  CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/dali-adaptor.pc.in ${ADAPTOR_PKG_CFG_FILE} @ONLY )
+  CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/dali-adaptor-integration.pc.in ${ADAPTOR_INTEGRATION_PKG_CFG_FILE} @ONLY )
 ENDIF()
 
 CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/system-cache-path.in ${ADAPTOR_ROOT}/dali/internal/adaptor/common/system-cache-path.cpp @ONLY)
@@ -523,12 +533,12 @@ ENDIF()
 IF(WIN32)
   SET(WINDOWS_PRIVATE_LIBS ${REQUIRED_LIBS})
   LIST(REMOVE_ITEM WINDOWS_PRIVATE_LIBS
-    dali2-core::dali2-core
+    ${core_name}::${core_name}
     unofficial::angle::libEGL
   )
   TARGET_LINK_LIBRARIES(${name}
     PUBLIC
-      dali2-core::dali2-core
+      ${core_name}::${core_name}
       unofficial::angle::libEGL
     PRIVATE ${DALI_LDFLAGS} ${WINDOWS_PRIVATE_LIBS} ${OPTIONAL_LIBS} ${COVERAGE}
   )
@@ -566,7 +576,7 @@ IF( INSTALL_CMAKE_MODULES )
   )
 
   IF(WIN32)
-    SET(PACKAGE_DEPENDENCIES "    find_dependency(dali2-core CONFIG REQUIRED)\n    find_dependency(unofficial-angle CONFIG REQUIRED)\n")
+    SET(PACKAGE_DEPENDENCIES "    find_dependency(${core_name} CONFIG REQUIRED)\n    find_dependency(unofficial-angle CONFIG REQUIRED)\n")
   ELSE()
     SET(PACKAGE_DEPENDENCIES "")
   ENDIF()

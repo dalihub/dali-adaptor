@@ -36,16 +36,16 @@ $Context = New-DaliBuildContext `
   -VcpkgRoot $VcpkgRoot
 Initialize-DaliBuildEnvironment -Context $Context
 
-$CorePackage = Join-Path $Context.InstallPrefix "share\dali2-core"
-$AdaptorPackage = Join-Path $Context.InstallPrefix "share\dali2-adaptor"
+$CorePackage = Join-Path $Context.InstallPrefix "share\dali3-core"
+$AdaptorPackage = Join-Path $Context.InstallPrefix "share\dali3-adaptor"
 Assert-DaliPaths -Paths @(
-  (Join-Path $CorePackage "dali2-core-config.cmake"),
-  (Join-Path $AdaptorPackage "dali2-adaptor-config.cmake")
+  (Join-Path $CorePackage "dali3-core-config.cmake"),
+  (Join-Path $AdaptorPackage "dali3-adaptor-config.cmake")
 ) -Description "DALi package; build dali-core and dali-adaptor first"
 
 $Arguments = (Get-DaliCommonCMakeArguments -Context $Context -Configuration $Configuration) + @(
-  "-Ddali2-core_DIR=$CorePackage",
-  "-Ddali2-adaptor_DIR=$AdaptorPackage"
+  "-Ddali3-core_DIR=$CorePackage",
+  "-Ddali3-adaptor_DIR=$AdaptorPackage"
 )
 
 Invoke-DaliCMakeProject `

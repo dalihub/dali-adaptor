@@ -1,5 +1,5 @@
 IF( (NOT UBUNTU_PROFILE) )
-  SET(APPLICATION_NORMAL_TARGET dali2-adaptor-application-normal )
+  SET(APPLICATION_NORMAL_TARGET ${name}-application-normal )
 
   MESSAGE(STATUS ${ROOT_SRC_DIR}/dali/internal/application-model )
   SET( appmodel_src_dir ${ROOT_SRC_DIR}/dali/internal/application-model )
@@ -22,8 +22,8 @@ IF( (NOT UBUNTU_PROFILE) )
     PKG_CHECK_MODULES(APPCORECOMMON appcore-common)
     PKG_CHECK_MODULES(ELDBUS eldbus)
 
-    SET(CORE_PKG_CFG_FILE dali2-adaptor-application-normal.pc)
-    CONFIGURE_FILE(${CMAKE_CURRENT_LIST_DIR}/${CORE_PKG_CFG_FILE}.in ${CORE_PKG_CFG_FILE} @ONLY)
+    SET(CORE_PKG_CFG_FILE ${name}-application-normal.pc)
+    CONFIGURE_FILE(${CMAKE_CURRENT_LIST_DIR}/dali-adaptor-application-normal.pc.in ${CORE_PKG_CFG_FILE} @ONLY)
   ENDIF()
 
   IF( USE_TCORE_BACKEND )
@@ -41,7 +41,7 @@ IF( (NOT UBUNTU_PROFILE) )
     ${APPCORECOMMON_LDFLAGS}
     ${ELDBUS_LDFLAGS}
     ${APPLICATION_NORMAL_EXTRA_LDFLAGS}
-    dali2-adaptor
+    ${name}
   )
 
   TARGET_COMPILE_OPTIONS( ${APPLICATION_NORMAL_TARGET} PUBLIC

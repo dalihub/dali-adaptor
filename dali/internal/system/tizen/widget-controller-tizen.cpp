@@ -38,7 +38,7 @@ namespace Internal
 {
 namespace
 {
-constexpr char const* const kApplicationNamePrefix  = "libdali2-adaptor-application-";
+constexpr char const* const kApplicationNamePrefix  = DALI_LIBRARY_PREFIX "adaptor-application-";
 constexpr char const* const kApplicationNamePostfix = ".so";
 
 std::string MakePluginName(const char* appModelName)

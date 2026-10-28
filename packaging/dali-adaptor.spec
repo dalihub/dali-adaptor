@@ -1,7 +1,11 @@
+# dali2 is the same code built a second time under the dali2 name, for
+# applications that still use it. To drop it, remove the "with dali2" blocks.
+%bcond_without dali2
+
 # NOTES
 # This spec file builds one DALi Adaptor, used by every Tizen profile.
 
-Name:       dali2-adaptor
+Name:       dali3-adaptor
 Summary:    The DALi Tizen Adaptor
 Version:    2.5.45
 Release:    1
@@ -63,8 +67,12 @@ BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(ttrace)
 
+BuildRequires:  dali3-devel
+BuildRequires:  dali3-integration-devel
+%if %{with dali2}
 BuildRequires:  dali2-devel
 BuildRequires:  dali2-integration-devel
+%endif
 
 BuildRequires:  pkgconfig
 BuildRequires:  pkgconfig(rpc-port)
@@ -174,15 +182,6 @@ BuildRequires: asan-build-env
 BuildRequires: libasan
 %endif
 
-# Absorbs the profile_mobile, profile_tv and profile_common packages an image
-# may still have installed. The library they carried is in this package.
-Provides:   %{name}-profile_common = %{version}-%{release}
-Provides:   %{name}-profile_mobile = %{version}-%{release}
-Provides:   %{name}-profile_tv = %{version}-%{release}
-Obsoletes:  %{name}-profile_common < %{version}-%{release}
-Obsoletes:  %{name}-profile_mobile < %{version}-%{release}
-Obsoletes:  %{name}-profile_tv < %{version}-%{release}
-
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
 platform abstraction and application shell
@@ -225,12 +224,74 @@ Integration development package for the Adaptor - headers for integrating with a
 ##############################
 # Dali Feedback Plugin
 ##############################
-%package dali2-feedback-plugin
+%package dali3-feedback-plugin
 Summary:    Plugin to play haptic and audio feedback for Dali
 Group:      System/Libraries
 Requires:   %{name} = %{version}-%{release}
-%description dali2-feedback-plugin
+%description dali3-feedback-plugin
 Feedback plugin to play haptic and audio feedback for Dali
+
+%if %{with dali2}
+##############################
+# dali2
+##############################
+%package -n dali2-adaptor
+Summary:    The DALi Tizen Adaptor
+Group:      System/Libraries
+Requires(post): /sbin/ldconfig
+Requires(postun): /sbin/ldconfig
+Requires:       giflib
+%if "%{graphics_backend}" == "VULKAN"
+Requires:       glslang
+%endif
+%if 0%{?tizen_version_major} >= 11
+Requires: capi-system-system-settings-util-lib
+%endif
+# Absorbs the profile_mobile, profile_tv and profile_common packages an image
+# may still have installed. The library they carried is in this package.
+Provides:   dali2-adaptor-profile_common = %{version}-%{release}
+Provides:   dali2-adaptor-profile_mobile = %{version}-%{release}
+Provides:   dali2-adaptor-profile_tv = %{version}-%{release}
+Obsoletes:  dali2-adaptor-profile_common < %{version}-%{release}
+Obsoletes:  dali2-adaptor-profile_mobile < %{version}-%{release}
+Obsoletes:  dali2-adaptor-profile_tv < %{version}-%{release}
+
+%description -n dali2-adaptor
+The DALi Tizen Adaptor - the same code as %{name}, under the dali2 name
+
+%if "%{graphics_backend}" == "DYNAMIC"
+%package -n dali2-adaptor-vulkan
+Summary:        The DALi Tizen Adaptor with the Vulkan library
+Requires:       dali2-adaptor
+Requires:       glslang
+%description -n dali2-adaptor-vulkan
+The DALi Tizen Adaptor with the Vulkan library.
+%endif
+
+%package -n dali2-adaptor-devel
+Summary:    Development components for the DALi Tizen Adaptor
+Group:      Development/Building
+Requires:   dali2-adaptor = %{version}-%{release}
+
+%description -n dali2-adaptor-devel
+Development components for the DALi Tizen Adaptor - public headers and package configs
+
+%package -n dali2-adaptor-integration-devel
+Summary:    Integration development package for the Adaptor
+Group:      Development/Building
+Requires:   dali2-adaptor = %{version}-%{release}
+Requires:   dali2-adaptor-devel = %{version}-%{release}
+
+%description -n dali2-adaptor-integration-devel
+Integration development package for the Adaptor - headers for integrating with an adaptor library.
+
+%package -n dali2-adaptor-dali2-feedback-plugin
+Summary:    Plugin to play haptic and audio feedback for Dali
+Group:      System/Libraries
+Requires:   dali2-adaptor = %{version}-%{release}
+%description -n dali2-adaptor-dali2-feedback-plugin
+Feedback plugin to play haptic and audio feedback for Dali
+%endif
 
 #Use TZ_PATH when tizen version is 3.x or greater
 %define dali_data_rw_dir         %TZ_SYS_RO_SHARE/dali/
@@ -377,6 +438,17 @@ cmake -DENABLE_PROFILE=TIZEN $cmake_flags ..
 make %{?jobs:-j%jobs}
 cd ..
 
+%if %{with dali2}
+# The same options as dali3 above; only DALI_API_MAJOR differs.
+mkdir -p build-dali2
+cd build-dali2
+
+cmake -DENABLE_PROFILE=TIZEN $cmake_flags -DDALI_API_MAJOR=2 ..
+
+make %{?jobs:-j%jobs}
+cd ..
+%endif
+
 ##############################
 # Installation
 ##############################
@@ -388,6 +460,12 @@ cd %{_builddir}/%{name}-%{version}/build/tizen
 cd build
 %make_install
 cd ..
+
+%if %{with dali2}
+cd build-dali2
+%make_install
+cd ..
+%endif
 
 # Create a symbolic link in integration-api to preserve legacy repo build
 _dali_install_tizen_dir=$(pwd)
@@ -422,6 +500,17 @@ exit 0
 /sbin/ldconfig
 exit 0
 
+%if %{with dali2}
+%post -n dali2-adaptor
+/sbin/ldconfig
+rm -rf %{system_cache_dir}shader/
+exit 0
+
+%postun -n dali2-adaptor
+/sbin/ldconfig
+exit 0
+%endif
+
 ##############################
 ##############################
 # Files in Binary Packages
@@ -439,24 +528,24 @@ exit 0
 %license LICENSE.Unlicense
 %license LICENSE.Zlib
 %defattr(-,root,root,-)
-%{_libdir}/libdali2-adaptor.so
-%{_libdir}/libdali2-adaptor.so.2
-%{_libdir}/libdali2-adaptor.so.2.0.0
+%{_libdir}/libdali3-adaptor.so
+%{_libdir}/libdali3-adaptor.so.3
+%{_libdir}/libdali3-adaptor.so.3.0.0
 
 # Internal so files
 # Separate graphics libraries exist only in the DYNAMIC configuration;
-# GLES / VULKAN builds integrate the backend into libdali2-adaptor.so
+# GLES / VULKAN builds integrate the backend into libdali3-adaptor.so
 %if "%{graphics_backend}" == "DYNAMIC"
-%{_libdir}/libdali2-adaptor-gles.so
+%{_libdir}/libdali3-adaptor-gles.so
 %endif
-%{_libdir}/libdali2-adaptor-gl-window-addon.so
-%{_libdir}/libdali2-adaptor-application-normal.so*
-%{_libdir}/libdali2-file-download-plugin-curl.so
-%{_libdir}/libdali2-file-download-plugin-download-api.so
+%{_libdir}/libdali3-adaptor-gl-window-addon.so
+%{_libdir}/libdali3-adaptor-application-normal.so*
+%{_libdir}/libdali3-file-download-plugin-curl.so
+%{_libdir}/libdali3-file-download-plugin-download-api.so
 
 %if "%{mv_prj}" != "1"
-%{_libdir}/libdali2-adaptor-application-widget.so*
-%{_libdir}/libdali2-adaptor-application-component-based.so*
+%{_libdir}/libdali3-adaptor-application-widget.so*
+%{_libdir}/libdali3-adaptor-application-component-based.so*
 %endif
 
 #################################################
@@ -465,15 +554,15 @@ exit 0
 %files vulkan
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali2-adaptor-vulkan.so
+%{_libdir}/libdali3-adaptor-vulkan.so
 %endif
 
 #################################################
 
-%files dali2-feedback-plugin
+%files dali3-feedback-plugin
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali2-feedback-plugin.so*
+%{_libdir}/libdali3-feedback-plugin.so*
 %{dali_plugin_sound_files_install_dir}/*
 
 #################################################
@@ -484,7 +573,7 @@ exit 0
 %{_includedir}/dali/public-api/*
 %{_includedir}/dali/extension-api/*
 %{_includedir}/dali/doc/*
-%{_libdir}/pkgconfig/dali2-adaptor.pc
+%{_libdir}/pkgconfig/dali3-adaptor.pc
 
 %files integration-devel
 %defattr(-,root,root,-)
@@ -492,4 +581,65 @@ exit 0
 %{_includedir}/dali/integration-api/adaptor-framework/*
 %{_includedir}/dali/integration-api/system/*
 %{_includedir}/dali/integration-api/adaptors
+%{_libdir}/pkgconfig/dali3-adaptor-integration.pc
+
+%if %{with dali2}
+#################################################
+# Both builds install the same headers, data and tools, so dali2 shares them with dali3.
+
+%files -n dali2-adaptor
+%manifest dali-adaptor.manifest
+%defattr(-,root,root,-)
+%dir %{user_shader_cache_dir}
+%{_bindir}/*
+%license LICENSE
+%license LICENSE.BSD-3-Clause
+%license LICENSE.CC0-1.0
+%license LICENSE.MIT
+%license LICENSE.Unlicense
+%license LICENSE.Zlib
+%defattr(-,root,root,-)
+%{_libdir}/libdali2-adaptor.so
+%{_libdir}/libdali2-adaptor.so.2
+%{_libdir}/libdali2-adaptor.so.2.0.0
+%if "%{graphics_backend}" == "DYNAMIC"
+%{_libdir}/libdali2-adaptor-gles.so
+%endif
+%{_libdir}/libdali2-adaptor-gl-window-addon.so
+%{_libdir}/libdali2-adaptor-application-normal.so*
+%{_libdir}/libdali2-file-download-plugin-curl.so
+%{_libdir}/libdali2-file-download-plugin-download-api.so
+%if "%{mv_prj}" != "1"
+%{_libdir}/libdali2-adaptor-application-widget.so*
+%{_libdir}/libdali2-adaptor-application-component-based.so*
+%endif
+
+%if "%{graphics_backend}" == "DYNAMIC"
+%files -n dali2-adaptor-vulkan
+%manifest dali-adaptor.manifest
+%defattr(-,root,root,-)
+%{_libdir}/libdali2-adaptor-vulkan.so
+%endif
+
+%files -n dali2-adaptor-dali2-feedback-plugin
+%manifest dali-adaptor.manifest
+%defattr(-,root,root,-)
+%{_libdir}/libdali2-feedback-plugin.so*
+%{dali_plugin_sound_files_install_dir}/*
+
+%files -n dali2-adaptor-devel
+%defattr(-,root,root,-)
+%{_includedir}/dali/dali.h
+%{_includedir}/dali/public-api/*
+%{_includedir}/dali/extension-api/*
+%{_includedir}/dali/doc/*
+%{_libdir}/pkgconfig/dali2-adaptor.pc
+
+%files -n dali2-adaptor-integration-devel
+%defattr(-,root,root,-)
+%{_includedir}/dali/devel-api/*
+%{_includedir}/dali/integration-api/adaptor-framework/*
+%{_includedir}/dali/integration-api/system/*
+%{_includedir}/dali/integration-api/adaptors
 %{_libdir}/pkgconfig/dali2-adaptor-integration.pc
+%endif

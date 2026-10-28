@@ -177,7 +177,7 @@ CHECK_MODULE_AND_SET( CAPI_APPFW_WIDGET_BASE ${APPFW_WIDGET_BASE_PKG} [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_COMMON capi-appfw-app-common [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_CONTROL capi-appfw-app-control [] )
 
-CHECK_MODULE_AND_SET( DALICORE dali2-core [] )
+CHECK_MODULE_AND_SET( DALICORE ${core_name} [] )
 
 # Check tizen-core and tizen-core-wl dependencies only for the TCORE backend.
 IF( USE_TCORE_BACKEND )
