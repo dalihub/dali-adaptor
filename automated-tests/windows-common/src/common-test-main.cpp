@@ -31,8 +31,8 @@ struct UnsupportedTest
 
 constexpr UnsupportedTest WINDOWS_UNSUPPORTED_TESTS[] = {
   {"UtcDaliDownloadImageP", "The Windows curl dependency was built without file:// protocol support."},
-  {"UtcDaliGlWindowNew1", "This TC loads the Linux libdali2-adaptor-gl-window-addon.so addon."},
-  {"UtcDaliGlWindowNew2", "This TC loads the Linux libdali2-adaptor-gl-window-addon.so addon."},
+  {"UtcDaliGlWindowNew1", "This TC loads the Linux libdali3-adaptor-gl-window-addon.so addon."},
+  {"UtcDaliGlWindowNew2", "This TC loads the Linux libdali3-adaptor-gl-window-addon.so addon."},
 };
 
 const char* GetUnsupportedReason(const char* name)
