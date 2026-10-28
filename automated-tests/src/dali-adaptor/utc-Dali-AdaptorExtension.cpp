@@ -67,3 +67,19 @@ int UtcDaliAdaptorExtensionGetWindowsN(void)
 
   END_TEST;
 }
+
+int UtcDaliAdaptorExtensionSetMaximumRenderFrameRateN(void)
+{
+  try
+  {
+    Dali::Extension::SetMaximumRenderFrameRate(60.0f);
+
+    tet_result(TET_FAIL);
+  }
+  catch(DaliException& e)
+  {
+    DALI_TEST_ASSERT(e, "Adaptor not instantiated", TEST_LOCATION);
+  }
+
+  END_TEST;
+}
