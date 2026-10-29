@@ -20,7 +20,7 @@
 
 #include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/image-loader-input.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/images/pixel-buffer.h>
 
 // Simple structure to close the file when finished with it.
 struct AutoCloseFile

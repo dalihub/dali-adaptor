@@ -32,16 +32,16 @@
 #include <memory>
 #include <utility>
 
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/images/pixel-buffer.h>
 #include <dali/public-api/object/property-array.h>
 #include <dali/public-api/object/property-map.h>
 
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/image-loading-devel.h>
+#include <dali/integration-api/pixel-buffer-integ.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/internal/imaging/common/image-operations.h>
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
 #include <dali/internal/legacy/tizen/platform-capabilities.h>
 #include <dali/internal/system/common/system-error-print.h>
 
@@ -1002,9 +1002,8 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBu
         return false;
       }
 
-      Internal::Adaptor::PixelBufferPtr internal = Internal::Adaptor::PixelBuffer::New(buffer, planeSize, width, height, planeWidth * Pixel::GetBytesPerPixel(pixelFormat), pixelFormat);
-      Dali::PixelBuffer                 bitmap   = Dali::PixelBuffer(internal.Get());
-      planes[i]                                  = buffer;
+      Dali::PixelBuffer bitmap = Dali::Integration::NewPixelBuffer(buffer, planeSize, width, height, planeWidth * Pixel::GetBytesPerPixel(pixelFormat), pixelFormat);
+      planes[i]                = buffer;
       pixelBuffers.push_back(bitmap);
     }
 
@@ -1049,7 +1048,7 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBu
         }
       }
 
-      GetImplementation(bitmap).SetMetadata(std::move(exifMap));
+      Dali::Integration::SetPixelBufferMetadata(bitmap, std::move(*exifMap));
     }
 
     auto      bitmapPixelBuffer = bitmap.GetBuffer();

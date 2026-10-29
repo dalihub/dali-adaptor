@@ -17,10 +17,12 @@
  * limitations under the License.
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/images/pixel-buffer.h>
+
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/bitmap-font.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 #include <dali/internal/text/text-abstraction/plugin/font-cache-item-interface.h>
 #include <ft2build.h>

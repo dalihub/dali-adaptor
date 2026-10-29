@@ -18,6 +18,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/images/pixel-buffer.h>
 #include <dali/public-api/images/pixel-data.h>
 #include <string>
 #include <vector>
@@ -25,7 +26,6 @@
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/resource-types.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace DALI_NAMESPACE
 {

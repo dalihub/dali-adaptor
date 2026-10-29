@@ -17,10 +17,8 @@
  * limitations under the License.
  */
 
-// INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
-
 // EXTERNAL INCLUDES
+#include <dali/public-api/images/pixel-buffer.h>
 #include <string>
 
 namespace DALI_NAMESPACE::TextAbstraction::Internal

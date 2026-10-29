@@ -23,7 +23,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/gaussian-blur.h>
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
 namespace DALI_NAMESPACE
 {
@@ -216,7 +215,7 @@ bool ConvoluteAndTranspose(uint8_t*       inBuffer,
 }
 } // namespace
 
-bool PerformGaussianBlur(PixelBuffer& buffer, const float blurRadius)
+bool PerformGaussianBlur(Dali::PixelBuffer& buffer, const float blurRadius)
 {
   if(DALI_UNLIKELY(blurRadius < 0.0f))
   {
@@ -245,18 +244,18 @@ bool PerformGaussianBlur(PixelBuffer& buffer, const float blurRadius)
 
   // Create a temporary buffer for the two-pass blur
   // On leaving scope, softShadowImageBuffer will get destroyed.
-  PixelBufferPtr softShadowImageBuffer = PixelBuffer::New(bufferHeight, bufferWidth, bufferPixelFormat);
+  Dali::PixelBuffer softShadowImageBuffer = Dali::PixelBuffer::New(bufferHeight, bufferWidth, bufferPixelFormat);
 
   // We perform the blur first but write its output image buffer transposed, so that we
   // can just do it in two passes. The first pass blurs horizontally and transposes, the
   // second pass does the same, but as the image is now transposed, it's really doing a
   // vertical blur. The second transposition makes the image the right way up again. This
   // is much faster than doing a 2D convolution.
-  if(DALI_UNLIKELY(!ConvoluteAndTranspose(buffer.GetBuffer(), softShadowImageBuffer->GetBuffer(), bufferWidth, bufferHeight, bufferStrideBytes, softShadowImageBuffer->GetStrideBytes(), bytesPerPixel, bytesPerPixel, blurRadius)))
+  if(DALI_UNLIKELY(!ConvoluteAndTranspose(buffer.GetBuffer(), softShadowImageBuffer.GetBuffer(), bufferWidth, bufferHeight, bufferStrideBytes, softShadowImageBuffer.GetStrideBytes(), bytesPerPixel, bytesPerPixel, blurRadius)))
   {
     return false;
   }
-  if(DALI_UNLIKELY(!ConvoluteAndTranspose(softShadowImageBuffer->GetBuffer(), buffer.GetBuffer(), bufferHeight, bufferWidth, softShadowImageBuffer->GetStrideBytes(), bufferStrideBytes, bytesPerPixel, bytesPerPixel, blurRadius)))
+  if(DALI_UNLIKELY(!ConvoluteAndTranspose(softShadowImageBuffer.GetBuffer(), buffer.GetBuffer(), bufferHeight, bufferWidth, softShadowImageBuffer.GetStrideBytes(), bufferStrideBytes, bytesPerPixel, bytesPerPixel, blurRadius)))
   {
     return false;
   }
