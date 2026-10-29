@@ -13,6 +13,7 @@ SET(TC_SOURCES
     utc-Dali-Accessibility.cpp
     utc-Dali-AsyncTaskManager.cpp
     utc-Dali-ClipboardData.cpp
+    utc-Dali-Constexpr.cpp
     utc-Dali-DragData.cpp
     utc-Dali-EncodedImageBuffer.cpp
     utc-Dali-UiContext.cpp
