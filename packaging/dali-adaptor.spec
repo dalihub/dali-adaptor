@@ -317,6 +317,8 @@ Feedback plugin to play haptic and audio feedback for Dali
 # Build
 ##############################
 %build
+# TODO: temporary fix => will remove after included in gcc_warning_sr_pkgs list in build.conf
+%{?gcc_unforce_options:%gcc_unforce_options}
 PREFIX="$PREFIX/usr"
 CXXFLAGS="$CXXFLAGS -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES -Wno-psabi"
 LDFLAGS="$LDFLAGS -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -lttrace -Wl,-Bsymbolic-functions "
