@@ -167,7 +167,7 @@ Requires: capi-system-system-settings-util-lib
 %endif
 
 # for ATSPI (Accessibility) support
-BuildRequires:  pkgconfig(eldbus)
+BuildRequires:  pkgconfig(gio-2.0)
 
 # for feedback plugin
 BuildRequires:  pkgconfig(mm-sound)
