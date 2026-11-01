@@ -30,7 +30,7 @@ WindowData::WindowData()
 
 WindowData::~WindowData() = default;
 
-void WindowData::SetPositionSize(Dali::BoundsInteger& positionSize)
+void WindowData::SetPositionSize(const Dali::BoundsInteger& positionSize)
 {
   mImpl->mPositionSize = positionSize;
 }

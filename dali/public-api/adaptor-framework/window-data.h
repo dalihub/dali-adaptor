@@ -66,7 +66,7 @@ public:
    * @SINCE_2_2.23
    * @param[in] positionSize Position and Size
    */
-  void SetPositionSize(Dali::BoundsInteger& positionSize);
+  void SetPositionSize(const Dali::BoundsInteger& positionSize);
 
   /**
    * @brief Gets the PositionSize
