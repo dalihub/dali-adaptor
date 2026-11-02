@@ -97,12 +97,12 @@ void WindowData::SetMultiSampledAntiAliasingLevel(uint8_t level)
 
 WindowData::Impl& WindowData::GetImplementation()
 {
-  return *mImpl;
+  return Internal::Adaptor::GetImplementation(*this);
 }
 
 const WindowData::Impl& WindowData::GetImplementation() const
 {
-  return *mImpl;
+  return Internal::Adaptor::GetImplementation(*this);
 }
 
 } //namespace DALI_NAMESPACE
