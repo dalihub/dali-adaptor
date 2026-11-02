@@ -17,6 +17,7 @@
 
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
+#include <dali/integration-api/shader-integ.h>
 #include <dali/integration-api/testing.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-shader.h>
 #include <test-graphics-egl-application.h>
@@ -96,13 +97,13 @@ int UtcDaliGlesStripLegacyCodeIfNeededTest2(void)
     "//@version 100\n"
     "some code\n");
 
-  auto vertexPrefix = Dali::Shader::GetVertexShaderPrefix();
+  auto vertexPrefix = Dali::Integration::GetVertexShaderPrefix();
 
   {
     Dali::Graphics::ShaderCreateInfo info;
     info.SetPipelineStage(Dali::Graphics::PipelineStage::VERTEX_SHADER);
 
-    Dali::String prefixedVertexShader = Dali::Shader::GetVertexShaderPrefix() + vertexShader;
+    Dali::String prefixedVertexShader = Dali::Integration::GetVertexShaderPrefix() + vertexShader;
 
     info.SetShaderVersion(100);
     info.SetSourceData(&prefixedVertexShader.CStr()[0]);
