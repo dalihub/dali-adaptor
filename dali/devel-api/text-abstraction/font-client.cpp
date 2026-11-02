@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
+#include <dali/internal/system/common/locale-context.h>
 
 namespace DALI_NAMESPACE
 {
@@ -367,22 +368,22 @@ void FontClientJoinFontThreads()
 
 void EnsureLocale()
 {
-  Internal::FontClient::EnsureLocale();
+  Dali::Internal::Adaptor::Locale::EnsureLocale();
 }
 
 const std::string& GetLocale()
 {
-  return Internal::FontClient::GetLocale();
+  return Dali::Internal::Adaptor::Locale::GetLanguageCode();
 }
 
 const std::string& GetLocaleFull()
 {
-  return Internal::FontClient::GetLocaleFull();
+  return Dali::Internal::Adaptor::Locale::GetLocaleName();
 }
 
 void SetLocale(const std::string& locale)
 {
-  Internal::FontClient::SetLocale(locale);
+  Dali::Internal::Adaptor::Locale::SetLocale(locale);
 }
 
 void EnableDesignCompatibility()
