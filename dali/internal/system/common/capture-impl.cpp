@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/pixel-data-integ.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/common/dali-utility.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
@@ -169,13 +168,12 @@ Dali::NativeImagePtr Capture::GetNativeImage()
   Dali::NativeImagePtr result;
   if(mRenderTask)
   {
-    Dali::PixelData pixelData = mRenderTask.GetRenderResult();
-    if(pixelData)
+    Dali::PixelBuffer renderResult = mRenderTask.GetRenderResultBuffer();
+    if(renderResult)
     {
-      auto                 pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(pixelData);
-      Dali::NativeImagePtr nativeImagePtr  = Dali::NativeImage::New(pixelData.GetWidth(), pixelData.GetHeight(), Dali::NativeImage::COLOR_DEPTH_32); // Texture pixel format is RGBA8888
+      Dali::NativeImagePtr nativeImagePtr = Dali::NativeImage::New(renderResult.GetWidth(), renderResult.GetHeight(), Dali::NativeImage::COLOR_DEPTH_32); // Texture pixel format is RGBA8888
 
-      if(Dali::DevelNativeImage::SetPixels(*nativeImagePtr, pixelDataBuffer.buffer, pixelData.GetPixelFormat()))
+      if(Dali::DevelNativeImage::SetPixels(*nativeImagePtr, renderResult.GetBuffer(), renderResult.GetPixelFormat()))
       {
         result = nativeImagePtr;
       }
@@ -194,13 +192,7 @@ Dali::PixelBuffer Capture::GetCapturedBuffer()
   Dali::PixelBuffer pixelBuffer;
   if(mRenderTask)
   {
-    Dali::PixelData pixelData = mRenderTask.GetRenderResult();
-    if(pixelData)
-    {
-      auto pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(pixelData);
-      pixelBuffer          = Dali::PixelBuffer::New(pixelData.GetWidth(), pixelData.GetHeight(), pixelData.GetPixelFormat());
-      memcpy(pixelBuffer.GetBuffer(), pixelDataBuffer.buffer, pixelDataBuffer.bufferSize);
-    }
+    pixelBuffer = mRenderTask.GetRenderResultBuffer();
   }
   return pixelBuffer;
 }
@@ -376,8 +368,8 @@ void Capture::OnRenderFinished(Dali::RenderTask task)
       }
 
       DALI_LOG_DEBUG_INFO("Request to save Capture Path[%s]\n", mPath.c_str());
-      Dali::PixelData pixelData = mRenderTask.GetRenderResult();
-      mCaptureFileSaveTask      = new Capture::CaptureFileSaveTask(mRenderTask, pixelData, mPath, mQuality, MakeCallback(this, &Capture::OnFileSaveCompleted));
+      Dali::PixelBuffer renderResult = mRenderTask.GetRenderResultBuffer();
+      mCaptureFileSaveTask           = new Capture::CaptureFileSaveTask(mRenderTask, renderResult, mPath, mQuality, MakeCallback(this, &Capture::OnFileSaveCompleted));
       Dali::AsyncTaskManager::Get().AddTask(mCaptureFileSaveTask);
     }
     else
@@ -445,10 +437,10 @@ void Capture::Process(bool postProcessor)
 
 // CaptureFileSaveTask
 
-Capture::CaptureFileSaveTask::CaptureFileSaveTask(Dali::RenderTask renderTask, Dali::PixelData pixelData, std::string path, uint32_t quality, CallbackBase* callback)
+Capture::CaptureFileSaveTask::CaptureFileSaveTask(Dali::RenderTask renderTask, Dali::PixelBuffer pixelBuffer, std::string path, uint32_t quality, CallbackBase* callback)
 : AsyncTask(callback),
   mRenderTask(std::move(renderTask)),
-  mPixelData(std::move(pixelData)),
+  mPixelBuffer(std::move(pixelBuffer)),
   mPath(std::move(path)),
   mQuality(quality),
   mFileSaved(false)
@@ -459,16 +451,15 @@ Capture::CaptureFileSaveTask::~CaptureFileSaveTask() = default;
 
 void Capture::CaptureFileSaveTask::Process()
 {
-  if(mPixelData)
+  if(mPixelBuffer)
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_CAPTURE_FILE_SAVE");
 
-    auto              pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(mPixelData);
     Dali::PixelBuffer pixelBuffer;
 
     uint8_t* buffer = nullptr;
 
-    auto pixelFormat = mPixelData.GetPixelFormat();
+    auto pixelFormat = mPixelBuffer.GetPixelFormat();
 
     if(!Dali::Pixel::IsCompressed(pixelFormat) && Dali::Pixel::HasAlpha(pixelFormat))
     {
@@ -477,17 +468,19 @@ void Capture::CaptureFileSaveTask::Process()
         case Pixel::RGBA8888:
         case Pixel::BGRA8888:
         {
-          pixelBuffer = Dali::PixelBuffer::New(pixelDataBuffer.width, pixelDataBuffer.height, pixelFormat);
+          // Work on a copy, so that undoing the alpha pre-multiplication does not
+          // change the kept render result
+          pixelBuffer = Dali::PixelBuffer::New(mPixelBuffer.GetWidth(), mPixelBuffer.GetHeight(), pixelFormat);
 
           buffer = pixelBuffer.GetBuffer();
-          memcpy(buffer, pixelDataBuffer.buffer, pixelDataBuffer.bufferSize);
+          memcpy(buffer, mPixelBuffer.GetBuffer(), mPixelBuffer.GetBufferSize());
 
           const uint32_t bpp         = Dali::Pixel::GetBytesPerPixel(pixelFormat);
           const uint32_t strideBytes = pixelBuffer.GetStrideBytes();
 
-          for(uint32_t y = 0u; y < mPixelData.GetHeight(); ++y)
+          for(uint32_t y = 0u; y < mPixelBuffer.GetHeight(); ++y)
           {
-            for(uint32_t x = 0u; x < mPixelData.GetWidth(); ++x)
+            for(uint32_t x = 0u; x < mPixelBuffer.GetWidth(); ++x)
             {
               uint8_t& c0 = buffer[y * strideBytes + x * bpp + 0u];
               uint8_t& c1 = buffer[y * strideBytes + x * bpp + 1u];
@@ -522,10 +515,10 @@ void Capture::CaptureFileSaveTask::Process()
     }
     else
     {
-      buffer = pixelDataBuffer.buffer;
+      buffer = mPixelBuffer.GetBuffer();
     }
 
-    if(DALI_LIKELY(buffer) && Dali::EncodeToFile(buffer, mPath, mPixelData.GetPixelFormat(), mPixelData.GetWidth(), mPixelData.GetHeight(), mQuality))
+    if(DALI_LIKELY(buffer) && Dali::EncodeToFile(buffer, mPath, pixelFormat, mPixelBuffer.GetWidth(), mPixelBuffer.GetHeight(), mQuality))
     {
       mFileSaved = true;
     }
@@ -536,7 +529,7 @@ void Capture::CaptureFileSaveTask::Process()
   }
   else
   {
-    DALI_LOG_ERROR("(Capture) Fail to save file - PixelData is nullptr. path[%s]\n", mPath.c_str());
+    DALI_LOG_ERROR("(Capture) Fail to save file - PixelBuffer is nullptr. path[%s]\n", mPath.c_str());
   }
 }
 
