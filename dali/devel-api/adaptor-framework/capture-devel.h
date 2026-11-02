@@ -18,9 +18,11 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/images/pixel-buffer.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/capture.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace DALI_NAMESPACE
 {

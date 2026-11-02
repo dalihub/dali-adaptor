@@ -1,7 +1,7 @@
 
 # module: imaging, backend: common
 SET( adaptor_imaging_common_src_files
-    ${adaptor_imaging_dir}/common/pixel-buffer-impl.cpp
+    ${adaptor_imaging_dir}/common/pixel-buffer-operations.cpp
     ${adaptor_imaging_dir}/common/alpha-mask.cpp
     ${adaptor_imaging_dir}/common/encoded-image-buffer-impl.cpp
     ${adaptor_imaging_dir}/common/gaussian-blur.cpp

@@ -20,7 +20,7 @@
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/internal/text/text-abstraction/plugin/pixel-buffer-cache-item.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/images/pixel-buffer.h>
 
 namespace DALI_NAMESPACE::TextAbstraction::Internal
 {

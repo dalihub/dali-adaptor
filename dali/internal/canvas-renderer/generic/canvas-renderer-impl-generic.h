@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/images/pixel-buffer.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
