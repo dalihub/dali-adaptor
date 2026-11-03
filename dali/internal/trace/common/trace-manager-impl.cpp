@@ -39,6 +39,12 @@ bool TraceManager::Initialise()
     return false;
   }
   Dali::Integration::Trace::InstallLogContextFunction(logFunction);
+
+  auto markFunction = GetMarkContextFunction();
+  if(markFunction)
+  {
+    Dali::Integration::Trace::InstallMarkContextFunction(markFunction);
+  }
   return true;
 }
 

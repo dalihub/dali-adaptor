@@ -50,11 +50,21 @@ protected:
    */
   Dali::Integration::Trace::LogContextFunction GetLogContextFunction() final;
 
+  /**
+   * Obtain the MarkContextFunction method (Tizen specific) used for instant markers
+   */
+  Dali::Integration::Trace::MarkContextFunction GetMarkContextFunction() final;
+
 private:
   /**
    * LogContext method (Tizen specific) used for tracing
    */
   static void LogContext(bool start, const char* tag, const char* message);
+
+  /**
+   * MarkContext method (Tizen specific) used for instant markers
+   */
+  static void MarkContext(const char* tag, const char* message);
 };
 
 } // namespace Adaptor
