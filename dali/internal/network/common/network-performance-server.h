@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/threading/mutex.h>
+#include <dali/devel-api/threading/conditional-wait.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <pthread.h>
 
@@ -134,7 +134,7 @@ private:
   void ClientThread(NetworkPerformanceClient* client);
 
   /**
-   * @brief Stop all client threads
+   * @brief Stop all client threads and wait until they have finished accessing the server
    */
   void StopClients();
 
@@ -146,10 +146,9 @@ private:
   /**
    * @brief Add a new client to the client list
    * @param clientSocket client socket
-   * @param clientThread client thread
    * @return client
    */
-  NetworkPerformanceClient* AddClient(SocketInterface* clientSocket, pthread_t* clientThread);
+  NetworkPerformanceClient* AddClient(SocketInterface* clientSocket);
 
   /**
    * @brief Delete a client from the client list
@@ -168,7 +167,7 @@ private:
   Dali::Vector<NetworkPerformanceClient*> mClients;              ///< list of connected clients
   pthread_t                               mServerThread;         ///< thread that listens for new connections
   SocketInterface*                        mListeningSocket;      ///< socket used to listen for new connections
-  Dali::Mutex                             mClientListMutex;      ///< mutex
+  Dali::ConditionalWait                   mClientListWait;       ///< protects mClients, notified when a client is deleted
   unsigned int                            mClientUniqueId;       ///< increments for every client connection
   volatile unsigned int                   mClientCount;          ///< client count
   bool                                    mLogFunctionInstalled; ///< whether the log function is installed

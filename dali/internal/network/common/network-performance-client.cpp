@@ -160,13 +160,11 @@ void TriggerOnMainThread(unsigned int clientId, ClientSendDataInterface& sendDat
 
 } // unnamed namespace
 
-NetworkPerformanceClient::NetworkPerformanceClient(pthread_t*               thread,
-                                                   SocketInterface*         socket,
+NetworkPerformanceClient::NetworkPerformanceClient(SocketInterface*         socket,
                                                    unsigned int             clientId,
                                                    ClientSendDataInterface& sendDataInterface,
                                                    SocketFactoryInterface&  socketFactory)
-: mThread(thread),
-  mSocket(socket),
+: mSocket(socket),
   mMarkerBitmask(PerformanceMarker::FILTERING_DISABLED),
   mSendDataInterface(sendDataInterface),
   mSocketFactoryInterface(socketFactory),
@@ -224,11 +222,6 @@ bool NetworkPerformanceClient::TransmitMarker(const PerformanceMarker& marker, c
 void NetworkPerformanceClient::ExitSelect()
 {
   mSocket->ExitSelect();
-}
-
-pthread_t* NetworkPerformanceClient::GetThread()
-{
-  return mThread;
 }
 
 void NetworkPerformanceClient::ProcessCommand(char* buffer, unsigned int bufferSizeInBytes)
