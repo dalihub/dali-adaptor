@@ -31,7 +31,11 @@ namespace
 {
 static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::UnifiedTriggerEventManager);
 
-DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_TRIGGER_PERFORMANCE_MARKER, false);
+
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_UNIFIED_TRIGGER");
+#endif
 } //namespace
 
 namespace DALI_NAMESPACE::Internal::Adaptor
@@ -102,7 +106,7 @@ TriggerEvent* UnifiedTriggerEventManager::GenerateTriggerEvent(CallbackBase* cal
 {
   auto* triggerEvent = new Internal::Adaptor::TriggerEvent(this, callback);
   mValidEventsId.insert(triggerEvent->GetId());
-  DALI_LOG_DEBUG_INFO("Generated Trigger[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
+  DALI_LOG_INFO(gLogFilter, Debug::General, "Generated Trigger[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
   return triggerEvent;
 }
 
@@ -110,7 +114,7 @@ void UnifiedTriggerEventManager::DiscardTriggerEvent(TriggerEvent* triggerEvent)
 {
   if(DALI_LIKELY(triggerEvent))
   {
-    DALI_LOG_DEBUG_INFO("Discard Trigger[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
+    DALI_LOG_INFO(gLogFilter, Debug::General, "Discard Trigger[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
     mValidEventsId.erase(triggerEvent->GetId());
     mDiscardedEvents.insert(triggerEvent);
 
@@ -146,12 +150,12 @@ void UnifiedTriggerEventManager::Triggered()
     // Check validation of trigger event.
     if(DALI_LIKELY(triggerEvent && mValidEventsId.find(triggerEvent->GetId()) != mValidEventsId.end()))
     {
-      DALI_LOG_DEBUG_INFO("Triggered[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
+      DALI_LOG_INFO(gLogFilter, Debug::General, "Triggered[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
       triggerEvent->Triggered();
     }
     else
     {
-      DALI_LOG_DEBUG_INFO("Ignore invalid trigger[%p]\n", triggerEvent);
+      DALI_LOG_INFO(gLogFilter, Debug::General, "Ignore invalid trigger[%p]\n", triggerEvent);
     }
   }
 
@@ -173,7 +177,7 @@ void UnifiedTriggerEventManager::Triggered()
 // From worker thread.
 void UnifiedTriggerEventManager::Trigger(TriggerEvent* triggerEvent)
 {
-  DALI_LOG_DEBUG_INFO("Trigger[%p] Id(%u) token:%llu\n", triggerEvent, DALI_LIKELY(triggerEvent) ? triggerEvent->GetId() : 0, static_cast<unsigned long long>(mSelfCallbackToken));
+  DALI_LOG_INFO(gLogFilter, Debug::General, "Trigger[%p] Id(%u) token:%llu\n", triggerEvent, DALI_LIKELY(triggerEvent) ? triggerEvent->GetId() : 0, static_cast<unsigned long long>(mSelfCallbackToken));
 
   bool writeRequired = true;
   {
