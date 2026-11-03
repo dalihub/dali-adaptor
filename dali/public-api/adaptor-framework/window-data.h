@@ -29,6 +29,11 @@
 
 namespace DALI_NAMESPACE
 {
+namespace Internal::Adaptor
+{
+struct DALI_INTERNAL WindowDataAccess;
+}
+
 /**
  * The WindowData class is used as a parameter for Window::New().
  * The data from the WindowData object is used to customize the window being created.
@@ -176,12 +181,22 @@ public:
    */
   void SetMultiSampledAntiAliasingLevel(uint8_t level);
 
-public:
+private:
   /// @cond internal
+  friend struct Internal::Adaptor::WindowDataAccess;
+  /// @endcond
+
+public: // Deprecated internal API
+  /// @cond internal
+  /**
+   * @brief Internal implementation type.
+   * @DEPRECATED_2_5.47 will be private
+   */
   struct Impl;
 
   /**
    * @brief Retrieves the internal implementation.
+   * @DEPRECATED_2_5.47 will be private
    *
    * @return The internal implementation
    * @note Not intended for application use.
@@ -190,6 +205,7 @@ public:
 
   /**
    * @copydoc Dali::WindowData::GetImplementation()
+   * @DEPRECATED_2_5.47 will be private
    */
   const Impl& GetImplementation() const;
   /// @endcond
