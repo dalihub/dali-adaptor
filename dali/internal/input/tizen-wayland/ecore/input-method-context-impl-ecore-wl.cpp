@@ -1899,8 +1899,8 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEve
     ecoreKeyDownEvent.dev_class    = static_cast<Ecore_IMF_Device_Class>(integKeyEvent.deviceClass);       // ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyDownEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>(integKeyEvent.deviceSubclass); // ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
-    ecoreKeyDownEvent.keycode = integKeyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
-#endif                                                 // Since ecore_imf 1.22 version
+    ecoreKeyDownEvent.keycode = !KeyLookup::IsSystemKeyCodePriority() && integKeyEvent.rawKeyCode != 0 ? integKeyEvent.rawKeyCode : static_cast<uint32_t>(integKeyEvent.keyCode);
+#endif // Since ecore_imf 1.22 version
 
     // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
     if((integKeyEvent.deviceName == "ime") && ((!strncmp(integKeyEvent.keyName.CStr(), "Left", 4)) ||
@@ -1955,8 +1955,8 @@ bool InputMethodContextEcoreWl::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent
     ecoreKeyUpEvent.dev_class    = static_cast<Ecore_IMF_Device_Class>(integKeyEvent.deviceClass);       // ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyUpEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>(integKeyEvent.deviceSubclass); // ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
-    ecoreKeyUpEvent.keycode = integKeyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
-#endif                                               // Since ecore_imf 1.22 version
+    ecoreKeyUpEvent.keycode = !KeyLookup::IsSystemKeyCodePriority() && integKeyEvent.rawKeyCode != 0 ? integKeyEvent.rawKeyCode : static_cast<uint32_t>(integKeyEvent.keyCode);
+#endif // Since ecore_imf 1.22 version
 
     eventHandled = ecore_imf_context_filter_event(mIMFContext,
                                                   ECORE_IMF_EVENT_KEY_UP,

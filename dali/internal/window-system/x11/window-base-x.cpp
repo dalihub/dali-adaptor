@@ -579,7 +579,8 @@ Integration::KeyEvent WindowBaseX::CreateKeyEvent(WindowSystemX::X11KeyEvent* ke
   uint32_t  time(keyEvent->timestamp);
 
   Integration::KeyEvent daliKeyEvent{keyName, logicalKey, keyString, keyCode, modifier, time, state, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS};
-  daliKeyEvent.windowId = GetNativeWindowId();
+  daliKeyEvent.rawKeyCode = rawKeyCode > 0 ? static_cast<uint32_t>(rawKeyCode) : 0;
+  daliKeyEvent.windowId   = GetNativeWindowId();
   return daliKeyEvent;
 }
 

@@ -573,9 +573,14 @@ void WindowBaseEcoreX::OnKeyDown(void* data, int type, void* event)
       logicalKey = keyEvent->key;
     }
 
-    const int rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
+#if defined(ECORE_VERSION_MAJOR) && defined(ECORE_VERSION_MINOR) && ((ECORE_VERSION_MAJOR > 1) || ((ECORE_VERSION_MAJOR == 1) && (ECORE_VERSION_MINOR >= 10)))
+    const uint32_t rawKeyCode = keyEvent->keycode;
+#else
+    const uint32_t rawKeyCode = 0;
+#endif
+    const int keymapKeyCode = ecore_x_keysym_keycode_get(keyEvent->keyname);
     const int mappedKeyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
-    int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
+    int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : keymapKeyCode;
     int       modifier(keyEvent->modifiers);
     uint32_t  time = keyEvent->timestamp;
 
@@ -586,7 +591,8 @@ void WindowBaseEcoreX::OnKeyDown(void* data, int type, void* event)
     }
 
     Integration::KeyEvent keyEvent(ToDaliString(keyName), ToDaliString(logicalKey), ToDaliString(keyString), keyCode, modifier, time, Integration::KeyEvent::DOWN, ToDaliString(compose), ToDaliString(std::string(DEFAULT_DEVICE_NAME)), DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
-    keyEvent.windowId = GetNativeWindowId();
+    keyEvent.rawKeyCode = rawKeyCode;
+    keyEvent.windowId   = GetNativeWindowId();
 
     mKeyEventSignal.Emit(keyEvent);
   }
@@ -616,9 +622,14 @@ void WindowBaseEcoreX::OnKeyUp(void* data, int type, void* event)
       logicalKey = keyEvent->key;
     }
 
-    const int rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
+#if defined(ECORE_VERSION_MAJOR) && defined(ECORE_VERSION_MINOR) && ((ECORE_VERSION_MAJOR > 1) || ((ECORE_VERSION_MAJOR == 1) && (ECORE_VERSION_MINOR >= 10)))
+    const uint32_t rawKeyCode = keyEvent->keycode;
+#else
+    const uint32_t rawKeyCode = 0;
+#endif
+    const int keymapKeyCode = ecore_x_keysym_keycode_get(keyEvent->keyname);
     const int mappedKeyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
-    int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
+    int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : keymapKeyCode;
     int       modifier(keyEvent->modifiers);
     uint32_t  time(keyEvent->timestamp);
 
@@ -629,7 +640,8 @@ void WindowBaseEcoreX::OnKeyUp(void* data, int type, void* event)
     }
 
     Integration::KeyEvent keyEvent(ToDaliString(keyName), ToDaliString(logicalKey), ToDaliString(keyString), keyCode, modifier, time, Integration::KeyEvent::UP, ToDaliString(compose), ToDaliString(std::string(DEFAULT_DEVICE_NAME)), DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
-    keyEvent.windowId = GetNativeWindowId();
+    keyEvent.rawKeyCode = rawKeyCode;
+    keyEvent.windowId   = GetNativeWindowId();
 
     mKeyEventSignal.Emit(keyEvent);
   }

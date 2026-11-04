@@ -23,11 +23,11 @@
 #include <queue>
 #include <unordered_set>
 
-#include <dali/devel-api/events/key-event-devel.h>
 #include <dali/devel-api/events/touch-point.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/events/key-event-integ.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/events/key-event.h>
@@ -454,7 +454,9 @@ struct FrameworkAndroid::Impl
         default:
           break;
       }
-      Dali::KeyEvent keyEvent = Dali::DevelKeyEvent::New(keyName, "", "", keyCode, 0, timeStamp, state, "", "", Device::Class::NONE, Device::Subclass::NONE);
+      Dali::Integration::KeyEvent integKeyEvent(keyName, "", "", keyCode, 0, timeStamp, static_cast<Dali::Integration::KeyEvent::State>(state), "", "", Device::Class::NONE, Device::Subclass::NONE);
+      integKeyEvent.rawKeyCode = static_cast<uint32_t>(keyCode);
+      Dali::KeyEvent keyEvent  = Dali::Integration::NewKeyEvent(integKeyEvent);
       Dali::Internal::Adaptor::FrameworkAndroid::Impl::NativeAppKeyEvent(framework, keyEvent);
       return 1;
     }

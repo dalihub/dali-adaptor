@@ -20,7 +20,6 @@
 
 // EXTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/gl-window.h>
-#include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/touch-integ.h>
@@ -518,7 +517,7 @@ void GlWindow::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 
 void GlWindow::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
-  Dali::KeyEvent event = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
+  Dali::KeyEvent event = Dali::Integration::NewKeyEvent(keyEvent);
   event.SetWindowId(keyEvent.windowId);
   Dali::GlWindow handle(this);
   mKeyEventSignal.Emit(event);

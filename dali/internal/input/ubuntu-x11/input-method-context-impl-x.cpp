@@ -1280,7 +1280,7 @@ bool InputMethodContextX::ProcessEventKeyDown(const Dali::KeyEvent& keyEvent)
     ecoreKeyDownEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #endif // Since ecore_imf 1.14 version
 #if (ECORE_VERSION_MINOR >= 22)
-    ecoreKeyDownEvent.keycode = integKeyEvent.keyCode;
+    ecoreKeyDownEvent.keycode = !KeyLookup::IsSystemKeyCodePriority() && integKeyEvent.rawKeyCode != 0 ? integKeyEvent.rawKeyCode : static_cast<uint32_t>(integKeyEvent.keyCode);
 #endif // Since ecore_imf 1.22 version
 #endif // Since ecore_imf Version 1
 
@@ -1337,7 +1337,7 @@ bool InputMethodContextX::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent)
     ecoreKeyUpEvent.dev_name = "";
 #endif // Since ecore_imf 1.14 version
 #if (ECORE_VERSION_MINOR >= 22)
-    ecoreKeyUpEvent.keycode = integKeyEvent.keyCode;
+    ecoreKeyUpEvent.keycode = !KeyLookup::IsSystemKeyCodePriority() && integKeyEvent.rawKeyCode != 0 ? integKeyEvent.rawKeyCode : static_cast<uint32_t>(integKeyEvent.keyCode);
 #endif // Since ecore_imf 1.22 version
 #endif // Since ecore_imf Version 1
 

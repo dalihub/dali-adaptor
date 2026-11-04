@@ -1644,7 +1644,8 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
       logicalKey = keyEvent->key;
     }
 
-    int keyCode = 0;
+    const uint32_t rawKeyCode = keyEvent->keycode;
+    int            keyCode    = 0;
 
     if(KeyLookup::IsSystemKeyCodePriority())
     {
@@ -1703,6 +1704,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
 #endif
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
+    keyEvent.rawKeyCode  = rawKeyCode;
     keyEvent.isRepeat    = isRepeat;
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
@@ -1745,7 +1747,8 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
       logicalKey = keyEvent->key;
     }
 
-    int keyCode = 0;
+    const uint32_t rawKeyCode = keyEvent->keycode;
+    int            keyCode    = 0;
 
     if(KeyLookup::IsSystemKeyCodePriority())
     {
@@ -1796,6 +1799,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
+    keyEvent.rawKeyCode  = rawKeyCode;
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
 

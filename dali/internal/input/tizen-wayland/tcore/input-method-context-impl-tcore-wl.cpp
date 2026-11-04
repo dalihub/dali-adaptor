@@ -2017,7 +2017,7 @@ bool InputMethodContextTcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEve
     tizen_core_imf_event_key_set_device_name(keyDownEvent.handle, deviceName.CStr());
     tizen_core_imf_event_key_set_device_class(keyDownEvent.handle, TIZEN_CORE_IMF_DEVICE_CLASS_KEYBOARD);
     tizen_core_imf_event_key_set_device_subclass(keyDownEvent.handle, TIZEN_CORE_IMF_DEVICE_SUBCLASS_NONE);
-    tizen_core_imf_event_key_set_keycode(keyDownEvent.handle, static_cast<unsigned int>(integKeyEvent.keyCode));
+    tizen_core_imf_event_key_set_keycode(keyDownEvent.handle, !KeyLookup::IsSystemKeyCodePriority() && integKeyEvent.rawKeyCode != 0 ? integKeyEvent.rawKeyCode : static_cast<unsigned int>(integKeyEvent.keyCode));
 
     // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
     if((integKeyEvent.deviceName == "ime") && ((!strncmp(integKeyEvent.keyName.CStr(), "Left", 4)) ||
@@ -2080,7 +2080,7 @@ bool InputMethodContextTcoreWl::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent
     tizen_core_imf_event_key_set_device_name(keyUpEvent.handle, deviceName.CStr());
     tizen_core_imf_event_key_set_device_class(keyUpEvent.handle, TIZEN_CORE_IMF_DEVICE_CLASS_KEYBOARD);
     tizen_core_imf_event_key_set_device_subclass(keyUpEvent.handle, TIZEN_CORE_IMF_DEVICE_SUBCLASS_NONE);
-    tizen_core_imf_event_key_set_keycode(keyUpEvent.handle, static_cast<unsigned int>(integKeyEvent.keyCode));
+    tizen_core_imf_event_key_set_keycode(keyUpEvent.handle, !KeyLookup::IsSystemKeyCodePriority() && integKeyEvent.rawKeyCode != 0 ? integKeyEvent.rawKeyCode : static_cast<unsigned int>(integKeyEvent.keyCode));
 
     bool filtered = false;
     eventHandled  = IsTcoreSuccess(tizen_core_imf_context_filter_event(mIMFContext,
