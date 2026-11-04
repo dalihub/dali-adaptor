@@ -9,7 +9,7 @@ includedir=@DEV_INCLUDE_PATH@
 Name: dali-adaptor
 Description: DALi adaptor for application-normal
 Version: ${apiversion}
-Requires: @name@
-Libs: -L${libdir} -l@name@-application-normal
+Requires: dali2-adaptor
+Libs: -L${libdir} -ldali2-adaptor-application-normal
 Cflags: -I${includedir}/dali
 

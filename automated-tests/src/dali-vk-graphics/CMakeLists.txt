@@ -34,8 +34,8 @@ LIST(APPEND TC_SOURCES
 )
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
-    dali3-core
-    dali3-adaptor
+    dali2-core
+    dali2-adaptor
     vulkan
     glslang
 )
@@ -70,7 +70,7 @@ INCLUDE_DIRECTORIES(
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
   ${${CAPI_LIB}_LIBRARIES}
-  -ldali3-adaptor-vulkan
+  -ldali2-adaptor-vulkan
   --coverage
 )
 
