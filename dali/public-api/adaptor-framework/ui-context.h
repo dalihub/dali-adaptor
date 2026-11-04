@@ -87,6 +87,21 @@ public:
   static UiContext Get();
 
   /**
+   * @brief Checks whether the UI context is available for use.
+   *
+   * The UI context becomes available on the main event thread once the UI framework
+   * has been initialised, and stops being available as soon as application shutdown
+   * starts. On any other thread this is always @c false, so it also tells whether
+   * the calling thread may use UI APIs.
+   *
+   * @return @c true if the UI context is available, @c false otherwise
+   * @note During shutdown, Get() may still return a valid handle while this function
+   * already returns @c false; use this function, not the handle, as the guard.
+   * @SINCE_2_5.46
+   */
+  static bool IsAvailable();
+
+  /**
    * @brief Constructs an empty handle.
    * @SINCE_2_5.10
    */

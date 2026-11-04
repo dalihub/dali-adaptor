@@ -100,6 +100,18 @@ int UtcDaliUiContextMoveAssignmentP(void)
 
 // Negative Tests
 
+int UtcDaliUiContextIsAvailableN(void)
+{
+  // No adaptor exists in the test environment, so the UI context must report
+  // unavailable. The true path cannot be tested here: it would need the
+  // adaptor-test-adaptor-impl.cpp stub to preempt the library's internal
+  // Adaptor::IsAvailable(), which works via ELF symbol interposition on Linux
+  // but not across the DLL boundary on Windows.
+  DALI_TEST_CHECK(!UiContext::IsAvailable());
+
+  END_TEST;
+}
+
 int UtcDaliUiContextGetDefaultWindowN(void)
 {
   UiContext uiContext;

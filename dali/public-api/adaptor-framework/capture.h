@@ -22,6 +22,7 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/common/dali-string.h>
+#include <dali/public-api/images/pixel-buffer.h>
 #include <dali/public-api/rendering/texture.h>
 #include <dali/public-api/signals/dali-signal.h>
 
@@ -267,6 +268,22 @@ public:
   bool IsExclusive() const;
 
   /**
+   * @brief Gets the captured pixels as a PixelBuffer, whose pixels the application
+   * can read through PixelBuffer::GetBuffer().
+   *
+   * The Capture shares ownership of the result with the application: repeated calls
+   * return a handle to the same object, and a handle stays valid after the Capture
+   * object is destroyed. Copy the buffer if an independent one is needed.
+   *
+   * @SINCE_2_5.47
+   * @return PixelBuffer of the captured result
+   * @note GetCapturedBuffer is only available inside FinishedSignal, otherwise this returns an empty handle.
+   */
+  Dali::PixelBuffer GetCapturedBuffer();
+
+  /**
+   * @DEPRECATED_2_5.47 Use GetCapturedBuffer() instead.
+   *
    * @brief Get NativeImagePtr that is saved captured image.
    *
    * @SINCE_2_5.13
@@ -277,6 +294,10 @@ public:
   Dali::NativeImagePtr GetNativeImage();
 
   /**
+   * @DEPRECATED_2_5.47 Use GetCapturedBuffer() for the captured pixels. To render a scene
+   * into a texture without reading the pixels back, use an offscreen RenderTask instead
+   * of Capture, which always reads the result back.
+   *
    * @brief Get Texture of captured image.
    *
    * @return Texture Captured result

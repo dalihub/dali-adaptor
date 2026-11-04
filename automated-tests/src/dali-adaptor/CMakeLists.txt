@@ -13,6 +13,7 @@ SET(TC_SOURCES
     utc-Dali-Accessibility.cpp
     utc-Dali-AsyncTaskManager.cpp
     utc-Dali-ClipboardData.cpp
+    utc-Dali-Constexpr.cpp
     utc-Dali-DragData.cpp
     utc-Dali-EncodedImageBuffer.cpp
     utc-Dali-UiContext.cpp
@@ -27,7 +28,7 @@ SET(TC_SOURCES
     utc-Dali-KeyExtension.cpp
     utc-Dali-Keyboard.cpp
     utc-Dali-NativeImage.cpp
-    utc-Dali-PixelBuffer.cpp
+    utc-Dali-PixelBufferOperations.cpp
     utc-Dali-TextScript.cpp
     utc-Dali-Timer.cpp
     utc-Dali-TtsPlayer.cpp
@@ -87,8 +88,8 @@ IF(DALI_TEST_SOURCE_LIST_ONLY)
 ENDIF()
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
-    dali2-core
-    dali2-adaptor
+    dali3-core
+    dali3-adaptor
     ecore
     ecore-x
 )

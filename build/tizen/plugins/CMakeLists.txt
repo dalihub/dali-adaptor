@@ -7,7 +7,7 @@ IF( ENABLE_FEEDBACK AND (NOT UBUNTU_PROFILE) )
   PKG_CHECK_MODULES(FEEDBACK feedback)
   PKG_CHECK_MODULES(MMFSOUND mm-sound)
 
-  SET(PLUGIN_TARGET dali2-feedback-plugin )
+  SET(PLUGIN_TARGET dali${DALI_API_MAJOR}-feedback-plugin )
 
   SET( PLUGIN_SOURCES ${feedback_plugin_src_files})
 
@@ -53,8 +53,8 @@ IF( CURL_FOUND)
   ELSE()
     SET(CURL_VERSION_DISPLAY ${CURL_VERSION})
   ENDIF()
-  MESSAGE( STATUS "CURL found : ${CURL_VERSION_DISPLAY} dali2-file-download-plugin-curl will be built" )
-  SET( FILE_DOWNLOAD_PLUGIN_TARGET dali2-file-download-plugin-curl )
+  MESSAGE( STATUS "CURL found : ${CURL_VERSION_DISPLAY} dali${DALI_API_MAJOR}-file-download-plugin-curl will be built" )
+  SET( FILE_DOWNLOAD_PLUGIN_TARGET dali${DALI_API_MAJOR}-file-download-plugin-curl )
 
   SET( FILE_DOWNLOAD_PLUGIN_SOURCES ${file_download_plugin_curl_src_files})
 
@@ -79,7 +79,7 @@ IF( CURL_FOUND)
   SET(DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS
     ${DALICORE_LDFLAGS}
     ${COVERAGE}
-    dali2-adaptor
+    ${name}
   )
 
   IF(WINDOWS_PROFILE)
@@ -151,7 +151,7 @@ IF( CURL_FOUND)
     TARGET_LINK_LIBRARIES(${LINKER_TEST_PLUGIN_CURL_NAME} ${name} ${COVERAGE} ${DALI_CFLAGS} ${DALI_FILE_DOWNLOAD_PLUGIN_CFLAGS} ${FILE_DOWNLOAD_PLUGIN_TARGET})
   ENDIF()
 ELSE()
-  MESSAGE( STATUS "CURL not found, dali2-file-download-plugin-curl will not be built" )
+  MESSAGE( STATUS "CURL not found, dali${DALI_API_MAJOR}-file-download-plugin-curl will not be built" )
 ENDIF()
 
 # File Download download-provider plugin (Tizen only)
@@ -159,8 +159,8 @@ IF( NOT APPLE AND NOT WINDOWS_PROFILE )
   PKG_CHECK_MODULES(DOWNLOAD_PROVIDER capi-web-url-download)
 
   IF( DOWNLOAD_PROVIDER_FOUND )
-    MESSAGE( STATUS "capi-web-url-download found : ${DOWNLOAD_PROVIDER_VERSION} dali2-file-download-plugin-download-api will be built" )
-    SET( FILE_DOWNLOAD_API_PLUGIN_TARGET dali2-file-download-plugin-download-api )
+    MESSAGE( STATUS "capi-web-url-download found : ${DOWNLOAD_PROVIDER_VERSION} dali${DALI_API_MAJOR}-file-download-plugin-download-api will be built" )
+    SET( FILE_DOWNLOAD_API_PLUGIN_TARGET dali${DALI_API_MAJOR}-file-download-plugin-download-api )
 
     SET( FILE_DOWNLOAD_API_PLUGIN_SOURCES ${file_download_plugin_download_api_src_files} )
 
@@ -177,7 +177,7 @@ IF( NOT APPLE AND NOT WINDOWS_PROFILE )
     SET( DALI_FILE_DOWNLOAD_API_PLUGIN_LDFLAGS
       ${DALICORE_LDFLAGS}
       ${COVERAGE}
-      dali2-adaptor
+      ${name}
       ${DOWNLOAD_PROVIDER_LDFLAGS}
       -ldl
       -rdynamic
@@ -198,6 +198,6 @@ IF( NOT APPLE AND NOT WINDOWS_PROFILE )
 
     INSTALL( TARGETS ${FILE_DOWNLOAD_API_PLUGIN_TARGET} DESTINATION ${LIB_DIR} )
   ELSE()
-    MESSAGE( STATUS "capi-web-url-download not found, dali2-file-download-plugin-download-api will not be built" )
+    MESSAGE( STATUS "capi-web-url-download not found, dali${DALI_API_MAJOR}-file-download-plugin-download-api will not be built" )
   ENDIF()
 ENDIF()

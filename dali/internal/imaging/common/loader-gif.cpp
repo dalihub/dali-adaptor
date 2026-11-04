@@ -21,7 +21,7 @@
 
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/system-error-print.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/images/pixel-buffer.h>
 #include <memory>
 
 // We need to check if giflib has the new open and close API (including error parameter).

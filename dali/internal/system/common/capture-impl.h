@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/processor-interface.h>
+#include <dali/public-api/images/pixel-buffer.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/weak-handle.h>
@@ -34,7 +35,6 @@
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 #include <dali/public-api/adaptor-framework/capture.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/dali-adaptor-common.h>
@@ -232,7 +232,7 @@ private: // For CaptureFileSaveTask
     /**
      * Constructor.
      */
-    CaptureFileSaveTask(Dali::RenderTask renderTask, Dali::PixelData pixelData, std::string path, uint32_t quality, CallbackBase* callback);
+    CaptureFileSaveTask(Dali::RenderTask renderTask, Dali::PixelBuffer pixelBuffer, std::string path, uint32_t quality, CallbackBase* callback);
 
     /**
      * Destructor.
@@ -271,10 +271,10 @@ private: // For CaptureFileSaveTask
     CaptureFileSaveTask& operator=(const CaptureFileSaveTask& rhs);
 
   private:
-    Dali::RenderTask mRenderTask;
-    Dali::PixelData  mPixelData;
-    std::string      mPath;
-    uint32_t         mQuality;
+    Dali::RenderTask  mRenderTask;
+    Dali::PixelBuffer mPixelBuffer;
+    std::string       mPath;
+    uint32_t          mQuality;
 
     bool mFileSaved;
   };

@@ -129,6 +129,13 @@ public:
   Dali::InputMethodContext::KeyboardType GetKeyboardType() override;
   void                                GetPreeditStyle(Dali::Integration::InputMethodContext::PreEditAttributeDataContainer& attrs) const override;
 
+  // ImeBridgeHost overrides hide same-named native callbacks with different signatures.
+  // Keep both overloads visible to avoid -Woverloaded-virtual errors.
+  // TODO: Find a better way to resolve this interface overlap.
+  using InputMethodContext::DeleteSurrounding;
+  using InputMethodContext::SendPrivateCommand;
+  using InputMethodContext::RetrieveSurrounding;
+
   // ImeBridgeHost: IME to application
   void Commit(const Dali::String& text) override;
   void PreEdit(const Dali::String&                                                        text,

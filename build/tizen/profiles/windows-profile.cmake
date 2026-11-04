@@ -161,7 +161,7 @@ SET( REQUIRED_LIBS
         unofficial::cairo::cairo
         WebP::webp
         WebP::webpdemux
-        dali2-core::dali2-core
+        ${core_name}::${core_name}
         user32
         imm32
         ole32

@@ -30,7 +30,7 @@ WindowData::WindowData()
 
 WindowData::~WindowData() = default;
 
-void WindowData::SetPositionSize(Dali::BoundsInteger& positionSize)
+void WindowData::SetPositionSize(const Dali::BoundsInteger& positionSize)
 {
   mImpl->mPositionSize = positionSize;
 }
@@ -97,12 +97,12 @@ void WindowData::SetMultiSampledAntiAliasingLevel(uint8_t level)
 
 WindowData::Impl& WindowData::GetImplementation()
 {
-  return *mImpl;
+  return Internal::Adaptor::GetImplementation(*this);
 }
 
 const WindowData::Impl& WindowData::GetImplementation() const
 {
-  return *mImpl;
+  return Internal::Adaptor::GetImplementation(*this);
 }
 
 } //namespace DALI_NAMESPACE

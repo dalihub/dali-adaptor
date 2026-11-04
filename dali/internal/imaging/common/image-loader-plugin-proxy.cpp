@@ -30,7 +30,7 @@ namespace Adaptor
 {
 namespace ImageLoaderPluginProxy
 {
-static const char* DEFAULT_OBJECT_NAME("libdali2-image-loader-plugin.so");
+static const char* DEFAULT_OBJECT_NAME(DALI_LIBRARY_PREFIX "image-loader-plugin.so");
 
 static bool                      mInitializeAttempted         = false;
 static void*                     mLibHandle                   = NULL;

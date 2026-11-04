@@ -74,6 +74,9 @@ Socket::Socket(Protocol protocol, int fileDescriptor)
     // socket already open
     mBound = true;
   }
+
+  // create the quit pipe up front, so that ExitSelect() also works before Select() is called
+  CreateQuitPipe();
 }
 
 Socket::~Socket()
@@ -82,6 +85,7 @@ Socket::~Socket()
   {
     CloseSocket();
   }
+  DeleteQuitPipe();
 }
 
 bool Socket::SocketIsOpen() const

@@ -41,5 +41,10 @@ Dali::Vector<Window> GetWindows()
   return result;
 }
 
+void SetMaximumRenderFrameRate(float maximumRenderFrameRate)
+{
+  Dali::Adaptor::Get().SetMaximumRenderFrameRate(maximumRenderFrameRate);
+}
+
 } // namespace Extension
 } //namespace DALI_NAMESPACE

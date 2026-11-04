@@ -94,6 +94,10 @@ bool Adaptor::AddIdle(CallbackBase* callback, bool hasReturnValue)
   else
   {
     DALI_LOG_ERROR("Adaptor not instantiated");
+    // Ownership of the callback is passed with the call, so it must be deleted
+    // when it cannot be queued - same as the internal implementation does when
+    // adding the idle fails (Internal::Adaptor::Adaptor::AddIdle).
+    delete callback;
     return false;
   }
 }

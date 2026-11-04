@@ -34,6 +34,11 @@ UiContext UiContext::Get()
   return Internal::Adaptor::UiContext::Get();
 }
 
+bool UiContext::IsAvailable()
+{
+  return Internal::Adaptor::UiContext::IsAvailable();
+}
+
 UiContext::UiContext(Internal::Adaptor::UiContext* uiContext)
 : BaseHandle(uiContext)
 {

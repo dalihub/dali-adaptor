@@ -615,11 +615,11 @@ int EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglQuerySurface");
 
-  int age = 0;
-  eglQuerySurface(mEglDisplay, eglSurface, EGL_BUFFER_AGE_EXT, &age);
-  if(age < 0)
+  int        age    = 0;
+  EGLBoolean result = eglQuerySurface(mEglDisplay, eglSurface, EGL_BUFFER_AGE_EXT, &age);
+  if(result == EGL_FALSE || age < 0)
   {
-    DALI_LOG_ERROR("eglQuerySurface(%d)\n", eglGetError());
+    DALI_LOG_ERROR("eglQuerySurface(EGL_BUFFER_AGE_EXT) failed: surface(%p), age(%d), error(0x%x)\n", eglSurface, age, eglGetError());
     age = 0;
   }
 

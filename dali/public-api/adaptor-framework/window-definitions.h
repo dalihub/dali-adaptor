@@ -194,7 +194,7 @@ enum class WindowInsetsPartFlags
  * @param[in] b The second flag
  * @return The bitwise OR of the two flags
  */
-inline WindowInsetsPartFlags operator|(WindowInsetsPartFlags a, WindowInsetsPartFlags b)
+inline constexpr WindowInsetsPartFlags operator|(WindowInsetsPartFlags a, WindowInsetsPartFlags b)
 {
   return static_cast<WindowInsetsPartFlags>(static_cast<GetUnderlyingType<WindowInsetsPartFlags>::type>(a) | static_cast<GetUnderlyingType<WindowInsetsPartFlags>::type>(b));
 }
@@ -206,7 +206,7 @@ inline WindowInsetsPartFlags operator|(WindowInsetsPartFlags a, WindowInsetsPart
  * @param[in] b The second flag
  * @return The bitwise AND of the two flags
  */
-inline WindowInsetsPartFlags operator&(WindowInsetsPartFlags a, WindowInsetsPartFlags b)
+inline constexpr WindowInsetsPartFlags operator&(WindowInsetsPartFlags a, WindowInsetsPartFlags b)
 {
   return static_cast<WindowInsetsPartFlags>(static_cast<GetUnderlyingType<WindowInsetsPartFlags>::type>(a) & static_cast<GetUnderlyingType<WindowInsetsPartFlags>::type>(b));
 }
@@ -218,7 +218,7 @@ inline WindowInsetsPartFlags operator&(WindowInsetsPartFlags a, WindowInsetsPart
  * @param[in] flag The flag to check for
  * @return True if the flag is set, false otherwise
  */
-inline bool HasFlag(WindowInsetsPartFlags value, WindowInsetsPartFlags flag)
+inline constexpr bool HasFlag(WindowInsetsPartFlags value, WindowInsetsPartFlags flag)
 {
   return static_cast<GetUnderlyingType<WindowInsetsPartFlags>::type>(value & flag) != 0;
 }

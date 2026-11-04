@@ -190,8 +190,9 @@ void ColorGlyphCpalParser::ResolveColor(FT_Face ftFace, uint16_t paletteIndex, u
 
   // Color record offset = colorRecordsArrayOffset + (firstColorIndex + colorIndex) * 4
   // Each color record is 4 bytes: B, G, R, A
+  // Use 64-bit arithmetic so that a large colorRecordsArrayOffset cannot wrap around the range check.
   const uint32_t recordIndex  = firstColorIndex + colorIndex;
-  const uint32_t recordOffset = colorRecordsArrayOffset + recordIndex * 4;
+  const uint64_t recordOffset = static_cast<uint64_t>(colorRecordsArrayOffset) + recordIndex * 4;
 
   if(recordOffset + 4 > length)
   {

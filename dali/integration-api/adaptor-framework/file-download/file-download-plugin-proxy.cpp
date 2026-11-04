@@ -97,8 +97,8 @@ const char* PLUGIN_IS_ASYNC_DOWNLOAD_SUPPORTED_FUNC_NAME = "FileDownloadPluginIs
 const char* PLUGIN_START_ASYNC_DOWNLOAD_FUNC_NAME        = "FileDownloadPluginStartAsyncDownload";
 const char* PLUGIN_CANCEL_ASYNC_DOWNLOAD_FUNC_NAME       = "FileDownloadPluginCancelAsyncDownload";
 const char* PLUGIN_SHUTDOWN_FUNC_NAME                    = "FileDownloadPluginShutdown";
-const char* DEFAULT_PLUGIN_PATH                          = "libdali2-file-download-plugin-curl.so";
-const char* DOWNLOAD_API_PLUGIN_PATH                     = "libdali2-file-download-plugin-download-api.so";
+const char* DEFAULT_PLUGIN_PATH                          = DALI_LIBRARY_PREFIX "file-download-plugin-curl.so";
+const char* DOWNLOAD_API_PLUGIN_PATH                     = DALI_LIBRARY_PREFIX "file-download-plugin-download-api.so";
 #if defined(DALI_PRIVILEGE_CHECK_AVAILABLE)
 const char* DOWNLOAD_API_PRIVILEGE = "http://tizen.org/privilege/download";
 #endif

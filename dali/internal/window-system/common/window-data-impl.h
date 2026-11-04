@@ -59,6 +59,40 @@ struct WindowData::Impl
   int16_t mMultiSamplingLevel;   ///< Samples per pixel for MSAA, negative to follow the system
 };
 
+namespace Internal::Adaptor
+{
+struct DALI_INTERNAL WindowDataAccess
+{
+  static WindowData::Impl& GetImplementation(Dali::WindowData& windowData)
+  {
+    return *windowData.mImpl;
+  }
+
+  static const WindowData::Impl& GetImplementation(const Dali::WindowData& windowData)
+  {
+    return *windowData.mImpl;
+  }
+};
+
+/**
+ * @brief Retrieves the internal implementation from a WindowData value.
+ * @param[in] windowData The public WindowData value
+ * @return The internal implementation
+ */
+inline DALI_INTERNAL decltype(auto) GetImplementation(Dali::WindowData& windowData)
+{
+  return WindowDataAccess::GetImplementation(windowData);
+}
+
+/**
+ * @copydoc GetImplementation(Dali::WindowData&)
+ */
+inline DALI_INTERNAL decltype(auto) GetImplementation(const Dali::WindowData& windowData)
+{
+  return WindowDataAccess::GetImplementation(windowData);
+}
+} // namespace Internal::Adaptor
+
 } //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOW_SYSTEM_COMMON_WINDOW_DATA_IMPL_H

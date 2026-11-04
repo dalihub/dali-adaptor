@@ -27,7 +27,6 @@
 #include <dali/internal/text/text-abstraction/plugin/embedded-item.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-cache-item.h>
 #include <dali/internal/text/text-abstraction/plugin/pixel-buffer-cache-item.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
 #include <third-party/glyphy/vector-font-cache.h>
@@ -36,6 +35,7 @@ class VectorFontCache;
 #endif
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/images/pixel-buffer.h>
 #include <unordered_map>
 
 #include <ft2build.h>

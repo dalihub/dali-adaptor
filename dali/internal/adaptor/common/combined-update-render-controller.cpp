@@ -605,7 +605,7 @@ void CombinedUpdateRenderController::ProcessSleepRequest()
   {
     --mUpdateRequestCount;
   }
-  DALI_LOG_DEBUG_INFO("ProcessSleepRequest mUpdateRequestCount : %u\n", mUpdateRequestCount);
+  LOG_RENDER_SCENE("ProcessSleepRequest mUpdateRequestCount : %u\n", mUpdateRequestCount);
 
   // Can sleep if our update-request count is 0
   // Update/Render thread can choose to carry on updating if it determines more update/renders are required
@@ -1207,11 +1207,9 @@ bool CombinedUpdateRenderController::UpdateRenderReady(bool& useElapsedTime, boo
     timeToSleepUntil = 0;
 
     TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
-    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
     DALI_LOG_DEBUG_INFO("UpdateRenderThread sleep (%d == 0 || (%u && !%d && !%u))\n", mUpdateRenderRunCount, mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate);
     mUpdateRenderThreadWaitCondition.Wait(updateLock);
     DALI_LOG_DEBUG_INFO("UpdateRenderThread awake\n");
-    TIME_CHECKER_UPDATE_RENDER_END("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
     TRACE_UPDATE_RENDER_END("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
 
     if(!mUseElapsedTimeAfterWait)

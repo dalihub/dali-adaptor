@@ -28,7 +28,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-const char* const FeedbackPluginProxy::DEFAULT_OBJECT_NAME("libdali2-feedback-plugin.so");
+const char* const FeedbackPluginProxy::DEFAULT_OBJECT_NAME(DALI_LIBRARY_PREFIX "feedback-plugin.so");
 
 FeedbackPluginProxy::FeedbackPluginProxy(const std::string& sharedObjectName)
 : mInitializeAttempted(false),

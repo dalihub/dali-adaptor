@@ -21,9 +21,9 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/pixel-buffer-integ.h>
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/string-utils.h>
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
 #include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/ref-object.h>
@@ -79,7 +79,7 @@ void ObjectProfiler::DisplayInstanceCounts()
 bool ObjectProfiler::OnTimeout()
 {
   uint32_t pixelDataSize   = Dali::PixelData::GetTotalAllocatedSize();
-  uint32_t pixelBufferSize = Dali::Internal::Adaptor::PixelBuffer::GetTotalAllocatedSize();
+  uint32_t pixelBufferSize = Dali::Integration::GetPixelBufferAllocationTotal();
   LogMessage(Debug::INFO, "Total PixelData: %9.1fkb\n", ((float)pixelDataSize) / 1024.0f);
   LogMessage(Debug::INFO, "Total PixelBuffer: %9.1fkb\n", ((float)pixelBufferSize) / 1024.0f);
 
