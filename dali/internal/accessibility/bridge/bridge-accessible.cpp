@@ -670,9 +670,9 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     auto relations = self->GetRelationSet();
     auto relation  = std::find_if(relations.begin(),
                                   relations.end(),
-                                  [relationType](const Dali::Devel::Accessibility::Relation& relation) -> bool
+                                  [relationType](const Dali::Devel::Accessibility::Relation& item) -> bool
      {
-      return relation.mRelationType == relationType;
+      return item.mRelationType == relationType;
     });
     return relations.end() != relation && !relation->mTargets.empty() ? relation->mTargets.back() : nullptr;
   };

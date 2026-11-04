@@ -598,9 +598,9 @@ FontId FontClient::Plugin::FindFontForCharacter(const FontList&         fontList
         {
           if(mCacheHandler->IsFontIdCacheItemExist(fontId - 1u))
           {
-            auto                     index = mCacheHandler->FindFontIdCacheItem(fontId - 1u).index;
-            const FontFaceCacheItem& item  = mCacheHandler->FindFontFaceCacheItem(index);
-            foundColor                     = item.mHasColorTables;
+            auto                     faceIndex = mCacheHandler->FindFontIdCacheItem(fontId - 1u).index;
+            const FontFaceCacheItem& item      = mCacheHandler->FindFontFaceCacheItem(faceIndex);
+            foundColor                         = item.mHasColorTables;
           }
 
           DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  foundColor : %s\n", (foundColor ? "true" : "false"));

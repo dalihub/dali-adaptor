@@ -584,8 +584,8 @@ GLES::Context* EglGraphicsController::GetSurfaceContext(Dali::Integration::Rende
 {
   if(DALI_LIKELY(surface))
   {
-    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](const SurfaceContextPair& iter)
-    { return (iter.first == surface); });
+    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](const SurfaceContextPair& pair)
+    { return (pair.first == surface); });
 
     if(iter != mSurfaceContexts.end())
     {
@@ -1127,26 +1127,26 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
     {
       case Graphics::TextureUpdateSourceInfo::Type::MEMORY:
       {
-        auto& info   = pair.first;
-        auto& source = pair.second;
+        auto& updateInfo = pair.first;
+        auto& source     = pair.second;
 
         // allocate staging memory and copy the data
         // TODO: using PBO with GLES3, this is just naive
         // oldschool way
 
-        uint8_t* stagingBuffer = reinterpret_cast<uint8_t*>(malloc(info.srcSize));
+        uint8_t* stagingBuffer = reinterpret_cast<uint8_t*>(malloc(updateInfo.srcSize));
 
         if(DALI_UNLIKELY(stagingBuffer == nullptr))
         {
-          DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", info.srcSize);
+          DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", updateInfo.srcSize);
         }
         else
         {
-          uint8_t* srcMemory = &reinterpret_cast<uint8_t*>(source.memorySource.memory)[info.srcOffset];
+          uint8_t* srcMemory = &reinterpret_cast<uint8_t*>(source.memorySource.memory)[updateInfo.srcOffset];
 
-          std::copy(srcMemory, srcMemory + info.srcSize, stagingBuffer);
+          std::copy(srcMemory, srcMemory + updateInfo.srcSize, stagingBuffer);
 
-          mTextureUploadTotalCPUMemoryUsed += info.srcSize;
+          mTextureUploadTotalCPUMemoryUsed += updateInfo.srcSize;
         }
 
         // store staging buffer

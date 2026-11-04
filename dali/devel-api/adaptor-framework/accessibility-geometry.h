@@ -61,9 +61,9 @@ struct DALI_ADAPTOR_API Point
 
   Point() = default;
 
-  Point(int x, int y)
-  : x(x),
-    y(y)
+  Point(int initX, int initY)
+  : x(initX),
+    y(initY)
   {
   }
 

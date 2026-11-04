@@ -590,11 +590,11 @@ void WindowBaseEcoreX::OnKeyDown(void* data, int type, void* event)
       keyString = keyEvent->string;
     }
 
-    Integration::KeyEvent keyEvent(ToDaliString(keyName), ToDaliString(logicalKey), ToDaliString(keyString), keyCode, modifier, time, Integration::KeyEvent::DOWN, ToDaliString(compose), ToDaliString(std::string(DEFAULT_DEVICE_NAME)), DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
-    keyEvent.rawKeyCode = rawKeyCode;
-    keyEvent.windowId   = GetNativeWindowId();
+    Integration::KeyEvent daliKeyEvent(ToDaliString(keyName), ToDaliString(logicalKey), ToDaliString(keyString), keyCode, modifier, time, Integration::KeyEvent::DOWN, ToDaliString(compose), ToDaliString(std::string(DEFAULT_DEVICE_NAME)), DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
+    daliKeyEvent.rawKeyCode = rawKeyCode;
+    daliKeyEvent.windowId   = GetNativeWindowId();
 
-    mKeyEventSignal.Emit(keyEvent);
+    mKeyEventSignal.Emit(daliKeyEvent);
   }
 }
 
@@ -639,11 +639,11 @@ void WindowBaseEcoreX::OnKeyUp(void* data, int type, void* event)
       keyString = keyEvent->string;
     }
 
-    Integration::KeyEvent keyEvent(ToDaliString(keyName), ToDaliString(logicalKey), ToDaliString(keyString), keyCode, modifier, time, Integration::KeyEvent::UP, ToDaliString(compose), ToDaliString(std::string(DEFAULT_DEVICE_NAME)), DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
-    keyEvent.rawKeyCode = rawKeyCode;
-    keyEvent.windowId   = GetNativeWindowId();
+    Integration::KeyEvent daliKeyEvent(ToDaliString(keyName), ToDaliString(logicalKey), ToDaliString(keyString), keyCode, modifier, time, Integration::KeyEvent::UP, ToDaliString(compose), ToDaliString(std::string(DEFAULT_DEVICE_NAME)), DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
+    daliKeyEvent.rawKeyCode = rawKeyCode;
+    daliKeyEvent.windowId   = GetNativeWindowId();
 
-    mKeyEventSignal.Emit(keyEvent);
+    mKeyEventSignal.Emit(daliKeyEvent);
   }
 }
 

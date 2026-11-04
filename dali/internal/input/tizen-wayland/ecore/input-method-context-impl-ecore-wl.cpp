@@ -773,9 +773,9 @@ void InputMethodContextEcoreWl::PreEditChanged(void* data, ImfContext* imfContex
     // iterate through the list of attributes getting the type, start and end position.
     for(l = attrs, (attr = static_cast<Ecore_IMF_Preedit_Attr*>(eina_list_data_get(l))); l; l = eina_list_next(l), (attr = static_cast<Ecore_IMF_Preedit_Attr*>(eina_list_data_get(l))))
     {
-      Dali::Integration::InputMethodContext::PreeditAttributeData data;
-      data.startIndex = 0;
-      data.endIndex   = 0;
+      Dali::Integration::InputMethodContext::PreeditAttributeData attributeData;
+      attributeData.startIndex = 0;
+      attributeData.endIndex   = 0;
 
       uint32_t visualCharacterIndex = 0;
       size_t   byteIndex            = 0;
@@ -791,11 +791,11 @@ void InputMethodContextEcoreWl::PreEditChanged(void* data, ImfContext* imfContex
         const size_t currentSequenceLength = Utf8SequenceLength(leadByte); // returns number of bytes used to represent character.
         if(byteIndex <= attr->start_index)
         {
-          data.startIndex = visualCharacterIndex;
+          attributeData.startIndex = visualCharacterIndex;
         }
         if(byteIndex >= attr->end_index)
         {
-          data.endIndex = visualCharacterIndex;
+          attributeData.endIndex = visualCharacterIndex;
           break;
           // end loop as found cursor position that matches byte position
         }
@@ -810,51 +810,51 @@ void InputMethodContextEcoreWl::PreEditChanged(void* data, ImfContext* imfContex
       {
         case ECORE_IMF_PREEDIT_TYPE_NONE:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB1:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::UNDERLINE;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::UNDERLINE;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB2:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::REVERSE;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::REVERSE;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB3:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::HIGHLIGHT;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::HIGHLIGHT;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB4:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_1;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_1;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB5:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_2;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_2;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB6:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_3;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_3;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB7:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_4;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_4;
           break;
         }
         default:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
           break;
         }
       }
-      mPreeditAttrs.PushBack(data);
+      mPreeditAttrs.PushBack(attributeData);
     }
   }
 

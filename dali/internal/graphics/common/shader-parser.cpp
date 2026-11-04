@@ -515,11 +515,11 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, const IT& end, Program& program, OutputLa
     bool blockReused  = false;
     if(!program.uniformBlocks.empty())
     {
-      auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item)
+      auto blockIt = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item)
       { return (item.first == uniformBlockName); });
-      if(it != program.uniformBlocks.end())
+      if(blockIt != program.uniformBlocks.end())
       {
-        localBinding = (*it).second;
+        localBinding = (*blockIt).second;
         blockReused  = true;
       }
     }

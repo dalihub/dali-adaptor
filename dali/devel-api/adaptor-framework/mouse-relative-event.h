@@ -44,22 +44,22 @@ struct DALI_ADAPTOR_API MouseRelativeEvent
 
   /**
    * @brief Constructor which creates a MouseRelativeEvent instance
-   * @param[in] type The type of the event.
-   * @param[in] modifiers The modifier keys pressed during the event (such as shift, alt and control).
-   * @param[in] timeStamp The time when the event being started.
-   * @param[in] diffPosition The co-ordinates of the cursor relative to the top-left of the screen
-   * @param[in] unaccelatedPosition The co-ordinates of the cursor relative to the top-left of the screen
-   * @param[in] deviceClass The device class the event originated from.
-   * @param[in] deviceSubclass The device subclass the event originated from.
+   * @param[in] initType The type of the event.
+   * @param[in] initModifiers The modifier keys pressed during the event (such as shift, alt and control).
+   * @param[in] initTimeStamp The time when the event being started.
+   * @param[in] initDiffPosition The co-ordinates of the cursor relative to the top-left of the screen
+   * @param[in] initUnaccelatedPosition The co-ordinates of the cursor relative to the top-left of the screen
+   * @param[in] initDeviceClass The device class the event originated from.
+   * @param[in] initDeviceSubclass The device subclass the event originated from.
    */
-  MouseRelativeEvent(Type type, uint32_t modifiers, uint32_t timeStamp, Vector2 diffPosition, Vector2 unaccelatedPosition, Device::Class::Type deviceClass, Device::Subclass::Type deviceSubclass)
-  : type(type),
-    modifiers(modifiers),
-    timeStamp(timeStamp),
-    diffPosition(diffPosition),
-    unaccelatedPosition(unaccelatedPosition),
-    deviceClass(deviceClass),
-    deviceSubclass(deviceSubclass)
+  MouseRelativeEvent(Type initType, uint32_t initModifiers, uint32_t initTimeStamp, Vector2 initDiffPosition, Vector2 initUnaccelatedPosition, Device::Class::Type initDeviceClass, Device::Subclass::Type initDeviceSubclass)
+  : type(initType),
+    modifiers(initModifiers),
+    timeStamp(initTimeStamp),
+    diffPosition(initDiffPosition),
+    unaccelatedPosition(initUnaccelatedPosition),
+    deviceClass(initDeviceClass),
+    deviceSubclass(initDeviceSubclass)
   {
   }
 

@@ -36,12 +36,12 @@ Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG
 
 struct SyncPool::SharedSyncObject::Impl
 {
-  Impl(Graphics::EglGraphicsController& controller, const Context* _context, uint32_t _frameCount, bool useNativeFenceFd)
-  : controller(controller),
+  Impl(Graphics::EglGraphicsController& initController, const Context* _context, uint32_t _frameCount, bool useNativeFenceFd)
+  : controller(initController),
     context(_context),
     frameCount(_frameCount)
   {
-    eglSyncObject = static_cast<Internal::Adaptor::EglSyncObject*>(controller.GetEglSyncImplementation().CreateSyncObject(Integration::GraphicsSyncAbstraction::SyncObject::SyncType::NATIVE_FENCE_SYNC));
+    eglSyncObject = static_cast<Internal::Adaptor::EglSyncObject*>(initController.GetEglSyncImplementation().CreateSyncObject(Integration::GraphicsSyncAbstraction::SyncObject::SyncType::NATIVE_FENCE_SYNC));
 
     if(DALI_LIKELY(eglSyncObject) && useNativeFenceFd)
     {
@@ -50,7 +50,7 @@ struct SyncPool::SharedSyncObject::Impl
       if(fenceFd != -1)
       {
         // Destroy the egl sync object. We don't need it.
-        controller.GetEglSyncImplementation().DestroySyncObject(eglSyncObject);
+        initController.GetEglSyncImplementation().DestroySyncObject(eglSyncObject);
         eglSyncObject = nullptr;
       }
     }
@@ -218,19 +218,19 @@ bool SyncPool::SharedSyncObject::Match(const Context* context, uint32_t frameCou
   return false;
 }
 
-SyncPool::AgingSyncObject::AgingSyncObject(Graphics::EglGraphicsController& controller, const Context* writeContext, bool _egl)
-: controller(controller),
-  writeContext(writeContext),
+SyncPool::AgingSyncObject::AgingSyncObject(Graphics::EglGraphicsController& initController, const Context* initWriteContext, bool _egl)
+: controller(initController),
+  writeContext(initWriteContext),
   egl(_egl)
 {
   if(egl)
   {
-    eglSyncObject = static_cast<Internal::Adaptor::EglSyncObject*>(controller.GetEglSyncImplementation().CreateSyncObject(Integration::GraphicsSyncAbstraction::SyncObject::SyncType::FENCE_SYNC));
+    eglSyncObject = static_cast<Internal::Adaptor::EglSyncObject*>(initController.GetEglSyncImplementation().CreateSyncObject(Integration::GraphicsSyncAbstraction::SyncObject::SyncType::FENCE_SYNC));
     DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgingSyncObject::cons; EGL::CreateSyncObject: %p\n", eglSyncObject);
   }
   else
   {
-    auto* gl = controller.GetGL();
+    auto* gl = initController.GetGL();
     if(DALI_LIKELY(gl))
     {
       glSyncObject = gl->FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);

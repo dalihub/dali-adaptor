@@ -102,14 +102,14 @@ enum class ActionType
 struct DALI_ADAPTOR_API GestureInfo
 {
   GestureInfo() = default;
-  GestureInfo(Gesture type, int32_t startPositionX, int32_t endPositionX, int32_t startPositionY, int32_t endPositionY, GestureState state, uint32_t eventTime)
-  : type(type),
+  GestureInfo(Gesture initType, int32_t startPositionX, int32_t endPositionX, int32_t startPositionY, int32_t endPositionY, GestureState initState, uint32_t initEventTime)
+  : type(initType),
     startPointX(startPositionX),
     endPointX(endPositionX),
     startPointY(startPositionY),
     endPointY(endPositionY),
-    state(state),
-    eventTime(eventTime)
+    state(initState),
+    eventTime(initEventTime)
   {
   }
 
@@ -125,9 +125,9 @@ struct DALI_ADAPTOR_API GestureInfo
 struct DALI_ADAPTOR_API ActionInfo
 {
   ActionInfo() = default;
-  ActionInfo(ActionType type, Actor target)
-  : type{type},
-    target{target}
+  ActionInfo(ActionType initType, Actor initTarget)
+  : type{initType},
+    target{initTarget}
   {
   }
 

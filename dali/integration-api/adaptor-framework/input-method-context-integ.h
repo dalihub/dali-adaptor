@@ -221,16 +221,16 @@ struct DALI_ADAPTOR_API ContentReceivedData
   /**
    * @brief Creates content received data.
    *
-   * @param[in] contentUri The URI of the received content.
-   * @param[in] description The description of the received content.
-   * @param[in] mimeTypes The MIME types of the received content.
+   * @param[in] initContentUri The URI of the received content.
+   * @param[in] initDescription The description of the received content.
+   * @param[in] initMimeTypes The MIME types of the received content.
    */
-  ContentReceivedData(const Dali::String& contentUri,
-                      const Dali::String& description,
-                      const Dali::String& mimeTypes)
-  : contentUri(contentUri),
-    description(description),
-    mimeTypes(mimeTypes)
+  ContentReceivedData(const Dali::String& initContentUri,
+                      const Dali::String& initDescription,
+                      const Dali::String& initMimeTypes)
+  : contentUri(initContentUri),
+    description(initDescription),
+    mimeTypes(initMimeTypes)
   {
   }
 

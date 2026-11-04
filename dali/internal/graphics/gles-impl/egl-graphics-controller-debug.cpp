@@ -293,9 +293,9 @@ void DumpCommandBuffer(GraphicsFrameDump& frameDump, const GLES::CommandBuffer* 
                 descriptor.renderArea.height);
         fprintf(output, "\"clearValues\":[");
         bool firstV = true;
-        for(auto i = 0u; i < descriptor.clearValuesCount; ++i)
+        for(auto j = 0u; j < descriptor.clearValuesCount; ++j)
         {
-          auto value = descriptor.clearValues.Ptr()[i];
+          auto value = descriptor.clearValues.Ptr()[j];
           if(!firstV)
           {
             fprintf(output, ",");
@@ -331,9 +331,9 @@ void DumpCommandBuffer(GraphicsFrameDump& frameDump, const GLES::CommandBuffer* 
       {
         fprintf(output, "{\"Cmd\":\"EXECUTE_COMMAND_BUFFERS\",\n\"buffers\":[");
         bool firstBuf{true};
-        for(auto i = 0u; i < cmd.executeCommandBuffers.buffersCount; ++i)
+        for(auto j = 0u; j < cmd.executeCommandBuffers.buffersCount; ++j)
         {
-          const auto buf = cmd.executeCommandBuffers.buffers.Ptr()[i];
+          const auto buf = cmd.executeCommandBuffers.buffers.Ptr()[j];
           if(!firstBuf)
           {
             fprintf(output, ", ");
