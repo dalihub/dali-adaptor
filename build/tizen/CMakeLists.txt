@@ -262,7 +262,12 @@ ELSE()
   SET( ENABLE_VCONF ON )
 ENDIF()
 
-IF( NOT DALI_ELDBUS_AVAILABLE OR LIBUV_X11_PROFILE OR GLIB_X11_PROFILE)
+# The AT-SPI bridge talks GDBus, so it needs gio-2.0 on the link line.
+# deps-check.cmake only adds GIO_LDFLAGS for the Tizen and Ubuntu builds;
+# macOS, Windows and Android find gio-2.0 through vcpkg or pkg-config but
+# never link it, so keep the bridge off there as it was before eldbus
+# stopped gating it.
+IF( NOT gio_available OR MACOS_PROFILE OR WINDOWS_PROFILE OR ANDROID_PROFILE OR LIBUV_X11_PROFILE OR GLIB_X11_PROFILE )
   SET( ENABLE_ATSPI OFF )
 ENDIF()
 
