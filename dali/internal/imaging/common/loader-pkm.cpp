@@ -20,12 +20,12 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/images/pixel-buffer.h>
 #include <dali/public-api/images/pixel.h>
 #include <cstring> ///< for memcmp
 
 // INTERNAL INCLUDES
-#include <dali/internal/imaging/common/pixel-buffer-impl.h> ///< for Internal::Adaptor::PixelBuffer::New()
+#include <dali/integration-api/pixel-buffer-integ.h> ///< for Dali::Integration::NewPixelBuffer()
 #include <dali/internal/system/common/system-error-print.h>
 
 namespace DALI_NAMESPACE
@@ -247,8 +247,7 @@ bool LoadBitmapFromPkm(const Dali::ImageLoader::Input& input, Dali::PixelBuffer&
   }
 
   // Create bitmap who will use allocated buffer.
-  const auto& bitmapInternal = Internal::Adaptor::PixelBuffer::New(pixels, static_cast<uint32_t>(imageByteCount), width, height, 0, pixelFormat);
-  bitmap                     = Dali::PixelBuffer(bitmapInternal.Get());
+  bitmap = Dali::Integration::NewPixelBuffer(pixels, static_cast<uint32_t>(imageByteCount), width, height, 0, pixelFormat);
 
   // Load the image data.
   const size_t bytesRead = fread(pixels, 1, imageByteCount, filePointer);

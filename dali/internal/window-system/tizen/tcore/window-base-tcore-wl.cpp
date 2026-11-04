@@ -1554,10 +1554,6 @@ void WindowBaseTcoreWl::OnMouseButtonDown(void* data, int type, void* event)
       free(dev);
     }
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) and input (%p) comes\n", mTcoreWindow, window);
-  }
 }
 
 void WindowBaseTcoreWl::OnMouseButtonUp(void* data, int type, void* event)
@@ -1607,10 +1603,6 @@ void WindowBaseTcoreWl::OnMouseButtonUp(void* data, int type, void* event)
       free(dev);
     }
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) and input (%p) comes\n", mTcoreWindow, window);
-  }
 }
 
 void WindowBaseTcoreWl::OnMouseButtonMove(void* data, int type, void* event)
@@ -1659,10 +1651,6 @@ void WindowBaseTcoreWl::OnMouseButtonMove(void* data, int type, void* event)
       free(dev);
     }
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) and input (%p) comes\n", mTcoreWindow, window);
-  }
 }
 
 void WindowBaseTcoreWl::OnMouseFrame(void* data, int type, void* event)
@@ -1674,12 +1662,7 @@ void WindowBaseTcoreWl::OnMouseFrame(void* data, int type, void* event)
 
   if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
   {
-    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_FRAME");
     mMouseFrameEventSignal.Emit();
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) and input (%p) comes\n", mTcoreWindow, window);
   }
 }
 
@@ -1718,10 +1701,6 @@ void WindowBaseTcoreWl::OnMouseButtonRelativeMove(void* data, int type, void* ev
     {
       free(dev);
     }
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) and input (%p) comes\n", mTcoreWindow, window);
   }
 }
 
@@ -1768,10 +1747,6 @@ void WindowBaseTcoreWl::OnMouseButtonCancel(void* data, int type, void* event)
       free(dev);
     }
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) and input (%p) comes\n", mTcoreWindow, window);
-  }
 }
 
 void WindowBaseTcoreWl::OnPointerConstraints(void* data, int type, void* event)
@@ -1796,10 +1771,6 @@ void WindowBaseTcoreWl::OnPointerConstraints(void* data, int type, void* event)
     DALI_LOG_RELEASE_INFO("[%d, %d]\n", position.GetX(), position.GetY());
 
     mPointerConstraintsSignal.Emit(position, locked, confined);
-  }
-  else if(ev)
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) and input (%p) comes\n", mTcoreWindow, window);
   }
 }
 
@@ -1828,10 +1799,6 @@ void WindowBaseTcoreWl::OnMouseWheel(void* data, int type, void* event)
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, direction, modifiers, Vector2(x, y), z, timestamp);
 
     EmitWheelEvent(wheelEvent);
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) and input (%p) comes\n", mTcoreWindow, window);
   }
 }
 
@@ -1887,10 +1854,6 @@ void WindowBaseTcoreWl::OnMouseInOut(void* data, int type, void* event)
     {
       free(dev);
     }
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) and input (%p) comes\n", mTcoreWindow, window);
   }
 }
 
@@ -2002,10 +1965,6 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
       free(dev);
     }
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) and input (%p) comes\n", mTcoreWindow, window);
-  }
 }
 
 void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
@@ -2092,10 +2051,6 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
     {
       free(dev);
     }
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) and input (%p) comes\n", mTcoreWindow, window);
   }
 }
 
@@ -2792,7 +2747,7 @@ void WindowBaseTcoreWl::Resize(PositionSize positionSize)
   PositionSize newPositionSize = RecalculatePositionSizeToSystem(positionSize);
 
   mWindowPositionSize = newPositionSize;
-  DALI_LOG_RELEASE_INFO("tizen_core_wl_window_set_geometry, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  DALI_LOG_RELEASE_INFO("tizen_core_wl_window_set_geometry, x[%d], y[%d], w[%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 
   if(mTcoreWindow)
   {
@@ -2807,7 +2762,7 @@ void WindowBaseTcoreWl::MoveResize(PositionSize positionSize)
   PositionSize newPositionSize = RecalculatePositionSizeToSystem(positionSize);
 
   mWindowPositionSize = newPositionSize;
-  DALI_LOG_RELEASE_INFO("tizen_core_wl_window_set_geometry, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  DALI_LOG_RELEASE_INFO("tizen_core_wl_window_set_geometry, x[%d], y[%d], w[%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 
   if(mTcoreWindow)
   {

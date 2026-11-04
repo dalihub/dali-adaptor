@@ -96,6 +96,11 @@ bool Capture::IsExclusive() const
   return GetImpl(*this).IsExclusive();
 }
 
+Dali::PixelBuffer Capture::GetCapturedBuffer()
+{
+  return GetImpl(*this).GetCapturedBuffer();
+}
+
 Dali::NativeImagePtr Capture::GetNativeImage()
 {
   return GetImpl(*this).GetNativeImage();

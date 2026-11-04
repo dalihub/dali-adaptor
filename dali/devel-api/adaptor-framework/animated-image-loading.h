@@ -20,13 +20,13 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/images/pixel-buffer.h>
 #include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/object/base-handle.h>
 #include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/image-options.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace DALI_NAMESPACE

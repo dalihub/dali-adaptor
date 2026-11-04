@@ -105,7 +105,7 @@ ELSE()
   SET( CAIRO_LDFLAGS "")
 ENDIF()
 
-FIND_PACKAGE( dali2-core REQUIRED)
+FIND_PACKAGE( ${core_name} REQUIRED)
 
 FIND_PACKAGE( WebP REQUIRED )
 SET(DALI_WEBP_AVAILABLE 1)
@@ -135,7 +135,7 @@ SET(REQUIRED_LIBS
   unofficial::angle::libGLESv2
   WebP::webp
   WebP::webpdemux
-  dali2-core::dali2-core
+  ${core_name}::${core_name}
   ${OpenGL}
   ${IOSurface}
   ${Foundation}

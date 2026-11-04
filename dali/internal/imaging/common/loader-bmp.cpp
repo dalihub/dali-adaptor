@@ -20,7 +20,7 @@
 #include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/system-error-print.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/images/pixel-buffer.h>
 
 #include <cstdint>
 

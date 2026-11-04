@@ -21,12 +21,12 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/common/dali-utility.h>
+#include <dali/public-api/images/pixel-buffer.h>
 #include <cstring>
 
 // INTERNAL INCLUDES
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/integration-api/pixel-buffer-integ.h>
 #include <dali/internal/system/common/system-error-print.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace DALI_NAMESPACE
 {
@@ -605,8 +605,7 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::PixelBuffer&
   if(!pixels)
   {
     // allocate buffer manually
-    auto& impl = GetImplementation(bitmap);
-    impl.AllocateFixedSize(imageByteCount);
+    Dali::Integration::AllocatePixelBufferFixedSize(bitmap, imageByteCount);
     pixels = bitmap.GetBuffer();
   }
 

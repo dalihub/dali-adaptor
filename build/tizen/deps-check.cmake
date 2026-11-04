@@ -93,8 +93,6 @@ ELSE()
   SET( FREETYPE_BITMAP_SUPPORT_VERSION 17.1.11 )
 ENDIF()
 
-SET( ELDBUS_REQUIRED 1.16.0 )
-
 # checking all possibly used modules (required and optionals)
 CHECK_MODULE_AND_SET( EXIF exif exif_available )
 CHECK_MODULE_AND_SET( FREETYPE freetype2>=${FREETYPE_REQUIRED} freetype_available )
@@ -122,7 +120,6 @@ IF( USE_TCORE_BACKEND )
 ELSE()
   CHECK_MODULE_AND_SET( ECORE_IMF ecore-imf [] )
 ENDIF()
-CHECK_MODULE_AND_SET( ELDBUS eldbus>=${ELDBUS_REQUIRED} eldbus_available )
 CHECK_MODULE_AND_SET( TPKP_CURL tpkp-curl tpkp_curl_available )
 CHECK_MODULE_AND_SET( UTILX utilX utilx_available )
 CHECK_MODULE_AND_SET( DLOG dlog dlog_available )
@@ -130,7 +127,7 @@ CHECK_MODULE_AND_SET( TTS tts [] )
 CHECK_MODULE_AND_SET( VCONF vconf [] )
 CHECK_MODULE_AND_SET( LIBUV libuv [] )
 CHECK_MODULE_AND_SET( GLIB glib-2.0 [] )
-CHECK_MODULE_AND_SET( GIO gio-2.0 [] )
+CHECK_MODULE_AND_SET( GIO gio-2.0 gio_available )
 CHECK_MODULE_AND_SET( X11 x11 [] )
 CHECK_MODULE_AND_SET( XCB x11-xcb [] )
 CHECK_MODULE_AND_SET( XDAMAGE xdamage [] )
@@ -177,7 +174,7 @@ CHECK_MODULE_AND_SET( CAPI_APPFW_WIDGET_BASE ${APPFW_WIDGET_BASE_PKG} [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_COMMON capi-appfw-app-common [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_CONTROL capi-appfw-app-control [] )
 
-CHECK_MODULE_AND_SET( DALICORE dali2-core [] )
+CHECK_MODULE_AND_SET( DALICORE ${core_name} [] )
 
 # Check tizen-core and tizen-core-wl dependencies only for the TCORE backend.
 IF( USE_TCORE_BACKEND )
@@ -267,11 +264,6 @@ IF( UBUNTU_PROFILE )
 ENDIF()
 
 # BUILD CONDITIONS
-IF( eldbus_available )
-  SET(DALI_ELDBUS_AVAILABLE 1)
-  ADD_DEFINITIONS( -DDALI_ELDBUS_AVAILABLE )
-ENDIF()
-
 IF( webp_available )
   SET(DALI_WEBP_AVAILABLE 1)
   ADD_DEFINITIONS( -DDALI_WEBP_AVAILABLE )
@@ -510,12 +502,10 @@ ELSE()
     ${EVAS_CFLAGS}
     ${ECORE_CFLAGS}
     ${ECORE_IPC_CFLAGS}
-    ${ELDBUS_CFLAGS}
     )
 
   SET( DALI_LDFLAGS ${DALI_LDFLAGS}
     ${ECORE_IPC_LDFLAGS}
-    ${ELDBUS_LDFLAGS}
     )
 
   # APPFW

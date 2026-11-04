@@ -45,6 +45,19 @@ DALI_ADAPTOR_API int32_t GetRenderThreadId();
  */
 DALI_ADAPTOR_API Dali::Vector<Window> GetWindows();
 
+/**
+ * @brief Set the maximum render frame rate of the adaptor.
+ *
+ * The default is 60 frames per second. The given value is clamped to a supported
+ * range; 0 does not mean unlimited.
+ *
+ * @note Each frame time will be a multiple of one frame interval (1 / maximumRenderFrameRate).
+ * For example, if maximumRenderFrameRate = 50.0f, each elapse time could be 20ms, 40ms,
+ * 60ms, and so on.
+ * @param[in] maximumRenderFrameRate The maximum number of frames per second
+ */
+DALI_ADAPTOR_API void SetMaximumRenderFrameRate(float maximumRenderFrameRate);
+
 } // namespace Extension
 } //namespace DALI_NAMESPACE
 

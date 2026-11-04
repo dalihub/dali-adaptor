@@ -17,7 +17,7 @@
 #include <dali/internal/imaging/common/image-loader.h>
 
 #include <dali/devel-api/common/ref-counted-dali-vector.h>
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/public-api/images/pixel-buffer.h>
 
 #include <dali/devel-api/adaptor-framework/image-loader-input.h>
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>

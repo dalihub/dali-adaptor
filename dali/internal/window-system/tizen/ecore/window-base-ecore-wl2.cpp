@@ -1188,10 +1188,6 @@ Eina_Bool WindowBaseEcoreWl2::OnIconifyStateChanged(void* data, int type, void* 
     }
     handled = ECORE_CALLBACK_DONE;
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), iconifyChangedEvent->win);
-  }
 
   return handled;
 }
@@ -1206,10 +1202,6 @@ Eina_Bool WindowBaseEcoreWl2::OnFocusIn(void* data, int type, void* event)
 
     mFocusChangedSignal.Emit(true);
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), focusInEvent->window);
-  }
 
   return ECORE_CALLBACK_PASS_ON;
 }
@@ -1223,10 +1215,6 @@ Eina_Bool WindowBaseEcoreWl2::OnFocusOut(void* data, int type, void* event)
     DALI_LOG_RELEASE_INFO("Window (%p) EcoreEventWindowFocusOut\n", mEcoreWindow);
 
     mFocusChangedSignal.Emit(false);
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), focusOutEvent->window);
   }
 
   return ECORE_CALLBACK_PASS_ON;
@@ -1265,10 +1253,6 @@ Eina_Bool WindowBaseEcoreWl2::OnIgnoreOutputTransform(void* data, int type, void
       DALI_LOG_RELEASE_INFO("Window(%p), WindowId(%d) EcoreEventOutputTransform, angle(%d)\n", mEcoreWindow, GetNativeWindowId(), mScreenRotationAngle);
       mOutputTransformedSignal.Emit(mScreenRotationAngle);
     }
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%p) comes\n", mEcoreWindow, static_cast<unsigned int>(GetNativeWindowId()), ignoreTransformEvent->win);
   }
 
   return ECORE_CALLBACK_PASS_ON;
@@ -1311,10 +1295,6 @@ void WindowBaseEcoreWl2::OnRotation(void* data, int type, void* event)
     mRotationSignal.Emit(rotationEvent);
 
     ecore_wl2_window_commit(mEcoreWindow, EINA_FALSE);
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), ev->win);
   }
 }
 
@@ -1368,10 +1348,6 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
 
     ecore_wl2_window_commit(mEcoreWindow, EINA_FALSE);
   }
-  else if(ev)
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), ev->win);
-  }
 }
 
 void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
@@ -1421,10 +1397,6 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
     mMouseFrameEventSignal.Emit();
 #endif
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
-  }
 }
 
 void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
@@ -1461,10 +1433,6 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
     mMouseFrameEventSignal.Emit();
 #endif
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
-  }
 }
 
 void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
@@ -1500,10 +1468,6 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
     mMouseFrameEventSignal.Emit();
 #endif
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
-  }
 }
 
 #ifdef OVER_TIZEN_VERSION_9
@@ -1513,12 +1477,7 @@ void WindowBaseEcoreWl2::OnMouseFrame(void* data, int type, void* event)
 
   if(mouseFrameEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
-    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_FRAME");
     mMouseFrameEventSignal.Emit();
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), mouseFrameEvent->window);
   }
 }
 #endif
@@ -1541,10 +1500,6 @@ void WindowBaseEcoreWl2::OnMouseButtonRelativeMove(void* data, int type, void* e
     Dali::DevelWindow::MouseRelativeEvent mouseRelativeEvent(Dali::DevelWindow::MouseRelativeEvent::Type::RELATIVE_MOVE, relativeMoveEvent->modifiers, relativeMoveEvent->timestamp, Vector2(relativeMoveEvent->dx, relativeMoveEvent->dy), Vector2(relativeMoveEvent->dx_unaccel, relativeMoveEvent->dy_unaccel), deviceClass, deviceSubclass);
 
     EmitMouseRelativeEvent(mouseRelativeEvent);
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), relativeMoveEvent->window);
   }
 }
 #endif
@@ -1578,10 +1533,6 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
 
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnMouseButtonCancel\n");
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
-  }
 }
 
 #ifdef OVER_TIZEN_VERSION_8
@@ -1596,10 +1547,6 @@ void WindowBaseEcoreWl2::OnPointerConstraints(void* data, int type, void* event)
     DALI_LOG_RELEASE_INFO("[%d, %d]\n", position.GetX(), position.GetY());
 
     mPointerConstraintsSignal.Emit(position, constraintsEvent->locked, constraintsEvent->confined);
-  }
-  else if(constraintsEvent)
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)), constraintsEvent->win);
   }
 }
 #endif
@@ -1617,10 +1564,6 @@ void WindowBaseEcoreWl2::OnMouseWheel(void* data, int type, void* event)
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp);
 
     EmitWheelEvent(wheelEvent);
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), mouseWheelEvent->window);
   }
 }
 
@@ -1658,10 +1601,6 @@ void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::M
 
       EmitTouchEvent(point, mouseInOutEvent->timestamp);
     }
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), mouseInOutEvent->window);
   }
 }
 
@@ -1770,10 +1709,6 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
 
     mKeyEventSignal.Emit(keyEvent);
   }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), keyEvent->window);
-  }
 }
 
 void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
@@ -1865,10 +1800,6 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
 
     mKeyEventSignal.Emit(keyEvent);
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), keyEvent->window);
   }
 }
 

@@ -232,10 +232,10 @@ void Window::Initialize(Any surface, const WindowData& windowData, const std::st
   // The buffers this window renders into are fixed once its graphics surface exists,
   // so they have to be taken before the adaptor is set. A negative value means the
   // window follows the system-wide setting.
-  const WindowData::Impl& windowDataImpl = windowData.GetImplementation();
-  mDepthBufferEnabled                    = windowDataImpl.mDepthBufferEnabled;
-  mStencilBufferEnabled                  = windowDataImpl.mStencilBufferEnabled;
-  mMultiSamplingLevel                    = windowDataImpl.mMultiSamplingLevel;
+  const auto& windowDataImpl = Internal::Adaptor::GetImplementation(windowData);
+  mDepthBufferEnabled        = windowDataImpl.mDepthBufferEnabled;
+  mStencilBufferEnabled      = windowDataImpl.mStencilBufferEnabled;
+  mMultiSamplingLevel        = windowDataImpl.mMultiSamplingLevel;
 
   DALI_WINDOW_INIT_LOG("Window (%p), Initialize with name(%s), className(%s), type(%d), transparent(%d), frontBufferRendering(%d), depth(%d), stencil(%d), msaa(%d)\n", this, name.c_str(), className.c_str(), static_cast<int>(type), mIsTransparent, mIsFrontBufferRendering, mDepthBufferEnabled, mStencilBufferEnabled, mMultiSamplingLevel);
 

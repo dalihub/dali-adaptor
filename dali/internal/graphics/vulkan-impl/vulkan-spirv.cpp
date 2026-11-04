@@ -117,6 +117,7 @@ void SPIRVGenerator::Generate()
 
   if(!shader)
   {
+    glslang_finalize_process();
     return;
   }
 
@@ -128,6 +129,8 @@ void SPIRVGenerator::Generate()
     DALI_LOG_ERROR("%s\n", glslang_program_get_info_log(program));
     DALI_LOG_ERROR("%s\n", glslang_program_get_info_debug_log(program));
     glslang_program_delete(program);
+    glslang_shader_delete(shader);
+    glslang_finalize_process();
     return;
   }
 
@@ -147,6 +150,7 @@ void SPIRVGenerator::Generate()
   }
 
   glslang_program_delete(program);
+  glslang_shader_delete(shader);
   glslang_finalize_process();
 }
 

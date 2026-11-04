@@ -125,6 +125,7 @@ void NetworkPerformanceServer::Stop()
   // wait for the thread to exit.
   void* exitValue;
   pthread_join(mServerThread, &exitValue);
+  mServerThread = 0;
 
   if(mListeningSocket)
   {
@@ -151,8 +152,6 @@ bool NetworkPerformanceServer::IsRunning() const
 
 void NetworkPerformanceServer::ClientThread(NetworkPerformanceClient* client)
 {
-  mClientCount = (mClientCount + 1);
-
   SocketInterface& socket(client->GetSocket());
 
   for(;;)
@@ -161,13 +160,14 @@ void NetworkPerformanceServer::ClientThread(NetworkPerformanceClient* client)
 
     if(ret == SocketInterface::DATA_AVAILABLE)
     {
-      // Read
+      // Read, leaving room for the null terminator
       char         buffer[SOCKET_READ_BUFFER_SIZE];
       unsigned int bytesRead;
 
-      bool ok = socket.Read(buffer, sizeof(buffer), bytesRead);
-      if(ok && (bytesRead > 0) && (bytesRead <= SOCKET_READ_BUFFER_SIZE))
+      bool ok = socket.Read(buffer, sizeof(buffer) - 1, bytesRead);
+      if(ok && (bytesRead > 0) && (bytesRead < SOCKET_READ_BUFFER_SIZE))
       {
+        buffer[bytesRead] = '\0';
         client->ProcessCommand(buffer, bytesRead);
       }
       else // if bytesRead == 0, then client closed connection, if ok == false then an error
@@ -205,16 +205,18 @@ void NetworkPerformanceServer::ConnectionListener()
       SocketInterface* clientSocket = mListeningSocket->Accept();
 
       // new connection made, spawn a thread to handle it
-      pthread_t* clientThread = new pthread_t();
-
-      NetworkPerformanceClient* client = AddClient(clientSocket, clientThread);
+      NetworkPerformanceClient* client = AddClient(clientSocket);
 
       ClientThreadInfo* info = new ClientThreadInfo;
       info->client           = client;
       info->server           = this;
 
-      int error = pthread_create(clientThread, NULL, ClientThreadFunc, info);
+      pthread_t clientThread;
+      int       error = pthread_create(&clientThread, NULL, ClientThreadFunc, info);
       DALI_ASSERT_ALWAYS(!error && "pthread create failed");
+
+      // StopClients() waits for the client to be deleted instead of joining the thread
+      pthread_detach(clientThread);
     }
     else // ret == SocketInterface::QUIT or SocketInterface::ERROR
     {
@@ -231,19 +233,19 @@ void* NetworkPerformanceServer::ClientThreadFunc(void* data)
   return NULL;
 }
 
-NetworkPerformanceClient* NetworkPerformanceServer::AddClient(SocketInterface* clientSocket, pthread_t* clientThread)
+NetworkPerformanceClient* NetworkPerformanceServer::AddClient(SocketInterface* clientSocket)
 {
   // This function is only called from the listening thread
-  NetworkPerformanceClient* client = new NetworkPerformanceClient(clientThread,
-                                                                  clientSocket,
+  NetworkPerformanceClient* client = new NetworkPerformanceClient(clientSocket,
                                                                   mClientUniqueId++,
                                                                   *this,
                                                                   mSocketFactory);
 
   // protect the mClients list which can be accessed from multiple threads.
-  Mutex::ScopedLock lock(mClientListMutex);
+  ConditionalWait::ScopedLock lock(mClientListWait);
 
   mClients.PushBack(client);
+  mClientCount = (mClientCount + 1);
 
   return client;
 }
@@ -251,7 +253,7 @@ NetworkPerformanceClient* NetworkPerformanceServer::AddClient(SocketInterface* c
 void NetworkPerformanceServer::DeleteClient(NetworkPerformanceClient* client)
 {
   // protect the mClients list while modifying
-  Mutex::ScopedLock lock(mClientListMutex);
+  ConditionalWait::ScopedLock lock(mClientListWait);
 
   // remove from the list, and delete it
   for(ClientList::Iterator iter = mClients.Begin(); iter != mClients.End(); ++iter)
@@ -261,8 +263,10 @@ void NetworkPerformanceServer::DeleteClient(NetworkPerformanceClient* client)
       mClients.Erase(iter);
       delete client;
 
-      // if there server is shutting down, it waits for client count to hit zero
       mClientCount = (mClientCount - 1);
+
+      // if the server is shutting down, it waits for all clients to be deleted
+      mClientListWait.Notify(lock);
 
       return;
     }
@@ -277,7 +281,7 @@ void NetworkPerformanceServer::SendData(const char* const data, unsigned int buf
   }
 
   // prevent clients been added / deleted while transmiting data
-  Mutex::ScopedLock lock(mClientListMutex);
+  ConditionalWait::ScopedLock lock(mClientListWait);
 
   for(ClientList::Iterator iter = mClients.Begin(); iter != mClients.End(); ++iter)
   {
@@ -297,7 +301,7 @@ void NetworkPerformanceServer::TransmitMarker(const PerformanceMarker& marker, c
     return;
   }
   // prevent clients been added / deleted while transmiting data
-  Mutex::ScopedLock lock(mClientListMutex);
+  ConditionalWait::ScopedLock lock(mClientListWait);
 
   for(ClientList::Iterator iter = mClients.Begin(); iter != mClients.End(); ++iter)
   {
@@ -324,13 +328,19 @@ void NetworkPerformanceServer::AutomationCallback()
 void NetworkPerformanceServer::StopClients()
 {
   // prevent clients been added / deleted while stopping all clients
-  Mutex::ScopedLock lock(mClientListMutex);
+  ConditionalWait::ScopedLock lock(mClientListWait);
 
   for(ClientList::Iterator iter = mClients.Begin(); iter != mClients.End(); ++iter)
   {
     NetworkPerformanceClient* client = (*iter);
     // stop the client from waiting for new commands, and exit from it's thread
     client->ExitSelect();
+  }
+
+  // each client thread deletes its own client as the last access to the server
+  while(!mClients.Empty())
+  {
+    mClientListWait.Wait(lock);
   }
 }
 

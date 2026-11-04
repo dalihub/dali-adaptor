@@ -18,9 +18,11 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/rendering/texture.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/capture.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace DALI_NAMESPACE
 {
@@ -29,12 +31,16 @@ namespace DevelCapture
 {
 
 /**
- * @brief Get PixelBuffer of captured image.
+ * @brief Gets the texture the capture was rendered into.
  *
- * @return PixelBuffer Captured result
- * @note GetCapturedBuffer is only available inside FinishedSignal, otherwise this returns empty handle.
+ * The capture result stays in this texture on the GPU, so it can be rendered
+ * again without reading the pixels back.
+ *
+ * @param[in] capture The capture
+ * @return Texture of the captured result
+ * @note GetTexture is only available inside FinishedSignal.
  */
-DALI_ADAPTOR_API Dali::PixelBuffer GetCapturedBuffer(Dali::Capture capture);
+DALI_ADAPTOR_API Dali::Texture GetTexture(Dali::Capture capture);
 
 } // namespace DevelCapture
 

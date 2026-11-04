@@ -196,7 +196,8 @@ bool StyleMonitor::LoadThemeFile(const std::string& filename, std::string& outpu
   Dali::Vector<char> fileBuffer;
   if(Dali::FileLoader::ReadFile(filename, bufferSize, fileBuffer, FileLoader::FileType::BINARY))
   {
-    output.assign(&fileBuffer[0], bufferSize);
+    // Begin() instead of [0], as an empty file gives an empty buffer
+    output.assign(fileBuffer.Begin(), bufferSize);
     retval = true;
   }
 

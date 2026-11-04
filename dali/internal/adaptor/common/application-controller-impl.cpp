@@ -310,9 +310,9 @@ void ApplicationController::SetWindowName(const std::string& windowName)
 
 void ApplicationController::SetWindowData(const Dali::WindowData& windowData)
 {
-  mWindowData                      = std::unique_ptr<Dali::WindowData>(new Dali::WindowData());
-  mWindowData->GetImplementation() = windowData.GetImplementation();
-  mWindowPositionSize              = mWindowData->GetPositionSize();
+  mWindowData                                        = std::unique_ptr<Dali::WindowData>(new Dali::WindowData());
+  Internal::Adaptor::GetImplementation(*mWindowData) = Internal::Adaptor::GetImplementation(windowData);
+  mWindowPositionSize                                = mWindowData->GetPositionSize();
 }
 
 void ApplicationController::CreateWindow(bool isPreInitialize)
@@ -350,7 +350,7 @@ void ApplicationController::CreateWindow(bool isPreInitialize)
 
   if(mWindowData)
   {
-    activeWindowData.GetImplementation() = mWindowData->GetImplementation();
+    Internal::Adaptor::GetImplementation(activeWindowData) = Internal::Adaptor::GetImplementation(*mWindowData);
   }
   activeWindowData.SetPositionSize(mWindowPositionSize);
 

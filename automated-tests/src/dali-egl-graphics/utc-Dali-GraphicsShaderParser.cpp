@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -703,6 +703,38 @@ int UtcParserInOutLocation0(void)
   {
     bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/inout-locations.frag.processed", outFragmentShader);
     DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  END_TEST;
+}
+int UtcParserUnclosedUniformBlock(void)
+{
+  tet_infoline("UtcParserUnclosedUniformBlock - Tests parser stops at the end of the code if a uniform block is not closed");
+
+  const std::string vertexShader =
+    "INPUT mediump vec2 aPosition;\n"
+    "UNIFORM_BLOCK VertBlock\n"
+    "{\n"
+    "  UNIFORM highp mat4 uMvpMatrix;\n";
+  const std::string fragmentShader =
+    "void main()\n"
+    "{\n"
+    "  gl_FragColor = vec4(1.0);\n"
+    "}\n";
+
+  for(auto language : {OutputLanguage::GLSL_100_ES, OutputLanguage::GLSL_320_ES, OutputLanguage::SPIRV_GLSL})
+  {
+    std::vector<std::string> outStrings;
+
+    Internal::ShaderParser::ShaderParserInfo parseInfo{};
+    parseInfo.vertexShaderCode            = vertexShader;
+    parseInfo.fragmentShaderCode          = fragmentShader;
+    parseInfo.vertexShaderLegacyVersion   = 0;
+    parseInfo.fragmentShaderLegacyVersion = 0;
+    parseInfo.language                    = language;
+    parseInfo.outputVersion               = 0;
+    Parse(parseInfo, outStrings);
+
+    DALI_TEST_CHECK(outStrings[0].find("uMvpMatrix") != std::string::npos);
   }
   END_TEST;
 }

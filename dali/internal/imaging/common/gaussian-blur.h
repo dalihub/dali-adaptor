@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/public-api/images/pixel-buffer.h>
 
 namespace DALI_NAMESPACE
 {
@@ -38,7 +38,7 @@ namespace Adaptor
  *
  * @return @e false if the gaussian blur fails (invalid pixel format or memory issues).
  */
-bool PerformGaussianBlur(PixelBuffer& buffer, const float blurRadius);
+bool PerformGaussianBlur(Dali::PixelBuffer& buffer, const float blurRadius);
 
 } //namespace Adaptor
 

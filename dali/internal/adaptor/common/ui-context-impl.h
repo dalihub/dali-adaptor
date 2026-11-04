@@ -51,6 +51,11 @@ public:
   static Dali::UiContext Get();
 
   /**
+   * @copydoc Dali::UiContext::IsAvailable()
+   */
+  static bool IsAvailable();
+
+  /**
    * @brief Creates a new UiContext instance with the given adaptor.
    *
    * @param[in] adaptor Pointer to the Dali::Adaptor instance

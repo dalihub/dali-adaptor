@@ -18,6 +18,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/common/shader-parser.h>
 #include <algorithm>
+#include <iterator>
 #include <locale>
 #include <sstream>
 
@@ -482,8 +483,23 @@ bool ProcessTokenUNIFORM(IT& it, Program& program, OutputLanguage lang, ShaderSt
   return false;
 }
 
+/**
+ * @brief Moves to the next line of a block.
+ * @return false if there is no next line, i.e. the block is not closed
+ */
 template<class IT>
-bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, ShaderStage stage)
+bool NextBlockLine(IT& it, const IT& end, CodeLine& line)
+{
+  if(std::next(it) == end)
+  {
+    return false;
+  }
+  line = *(++it);
+  return true;
+}
+
+template<class IT>
+bool ProcessTokenUNIFORM_BLOCK(IT& it, const IT& end, Program& program, OutputLanguage lang, ShaderStage stage)
 {
   auto&             l       = *it;
   int&              binding = program.uboBinding;
@@ -537,11 +553,12 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
           gles3plus = true;
         }
       }
+      bool hasLine = true;
       if(gles3plus) // remove word UNIFORM for gles3+/spirv
       {
         // iterate block
-        l = (*++it);
-        while(l.line.find('}') == std::string::npos)
+        hasLine = NextBlockLine(it, end, l);
+        while(hasLine && l.line.find('}') == std::string::npos)
         {
           auto isUniform = (GetToken(l, 0) == "UNIFORM");
           if(isUniform)
@@ -552,18 +569,18 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
           {
             ss << l.line << "\n";
           }
-          l = *(++it);
+          hasLine = NextBlockLine(it, end, l);
         }
         ss << "};\n";
       }
       else
       {
-        while(l.line.find('{') == std::string::npos)
+        while(hasLine && l.line.find('{') == std::string::npos)
         {
-          l = *(++it);
+          hasLine = NextBlockLine(it, end, l);
         }
-        l = *(++it);
-        while(l.line.find('}') == std::string::npos)
+        hasLine = hasLine && NextBlockLine(it, end, l);
+        while(hasLine && l.line.find('}') == std::string::npos)
         {
           auto isUniform = (GetToken(l, 0) == "UNIFORM");
           if(isUniform)
@@ -574,8 +591,13 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
           {
             ss << l.line << "\n";
           }
-          l = *(++it);
+          hasLine = NextBlockLine(it, end, l);
         }
+      }
+
+      if(!hasLine)
+      {
+        DALI_LOG_ERROR("UNIFORM_BLOCK %s is not closed\n", std::string(uniformBlockName).c_str());
       }
     }
     auto str = ss.str();
@@ -727,7 +749,7 @@ void ProcessStage(Program& program, ShaderStage stage, OutputLanguage language)
     }
     if(!res)
     {
-      res = ProcessTokenUNIFORM_BLOCK(it, program, language, stage);
+      res = ProcessTokenUNIFORM_BLOCK(it, codeLines.end(), program, language, stage);
     }
     if(!res)
     {

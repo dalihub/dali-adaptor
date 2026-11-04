@@ -12,8 +12,8 @@ SET(CMAKE_CXX_EXTENSIONS OFF)
 
 INCLUDE(GNUInstallDirs)
 
-FIND_PACKAGE(dali2-core CONFIG REQUIRED)
-FIND_PACKAGE(dali2-adaptor CONFIG REQUIRED)
+FIND_PACKAGE(dali3-core CONFIG REQUIRED)
+FIND_PACKAGE(dali3-adaptor CONFIG REQUIRED)
 
 SET(COMMON_TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../src/dali-adaptor")
 SET(DALI_TEST_SOURCE_LIST_ONLY ON)
@@ -89,8 +89,8 @@ TARGET_COMPILE_DEFINITIONS(tct-dali-adaptor-core PRIVATE
 TARGET_COMPILE_OPTIONS(tct-dali-adaptor-core PRIVATE /vmg /utf-8 /W3 /wd4251 /wd4275 /WX)
 
 TARGET_LINK_LIBRARIES(tct-dali-adaptor-core PRIVATE
-  dali2-adaptor::dali2-adaptor
-  dali2-core::dali2-core
+  dali3-adaptor::dali3-adaptor
+  dali3-core::dali3-core
 )
 
 INSTALL(TARGETS tct-dali-adaptor-core RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

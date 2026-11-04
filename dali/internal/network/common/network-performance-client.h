@@ -18,9 +18,6 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <pthread.h>
-
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/network/common/client-send-data-interface.h>
@@ -56,14 +53,12 @@ class NetworkPerformanceClient
 public:
   /**
    * @brief Constructor
-   * @param thread thread pointer
    * @param socket socket interface
    * @param clientId unique client id
    * @param sendDataInterface used to send data to the socket from main thread
    * @param SocketFactoryInterface used to delete the socket when the client is destroyed
    */
-  NetworkPerformanceClient(pthread_t*               thread,
-                           SocketInterface*         socket,
+  NetworkPerformanceClient(SocketInterface*         socket,
                            unsigned int             clientId,
                            ClientSendDataInterface& sendDataInterface,
                            SocketFactoryInterface&  socketFactory);
@@ -108,14 +103,7 @@ public:
    */
   void ExitSelect();
 
-  /**
-   * @brief get the thread running the client
-   * @return thread pointer
-   */
-  pthread_t* GetThread();
-
 private:
-  pthread_t*                      mThread;                 ///< thread for the client
   SocketInterface*                mSocket;                 ///< socket interface
   PerformanceMarker::MarkerFilter mMarkerBitmask;          ///< What markers are currently filtered
   ClientSendDataInterface&        mSendDataInterface;      ///< used to send data to a client from the main event thread

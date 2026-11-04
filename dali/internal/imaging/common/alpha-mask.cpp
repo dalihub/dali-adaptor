@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+// EXTERNAL INCLUDES
+#include <vector>
+
 // INTERNAL INCLUDES
+#include <dali/devel-api/images/pixel-buffer-devel.h>
 #include <dali/internal/imaging/common/alpha-mask.h>
 #include <dali/internal/imaging/common/image-operations.h>
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
 #include <dali/internal/imaging/common/pixel-manipulation.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
 
@@ -27,7 +30,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
+void ApplyMaskToAlphaChannel(Dali::PixelBuffer& buffer, Dali::PixelBuffer& mask)
 {
   int                 srcAlphaByteOffset = 0;
   int                 srcAlphaMask       = 0;
@@ -56,7 +59,7 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
   unsigned int destStrideBytes   = buffer.GetStrideBytes();
 
   // if image is premultiplied, the other channels of the image need to multiply by alpha.
-  if(buffer.IsAlphaPreMultiplied())
+  if(DevelPixelBuffer::IsAlphaPreMultiplied(buffer))
   {
     // Collect all valid channel list before lookup whole buffer
     std::vector<Channel> validChannelList;
@@ -130,7 +133,7 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
   }
 }
 
-PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffer& mask)
+Dali::PixelBuffer CreateNewMaskedBuffer(Dali::PixelBuffer& buffer, Dali::PixelBuffer& mask)
 {
   // Set up source alpha offsets
   int                 srcAlphaByteOffset = 0;
@@ -162,10 +165,10 @@ PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffe
   int                 destAlphaMask       = 0;
   Dali::Pixel::GetAlphaOffsetAndMask(destPixelFormat, destAlphaByteOffset, destAlphaMask);
 
-  PixelBufferPtr newPixelBuffer  = PixelBuffer::New(buffer.GetWidth(), buffer.GetHeight(), destPixelFormat);
-  unsigned char* destBuffer      = newPixelBuffer->GetBuffer();
-  unsigned char* oldBuffer       = buffer.GetBuffer();
-  unsigned int   destStrideBytes = newPixelBuffer->GetStrideBytes();
+  Dali::PixelBuffer newPixelBuffer  = Dali::PixelBuffer::New(buffer.GetWidth(), buffer.GetHeight(), destPixelFormat);
+  unsigned char*    destBuffer      = newPixelBuffer.GetBuffer();
+  unsigned char*    oldBuffer       = buffer.GetBuffer();
+  unsigned int      destStrideBytes = newPixelBuffer.GetStrideBytes();
 
   bool hasAlpha = Dali::Pixel::HasAlpha(buffer.GetPixelFormat());
 

@@ -52,12 +52,12 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/images/pixel-buffer.h>
 #include <cstring>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/system-error-print.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace DALI_NAMESPACE
 {

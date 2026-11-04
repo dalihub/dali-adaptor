@@ -36,7 +36,11 @@ namespace
 {
 static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::UnifiedTriggerEventManager);
 
-DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_TRIGGER_PERFORMANCE_MARKER, false);
+
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_UNIFIED_TRIGGER");
+#endif
 } //namespace
 
 namespace DALI_NAMESPACE::Internal::Adaptor
@@ -76,7 +80,7 @@ UnifiedTriggerEventManager::UnifiedTriggerEventManager()
   mFileDescriptor = eventfd(0, EFD_NONBLOCK);
   if(mFileDescriptor >= 0)
   {
-    DALI_LOG_DEBUG_INFO("Create unified eventfd:%d\n", mFileDescriptor);
+    DALI_LOG_INFO(gLogFilter, Debug::General, "Create unified eventfd:%d\n", mFileDescriptor);
     // Now Monitor the created event file descriptor
     mFileDescriptorMonitor = Dali::Internal::Adaptor::GetSystemFactory()->CreateFileDescriptorMonitor(mFileDescriptor, MakeCallback(this, &UnifiedTriggerEventManager::Triggered), FileDescriptorMonitor::FD_READABLE);
   }
@@ -91,7 +95,7 @@ UnifiedTriggerEventManager::~UnifiedTriggerEventManager()
 {
   if(mFileDescriptor >= 0)
   {
-    DALI_LOG_DEBUG_INFO("Close unified eventfd:%d\n", mFileDescriptor);
+    DALI_LOG_INFO(gLogFilter, Debug::General, "Close unified eventfd:%d\n", mFileDescriptor);
     mFileDescriptorMonitor.reset();
     close(mFileDescriptor);
     mFileDescriptor = -1;
@@ -115,7 +119,7 @@ TriggerEvent* UnifiedTriggerEventManager::GenerateTriggerEvent(CallbackBase* cal
 {
   auto* triggerEvent = new Internal::Adaptor::TriggerEvent(this, callback);
   mValidEventsId.insert(triggerEvent->GetId());
-  DALI_LOG_DEBUG_INFO("Generated Trigger[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
+  DALI_LOG_INFO(gLogFilter, Debug::General, "Generated Trigger[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
   return triggerEvent;
 }
 
@@ -123,7 +127,7 @@ void UnifiedTriggerEventManager::DiscardTriggerEvent(TriggerEvent* triggerEvent)
 {
   if(DALI_LIKELY(triggerEvent))
   {
-    DALI_LOG_DEBUG_INFO("Discard Trigger[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
+    DALI_LOG_INFO(gLogFilter, Debug::General, "Discard Trigger[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
     mValidEventsId.erase(triggerEvent->GetId());
     mDiscardedEvents.insert(triggerEvent);
 
@@ -137,7 +141,7 @@ void UnifiedTriggerEventManager::DiscardTriggerEvent(TriggerEvent* triggerEvent)
 
 void UnifiedTriggerEventManager::Triggered(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor)
 {
-  DALI_LOG_DEBUG_INFO("Triggered fd:%d, mask:%x\n", mFileDescriptor, eventBitMask);
+  DALI_LOG_INFO(gLogFilter, Debug::General, "Triggered fd:%d, mask:%x\n", mFileDescriptor, eventBitMask);
   if(!(eventBitMask & FileDescriptorMonitor::FD_READABLE))
   {
     DALI_ASSERT_ALWAYS(0 && "Trigger event file descriptor error");
@@ -176,12 +180,12 @@ void UnifiedTriggerEventManager::Triggered(FileDescriptorMonitor::EventType even
     // Check validation of trigger event.
     if(DALI_LIKELY(triggerEvent && mValidEventsId.find(triggerEvent->GetId()) != mValidEventsId.end()))
     {
-      DALI_LOG_DEBUG_INFO("Triggered[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
+      DALI_LOG_INFO(gLogFilter, Debug::General, "Triggered[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
       triggerEvent->Triggered(eventBitMask, fileDescriptor);
     }
     else if(DALI_UNLIKELY(triggerEvent))
     {
-      DALI_LOG_DEBUG_INFO("Ignore invalid trigger[%p]\n", triggerEvent);
+      DALI_LOG_INFO(gLogFilter, Debug::General, "Ignore invalid trigger[%p]\n", triggerEvent);
     }
   }
 
@@ -203,7 +207,7 @@ void UnifiedTriggerEventManager::Triggered(FileDescriptorMonitor::EventType even
 // From worker thread.
 void UnifiedTriggerEventManager::Trigger(TriggerEvent* triggerEvent)
 {
-  DALI_LOG_DEBUG_INFO("Trigger[%p] Id(%u) fd:%d\n", triggerEvent, DALI_LIKELY(triggerEvent) ? triggerEvent->GetId() : 0, mFileDescriptor);
+  DALI_LOG_INFO(gLogFilter, Debug::General, "Trigger[%p] Id(%u) fd:%d\n", triggerEvent, DALI_LIKELY(triggerEvent) ? triggerEvent->GetId() : 0, mFileDescriptor);
 
   if(DALI_LIKELY(mFileDescriptor >= 0))
   {

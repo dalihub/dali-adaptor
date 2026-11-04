@@ -21,10 +21,10 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/scripting/enum-helper.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
+#include <dali/public-api/images/pixel-buffer.h>
 #include <stdint.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <third-party/resampler/resampler.h>
 
 namespace DALI_NAMESPACE

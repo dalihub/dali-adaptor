@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/threading/mutex.h>
+#include <dali/public-api/images/pixel-buffer.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/signals/connection-tracker.h>
 #include <atomic>
@@ -30,7 +31,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/vector-image-renderer.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 #ifndef THORVG_SUPPORT
 struct NSVGrasterizer;

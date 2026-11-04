@@ -61,6 +61,11 @@ Dali::Integration::Trace::LogContextFunction TraceManagerTizen::GetLogContextFun
   return LogContext;
 }
 
+Dali::Integration::Trace::MarkContextFunction TraceManagerTizen::GetMarkContextFunction()
+{
+  return MarkContext;
+}
+
 void TraceManagerTizen::LogContext(bool start, const char* tag, const char* message)
 {
   if(start)
@@ -86,6 +91,19 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
     {
       DALI_LOG_DEBUG_INFO("END: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
     }
+  }
+}
+
+void TraceManagerTizen::MarkContext(const char* tag, const char* message)
+{
+  if(gTraceManagerEnableTTrace)
+  {
+    traceMark(TTRACE_TAG_GRAPHICS, "%s%s%s", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
+  }
+
+  if(gTraceManagerEnablePrintLog)
+  {
+    DALI_LOG_DEBUG_INFO("MARK: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
   }
 }
 

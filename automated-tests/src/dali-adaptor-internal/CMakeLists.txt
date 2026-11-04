@@ -89,8 +89,8 @@ LIST(APPEND TC_SOURCES
 )
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
-    dali2-core
-    dali2-adaptor
+    dali3-core
+    dali3-adaptor
     freetype2>=9.16.3
     ecore
     ecore-x
@@ -119,9 +119,9 @@ INCLUDE_DIRECTORIES(
     ../dali-adaptor/dali-test-suite-utils
 )
 
-FIND_LIBRARY(GLES_GRAPHICS_LIB_FOUND NAMES dali2-adaptor-gles PATHS ${${CAPI_LIB}_LIBRARY_DIRS})
+FIND_LIBRARY(GLES_GRAPHICS_LIB_FOUND NAMES dali3-adaptor-gles PATHS ${${CAPI_LIB}_LIBRARY_DIRS})
 IF(GLES_GRAPHICS_LIB_FOUND)
-    SET(GLES_GRAPHICS_LIB "-ldali2-adaptor-gles")
+    SET(GLES_GRAPHICS_LIB "-ldali3-adaptor-gles")
 ENDIF()
 
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})

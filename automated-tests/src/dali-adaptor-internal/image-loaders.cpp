@@ -17,7 +17,7 @@
 
 #include "image-loaders.h"
 #include <dali-test-suite-utils.h>
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/public-api/images/pixel-buffer.h>
 
 AutoCloseFile::AutoCloseFile(FILE* fp)
 : filePtr(fp)
@@ -187,6 +187,5 @@ void DumpImageBufferToTempFile(std::string filename, std::string targetFilename,
 
   FILE*         writeFp = fopen(targetFilename.c_str(), "wb");
   AutoCloseFile autoCloseWrite(writeFp);
-  auto&         impl = GetImplementation(bitmap);
-  fwrite(bufferPtr, 1, impl.GetBufferSize(), writeFp);
+  fwrite(bufferPtr, 1, bitmap.GetBufferSize(), writeFp);
 }

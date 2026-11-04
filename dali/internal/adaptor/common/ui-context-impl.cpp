@@ -91,6 +91,11 @@ Dali::UiContext UiContext::Get()
   return uiContext;
 }
 
+bool UiContext::IsAvailable()
+{
+  return Internal::Adaptor::Adaptor::IsAvailable();
+}
+
 Dali::UiContext UiContext::New(Dali::Adaptor* adaptor)
 {
   Dali::UiContext uiContext = UiContext::Get();

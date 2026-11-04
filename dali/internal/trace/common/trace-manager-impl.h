@@ -68,6 +68,16 @@ protected:
     return nullptr;
   };
 
+  /**
+   * Obtain the platform dependent MarkContextFunction used for instant markers.
+   * Platforms without a native instant-event channel return nullptr, and core
+   * falls back to an adjacent begin/end pair.
+   */
+  virtual Dali::Integration::Trace::MarkContextFunction GetMarkContextFunction()
+  {
+    return nullptr;
+  };
+
 private:
   /**
    * Set / Install the platform dependent trace function

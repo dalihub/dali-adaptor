@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/public-api/images/pixel-buffer.h>
 
 namespace DALI_NAMESPACE
 {

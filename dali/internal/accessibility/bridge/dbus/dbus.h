@@ -168,7 +168,7 @@ struct DBusWrapper
   {
     CallId                                                                     id;
     std::string                                                                memberName;
-    std::vector<std::pair<std::string, std::string>>                           in, out; // _Eldbus_Arg_Info
+    std::vector<std::pair<std::string, std::string>>                           in, out; // (name, signature) pairs
     std::function<DBusWrapper::MessagePtr(const DBusWrapper::MessagePtr& msg)> callback;
   };
   struct SignalInfo
@@ -430,10 +430,10 @@ struct DBusSigImpl<ObjectPath>
 #define DBUS_W DBusWrapper::Installed()
 
 /**
- * @brief Template based, single file, wrapper library around eldbus for DBUS based communication.
+ * @brief Template based, single file, wrapper library around GDBus (gio) for DBUS based communication.
  *
  * Main motivation was missing asynchronous calls in AT-SPI library and difficulties,
- * when using eldbus from C++.
+ * when using the C D-Bus API from C++.
  *
  * The library:
  * - takes care of marshalling arguments to and from DBUS calls.

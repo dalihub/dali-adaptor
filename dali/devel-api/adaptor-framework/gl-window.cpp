@@ -34,7 +34,7 @@ using GlWindowImpl = Internal::Adaptor::GlWindow;
 
 namespace
 {
-const char* const DALI_ADAPTOR_GL_WINDOW_ADDON_SO("libdali2-adaptor-gl-window-addon.so");
+const char* const DALI_ADAPTOR_GL_WINDOW_ADDON_SO(DALI_LIBRARY_PREFIX "adaptor-gl-window-addon.so");
 const char* const DALI_ADAPTOR_GL_WINDOW_ADDON_NAME("AdaptorGlWindowAddOn");
 
 struct AdaptorGlWindowAddOn : public Dali::AddOn::AddOnBinder

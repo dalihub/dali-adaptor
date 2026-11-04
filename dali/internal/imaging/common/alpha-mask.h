@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/public-api/images/pixel-buffer.h>
 
 namespace DALI_NAMESPACE
 {
@@ -30,7 +30,7 @@ namespace Adaptor
  * @param[in] buffer The buffer to apply the mask to
  * @param[in] mask The mask to apply
  */
-void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask);
+void ApplyMaskToAlphaChannel(Dali::PixelBuffer& buffer, Dali::PixelBuffer& mask);
 
 /**
  * @brief Create a new PixelBuffer with an alpha channel large enough to handle the alpha from
@@ -43,7 +43,7 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask);
  * @param[in] mask The mask to apply
  * @return A new pixel buffer containing the masked image
  */
-PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffer& mask);
+Dali::PixelBuffer CreateNewMaskedBuffer(Dali::PixelBuffer& buffer, Dali::PixelBuffer& mask);
 
 } //namespace Adaptor
 } //namespace Internal

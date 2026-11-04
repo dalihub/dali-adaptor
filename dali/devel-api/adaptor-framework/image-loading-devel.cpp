@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-utility.h>
+#include <dali/public-api/images/pixel-buffer.h>
 #include <locale>
 
 // INTERNAL INCLUDES
@@ -26,7 +27,6 @@
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/file-reader.h>
 #include <dali/internal/system/common/system-error-print.h>
-#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/object/property-map.h>
 
 namespace DALI_NAMESPACE

@@ -206,6 +206,15 @@ int UtcDaliGraphicsFramebufferAttachAuto(void)
   app.SendNotification();
   app.Render(16); // The above actor will get rendered and drawn once.
 
+  auto sourceActor = renderTask.GetSourceActor();
+  auto renderer    = sourceActor.GetRendererAt(0);
+
+  // Make sourceActor changed every frame, so always try to rendering FBO
+  Animation dummyAnimation = Animation::New(10.0f);
+  dummyAnimation.AnimateTo(Property(sourceActor, Actor::Property::POSITION_X), 1.0f);
+  dummyAnimation.SetLoopCount(0); ///< Infinite loop
+  dummyAnimation.Play();
+
   // TODO : Need to pass below UTC. For now, let we throw it to test all other UTCs.
 
   DALI_TEST_EQUALS(gl.CheckFramebufferColorAttachmentCount(), 1u, TEST_LOCATION);
@@ -216,8 +225,6 @@ int UtcDaliGraphicsFramebufferAttachAuto(void)
   DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
 
-  auto sourceActor = renderTask.GetSourceActor();
-  auto renderer    = sourceActor.GetRendererAt(0);
   renderer.SetProperty(Renderer::Property::DEPTH_TEST_MODE, DepthTestMode::ON);
 
   app.SendNotification();

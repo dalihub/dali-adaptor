@@ -1124,8 +1124,6 @@ void Adaptor::FlushUpdateMessages()
 {
   if(mCore)
   {
-    DALI_TRACE_SCOPE(gTraceFilter, "DALI_FLUSH_UPDATE_MESSAGES");
-
     mCore->ForceRelayout();
   }
 }
@@ -1478,8 +1476,6 @@ void Adaptor::RequestUpdateOnce()
 
 bool Adaptor::ProcessCoreEventsFromIdle()
 {
-  DALI_LOG_DEBUG_INFO("ProcessCoreEventsFromIdle\n");
-
   // Reset repeat idler flag.
   mRequiredIdleRepeat = false;
   ProcessCoreEvents();

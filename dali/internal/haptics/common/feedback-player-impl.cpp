@@ -112,7 +112,8 @@ bool FeedbackPlayer::LoadFile(const std::string& filename, std::string& data)
   Dali::Vector<char> fileBuffer;
   if(Dali::FileLoader::ReadFile(filename, bufferSize, fileBuffer, FileLoader::FileType::TEXT))
   {
-    data.assign(&fileBuffer[0], bufferSize);
+    // Begin() instead of [0], as an empty file gives an empty buffer
+    data.assign(fileBuffer.Begin(), bufferSize);
     loaded = true;
   }
 

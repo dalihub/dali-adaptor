@@ -41,9 +41,9 @@
 #include <cstring>
 
 // INTERNAL INCLUDES
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
 #include <dali/internal/system/common/system-error-print.h>
 #include <dali/public-api/adaptor-framework/image-loading.h>
+#include <dali/public-api/images/pixel-buffer.h>
 
 typedef uint8_t WebPByteType;
 
