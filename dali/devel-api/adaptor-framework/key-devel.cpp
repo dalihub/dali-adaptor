@@ -23,11 +23,6 @@ namespace DALI_NAMESPACE
 {
 namespace DevelKey
 {
-int GetDaliKeyCode(const char* keyName)
-{
-  return Dali::GetKeyCode(keyName);
-}
-
 void SetSystemKeyCodePriority(bool preferSystemKeyCode)
 {
   Internal::Adaptor::KeyLookup::SetSystemKeyCodePriority(preferSystemKeyCode);
