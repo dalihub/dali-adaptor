@@ -142,6 +142,43 @@ diff-spec is any refspec accepted by git-diff. If it's left out, it creates
 a refspec to the latest commit, or uses the index/working tree.
 
 
+Accessibility navigation sorting regression tests
+-------------------------------------------------
+
+These tests compile the production navigation sorting helper and use the common
+test harness, including its command-line options and XML results. They run with
+the other modules through `build.sh` and `execute.sh`. To run just this module:
+
+```sh
+cd automated-tests
+./build.sh accessibility-navigation
+./execute.sh accessibility-navigation
+```
+
+They need a POSIX environment, a C++17 compiler, CMake, and current DALi core
+headers (including the configured `dali/public-api/common/dali-namespace.h`).
+Headers are discovered through pkg-config (`dali3-core` or `dali2-core`),
+`DESKTOP_PREFIX`, standard CMake search paths, or a sibling `dali-core` checkout.
+No DALi runtime or connected TV is needed. The standalone CTest route below
+also runs without DBus and allows an explicit header path. From the repository
+root:
+
+```sh
+cmake -S automated-tests/src/accessibility-navigation -B /tmp/dali-navigation-tests \
+  -DDALI_CORE_INCLUDE_DIR=/path/to/dali-core/include -DENABLE_SANITIZERS=ON
+cmake --build /tmp/dali-navigation-tests
+ctest --test-dir /tmp/dali-navigation-tests --output-on-failure
+```
+
+The ten cases cover changing coordinates during sorting, sharing one snapshot
+with horizontal sorting and line grouping, zero-area removal, invalid-bounds
+fallback without losing children, existing line grouping, stable ties, refreshing
+coordinates on the next query, large finite coordinates, empty lists, and bounds
+query failures. ASan/UBSan are optional via `ENABLE_SANITIZERS`. These checks do
+not establish why a scene graph returned bad bounds or replace the TV regression
+scenario (Voice Guide enabled, detail view, Back, then repeated Down during home
+restoration).
+
 Testing on target
 =================
 
