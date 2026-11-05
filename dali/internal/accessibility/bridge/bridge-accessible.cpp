@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/events/hit-test-algorithm.h>
+#include <dali/integration-api/debug.h>
 #include <dali/public-api/math/math-utils.h>
 
 #include <algorithm>
@@ -31,6 +32,7 @@
 #include <dali/devel-api/atspi-interfaces/selection.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
+#include <dali/internal/accessibility/bridge/navigation-sorting.h>
 #include <dali/internal/window-system/common/window-impl.h>
 
 //comment out 2 lines below to get more logs
@@ -119,93 +121,15 @@ Dali::Bounds GetNavigationExtents(Accessible* accessible, Accessible* parent)
   return extents;
 }
 
-bool SortVertically(Accessible* parent, Accessible* lhs, Accessible* rhs)
-{
-  auto leftRect  = GetNavigationExtents(lhs, parent);
-  auto rightRect = GetNavigationExtents(rhs, parent);
-
-  return leftRect.y < rightRect.y;
-}
-
-bool SortHorizontally(Accessible* parent, Accessible* lhs, Accessible* rhs)
-{
-  auto leftRect  = GetNavigationExtents(lhs, parent);
-  auto rightRect = GetNavigationExtents(rhs, parent);
-
-  return leftRect.x < rightRect.x;
-}
-
-std::vector<std::vector<Accessible*>> SplitLines(Accessible* parent, const std::vector<Accessible*>& children)
-{
-  // Find first with non-zero area
-  auto first = std::find_if(children.begin(), children.end(), [parent](Accessible* child) -> bool
-  {
-    auto extents = GetNavigationExtents(child, parent);
-    return !Dali::EqualsZero(extents.height) && !Dali::EqualsZero(extents.width);
-  });
-
-  if(first == children.end())
-  {
-    return {};
-  }
-
-  std::vector<std::vector<Accessible*>> lines(1);
-  Dali::Bounds                          lineRect = GetNavigationExtents(*first, parent);
-  Dali::Bounds                          rect;
-
-  // Split into lines
-  for(auto it = first; it != children.end(); ++it)
-  {
-    auto child = *it;
-
-    rect = GetNavigationExtents(child, parent);
-    if(Dali::EqualsZero(rect.height) || Dali::EqualsZero(rect.width))
-    {
-      // Zero area, ignore
-      continue;
-    }
-
-    if(lineRect.y + (0.5 * lineRect.height) >= rect.y + (0.5 * rect.height))
-    {
-      // Same line
-      lines.back().push_back(child);
-    }
-    else
-    {
-      // Start a new line
-      lineRect = rect;
-      lines.emplace_back();
-      lines.back().push_back(child);
-    }
-  }
-
-  return lines;
-}
-
 void SortChildrenFromTopLeft(Accessible* parent, std::vector<Dali::Accessibility::Accessible*>& children)
 {
-  if(children.empty())
+  if(!Dali::Accessibility::Internal::SortChildrenFromTopLeft(children, [parent](Accessible* child)
   {
-    return;
+    return GetNavigationExtents(child, parent);
+  }))
+  {
+    DALI_LOG_ERROR("Invalid accessibility navigation bounds for parent %p; preserving child order.\n", static_cast<void*>(parent));
   }
-
-  std::vector<Accessible*> sortedChildren;
-
-  std::sort(children.begin(), children.end(), [parent](Accessible* lhs, Accessible* rhs)
-  {
-    return SortVertically(parent, lhs, rhs);
-  });
-
-  for(auto& line : SplitLines(parent, children))
-  {
-    std::sort(line.begin(), line.end(), [parent](Accessible* lhs, Accessible* rhs)
-    {
-      return SortHorizontally(parent, lhs, rhs);
-    });
-    sortedChildren.insert(sortedChildren.end(), line.begin(), line.end());
-  }
-
-  children = sortedChildren;
 }
 
 void ApplySortingToChildren(Accessible* parent, std::vector<Dali::Accessibility::Accessible*>& children)
