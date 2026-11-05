@@ -207,8 +207,8 @@ void ApplyMaskInternal(Dali::PixelBuffer& pixelBuffer, Dali::PixelBuffer& mask)
  */
 void ScaleAndCrop(Dali::PixelBuffer& pixelBuffer, float scaleFactor, ImageDimensions cropDimensions)
 {
-  ImageDimensions outDimensions(static_cast<uint32_t>(float(pixelBuffer.GetWidth()) * scaleFactor),
-                                static_cast<uint32_t>(float(pixelBuffer.GetHeight()) * scaleFactor));
+  ImageDimensions outDimensions(Max(1u, static_cast<uint32_t>(float(pixelBuffer.GetWidth()) * scaleFactor)),
+                                Max(1u, static_cast<uint32_t>(float(pixelBuffer.GetHeight()) * scaleFactor)));
 
   if(outDimensions.GetWidth() != pixelBuffer.GetWidth() || outDimensions.GetHeight() != pixelBuffer.GetHeight())
   {
@@ -216,8 +216,8 @@ void ScaleAndCrop(Dali::PixelBuffer& pixelBuffer, float scaleFactor, ImageDimens
   }
 
   ImageDimensions postCropDimensions(
-    Min(cropDimensions.GetWidth(), outDimensions.GetWidth()),
-    Min(cropDimensions.GetHeight(), outDimensions.GetHeight()));
+    Max(1u, static_cast<uint32_t>(Min(cropDimensions.GetWidth(), outDimensions.GetWidth()))),
+    Max(1u, static_cast<uint32_t>(Min(cropDimensions.GetHeight(), outDimensions.GetHeight()))));
 
   if(postCropDimensions.GetWidth() < outDimensions.GetWidth() ||
      postCropDimensions.GetHeight() < outDimensions.GetHeight())
@@ -371,21 +371,21 @@ void ApplyCenterCrop(Dali::PixelBuffer& pixelBuffer, uint16_t width, uint16_t he
 
   // Use integer cross-multiplication to avoid floating-point precision errors.
   // selfWidth * height > width * selfHeight  ⟺  sourceAspect > targetAspect
-  // uint16_t max is 65535; 65535^2 = 4,294,836,225 < UINT32_MAX, so no overflow.
+  // Widen before multiplication, including the rounding addition.
   uint16_t cropWidth;
   uint16_t cropHeight;
-  if(selfWidth * static_cast<uint32_t>(height) >
-     static_cast<uint32_t>(width) * selfHeight)
+  if(static_cast<uint64_t>(selfWidth) * height >
+     static_cast<uint64_t>(width) * selfHeight)
   {
     // Source is wider than target: crop the sides
-    cropWidth  = static_cast<uint16_t>(static_cast<float>(selfHeight) * static_cast<float>(width) / static_cast<float>(height) + 0.5f);
+    cropWidth  = static_cast<uint16_t>(Max(uint64_t{1u}, (static_cast<uint64_t>(selfHeight) * width + height / 2u) / height));
     cropHeight = static_cast<uint16_t>(selfHeight);
   }
   else
   {
     // Source is taller than target: crop top and bottom
     cropWidth  = static_cast<uint16_t>(selfWidth);
-    cropHeight = static_cast<uint16_t>(static_cast<float>(selfWidth) * static_cast<float>(height) / static_cast<float>(width) + 0.5f);
+    cropHeight = static_cast<uint16_t>(Max(uint64_t{1u}, (static_cast<uint64_t>(selfWidth) * height + width / 2u) / width));
   }
 
   if(DALI_UNLIKELY(!(static_cast<uint32_t>(cropWidth) <= selfWidth && static_cast<uint32_t>(cropHeight) <= selfHeight)))
@@ -418,14 +418,22 @@ void ApplyLetterbox(Dali::PixelBuffer& pixelBuffer, uint16_t width, uint16_t hei
   }
 
   // Downscale to fit within desired box while preserving aspect ratio (no upscaling)
-  const float scaleX = static_cast<float>(width) / static_cast<float>(pixelBuffer.GetWidth());
-  const float scaleY = static_cast<float>(height) / static_cast<float>(pixelBuffer.GetHeight());
-  const float scale  = Min(scaleX, scaleY);
-
-  if(scale < 1.0f)
+  const uint32_t sourceWidth  = pixelBuffer.GetWidth();
+  const uint32_t sourceHeight = pixelBuffer.GetHeight();
+  if(width < sourceWidth || height < sourceHeight)
   {
-    const uint16_t scaledWidth  = static_cast<uint16_t>(static_cast<float>(pixelBuffer.GetWidth()) * scale + 0.5f);
-    const uint16_t scaledHeight = static_cast<uint16_t>(static_cast<float>(pixelBuffer.GetHeight()) * scale + 0.5f);
+    uint16_t scaledWidth;
+    uint16_t scaledHeight;
+    if(static_cast<uint64_t>(width) * sourceHeight < static_cast<uint64_t>(height) * sourceWidth)
+    {
+      scaledWidth  = width;
+      scaledHeight = static_cast<uint16_t>(Max(uint64_t{1u}, (static_cast<uint64_t>(sourceHeight) * width + sourceWidth / 2u) / sourceWidth));
+    }
+    else
+    {
+      scaledWidth  = static_cast<uint16_t>(Max(uint64_t{1u}, (static_cast<uint64_t>(sourceWidth) * height + sourceHeight / 2u) / sourceHeight));
+      scaledHeight = height;
+    }
     Resize(pixelBuffer, ImageDimensions(scaledWidth, scaledHeight));
   }
 

@@ -17,6 +17,7 @@
 
 #include <dali-test-suite-utils.h>
 #include <dali/devel-api/common/ref-counted-dali-vector.h>
+#include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/imaging/common/image-operations.h>
 
 #include <sys/mman.h>
@@ -1642,5 +1643,69 @@ int UtcDaliImageOperationsBilinearFilter1BPP(void)
   DALI_TEST_EQUALS(244u, BilinearFilter1Component(0, 0, 255, 255, 32768, 62731), TEST_LOCATION);
   DALI_TEST_EQUALS(255u, BilinearFilter1Component(0, 0, 255, 255, 32768, 65535), TEST_LOCATION);
 
+  END_TEST;
+}
+
+int UtcDaliImageOperationsIntegerAspectRatio(void)
+{
+  // A result just below a half pixel must not round up through float precision loss.
+  const Dali::ImageDimensions source(65279u, 65151u);
+  auto                        dimensions = CalculateDesiredDimensions(source, Dali::ImageDimensions(255u, 0u));
+  DALI_TEST_EQUALS(dimensions.GetWidth(), 255u, TEST_LOCATION);
+  DALI_TEST_EQUALS(dimensions.GetHeight(), 254u, TEST_LOCATION);
+  dimensions = CalculateDesiredDimensions(Dali::ImageDimensions(65151u, 65279u), Dali::ImageDimensions(0u, 255u));
+  DALI_TEST_EQUALS(dimensions.GetWidth(), 254u, TEST_LOCATION);
+  DALI_TEST_EQUALS(dimensions.GetHeight(), 255u, TEST_LOCATION);
+  // Half pixels round up; ratios close to one must compare exactly.
+  dimensions = CalculateDesiredDimensions(Dali::ImageDimensions(4u, 3u), Dali::ImageDimensions(2u, 0u));
+  DALI_TEST_EQUALS(dimensions.GetWidth(), 2u, TEST_LOCATION);
+  DALI_TEST_EQUALS(dimensions.GetHeight(), 2u, TEST_LOCATION);
+  END_TEST;
+}
+
+int UtcDaliImageOperationsSingleDimensionLimit(void)
+{
+  const uint32_t previousMaximum = Dali::TizenPlatform::ImageLoader::GetMaxTextureSize();
+  // Check both the texture limit and the uint16_t limit, including products
+  // larger than INT32_MAX before division.
+  for(uint32_t maximum : {1024u, 131072u})
+  {
+    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize(maximum);
+    const uint32_t limit      = maximum == 1024u ? 1024u : 65535u;
+    auto           dimensions = CalculateDesiredDimensions(Dali::ImageDimensions(32768u, 65535u), Dali::ImageDimensions(65535u, 0u));
+    DALI_TEST_EQUALS(dimensions.GetWidth(), (32768u * static_cast<uint64_t>(limit) + 32767u) / 65535u, TEST_LOCATION);
+    DALI_TEST_EQUALS(dimensions.GetHeight(), limit, TEST_LOCATION);
+    dimensions = CalculateDesiredDimensions(Dali::ImageDimensions(65535u, 32768u), Dali::ImageDimensions(0u, 65535u));
+    DALI_TEST_EQUALS(dimensions.GetWidth(), limit, TEST_LOCATION);
+    DALI_TEST_EQUALS(dimensions.GetHeight(), (32768u * static_cast<uint64_t>(limit) + 32767u) / 65535u, TEST_LOCATION);
+  }
+  Dali::TizenPlatform::ImageLoader::SetMaxTextureSize(previousMaximum);
+  END_TEST;
+}
+
+int UtcDaliImageOperationsMinimumDimension(void)
+{
+  const uint32_t previousMaximum = Dali::TizenPlatform::ImageLoader::GetMaxTextureSize();
+  Dali::TizenPlatform::ImageLoader::SetMaxTextureSize(1024u);
+  // Exercise unrequested, single-axis and two-axis requests in both orientations.
+  // The short axis rounds to zero both before and after applying the size limit.
+  for(const Dali::ImageDimensions source : {Dali::ImageDimensions(1u, 65535u), Dali::ImageDimensions(65535u, 1u)})
+  {
+    for(const Dali::ImageDimensions request : {Dali::ImageDimensions(0u, 0u), Dali::ImageDimensions(1u, 0u), Dali::ImageDimensions(0u, 1u), Dali::ImageDimensions(1u, 1u), Dali::ImageDimensions(1024u, 0u), Dali::ImageDimensions(0u, 1024u)})
+    {
+      const auto dimensions = CalculateDesiredDimensions(source, request);
+      DALI_TEST_CHECK(dimensions.GetWidth() >= 1u && dimensions.GetWidth() <= 1024u);
+      DALI_TEST_CHECK(dimensions.GetHeight() >= 1u && dimensions.GetHeight() <= 1024u);
+      if(source.GetWidth() == 1u)
+      {
+        DALI_TEST_EQUALS(dimensions.GetWidth(), 1u, TEST_LOCATION);
+      }
+      else
+      {
+        DALI_TEST_EQUALS(dimensions.GetHeight(), 1u, TEST_LOCATION);
+      }
+    }
+  }
+  Dali::TizenPlatform::ImageLoader::SetMaxTextureSize(previousMaximum);
   END_TEST;
 }

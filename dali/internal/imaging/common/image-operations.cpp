@@ -256,18 +256,17 @@ inline void DebugAssertDualScanlineParameters(const uint8_t* const scanline1,
 ImageDimensions FitToTargetRectangle(ImageDimensions target, ImageDimensions source)
 {
   DALI_ASSERT_DEBUG(source.GetX() > 0 && source.GetY() > 0 && "Zero-area rectangles should not be passed-in");
-  // Scale the input by the most extreme of the two dimensions:
-  const float widthScale  = target.GetX() / float(source.GetX());
-  const float heightScale = target.GetY() / float(source.GetY());
-  const float scale       = widthScale > heightScale ? widthScale : heightScale;
-
-  // Do no scaling at all if the result would increase area:
-  if(scale >= 1.0f)
+  // Do no scaling if either target dimension would require upscaling.
+  if(target.GetX() >= source.GetX() || target.GetY() >= source.GetY())
   {
     return source;
   }
 
-  return ImageDimensions(static_cast<uint32_t>(source.GetX() * scale + 0.5f), static_cast<uint32_t>(source.GetY() * scale + 0.5f));
+  if(static_cast<uint64_t>(target.GetX()) * source.GetY() > static_cast<uint64_t>(target.GetY()) * source.GetX())
+  {
+    return ImageDimensions(target.GetX(), static_cast<uint32_t>((static_cast<uint64_t>(source.GetY()) * target.GetX() + source.GetX() / 2u) / source.GetX()));
+  }
+  return ImageDimensions(static_cast<uint32_t>((static_cast<uint64_t>(source.GetX()) * target.GetY() + source.GetY() / 2u) / source.GetY()), target.GetY());
 }
 
 /**
@@ -293,16 +292,16 @@ void CalculateCropBorders(ImageDimensions sourceSize, ImageDimensions& requested
 
   // Use integer cross-multiplication to avoid floating-point precision errors.
   // sourceWidth * requestedHeight > requestedWidth * sourceHeight  ⟺  sourceAspect > targetAspect
-  // uint16_t max is 65535; 65535^2 = 4,294,836,225 < UINT32_MAX, so no overflow.
-  if(sourceWidth * requestedHeight > requestedWidth * sourceHeight)
+  // Widen before multiplying to avoid integer promotion and overflow.
+  if(static_cast<uint64_t>(sourceWidth) * requestedHeight > static_cast<uint64_t>(requestedWidth) * sourceHeight)
   {
-    finalWidth  = static_cast<int>(static_cast<float>(sourceHeight) * static_cast<float>(requestedWidth) / static_cast<float>(requestedHeight));
+    finalWidth  = static_cast<int>(static_cast<uint64_t>(sourceHeight) * requestedWidth / requestedHeight);
     finalHeight = static_cast<int>(sourceHeight);
   }
   else
   {
     finalWidth  = static_cast<int>(sourceWidth);
-    finalHeight = static_cast<int>(static_cast<float>(sourceWidth) * static_cast<float>(requestedHeight) / static_cast<float>(requestedWidth));
+    finalHeight = static_cast<int>(static_cast<uint64_t>(sourceWidth) * requestedHeight / requestedWidth);
   }
 
   // Clamp if overflowed
@@ -345,10 +344,14 @@ Dali::PixelBuffer MakePixelBuffer(const uint8_t* const pixels, Pixel::Format pix
  * @param[in] requestedWidth Width of area to scale image into. Can be zero.
  * @param[in] requestedHeight Height of area to scale image into. Can be zero.
  * @return Dimensions of area to scale image into after special rules are applied.
+ * Rounded dimensions are clamped to at least one pixel for nonzero source images.
  */
 ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmapHeight, uint32_t requestedWidth, uint32_t requestedHeight)
 {
-  uint32_t maxSize = Dali::GetMaxTextureSize();
+  // Limit output dimensions to both the maximum texture size and the range
+  // supported by ImageDimensions.
+  const uint32_t maxSize = Min(Dali::GetMaxTextureSize(), static_cast<uint32_t>(std::numeric_limits<uint16_t>::max()));
+  DALI_ASSERT_ALWAYS(maxSize > 0u && "Max texture size must be nonzero");
 
   // If no dimensions have been requested, default to the source ones:
   if(requestedWidth == 0 && requestedHeight == 0)
@@ -362,11 +365,11 @@ ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmap
       // Calculate the size from the max texture size and the source image aspect ratio
       if(bitmapWidth > bitmapHeight)
       {
-        return ImageDimensions(maxSize, static_cast<uint32_t>(bitmapHeight * maxSize / static_cast<float>(bitmapWidth) + 0.5f));
+        return ImageDimensions(maxSize, Max(1u, static_cast<uint32_t>((static_cast<uint64_t>(bitmapHeight) * maxSize + bitmapWidth / 2u) / bitmapWidth)));
       }
       else
       {
-        return ImageDimensions(static_cast<uint32_t>(bitmapWidth * maxSize / static_cast<float>(bitmapHeight) + 0.5f), maxSize);
+        return ImageDimensions(Max(1u, static_cast<uint32_t>((static_cast<uint64_t>(bitmapWidth) * maxSize + bitmapHeight / 2u) / bitmapHeight)), maxSize);
       }
     }
   }
@@ -378,51 +381,54 @@ ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmap
   {
     DALI_ASSERT_DEBUG((bitmapWidth > 0 && bitmapHeight > 0) && "Bitmap dimensions are zero");
 
-    uint32_t    adjustedDesiredWidth, adjustedDesiredHeight;
-    const float aspectOfDesiredSize = (float)requestedHeight / (float)requestedWidth;
-    const float aspectOfImageSize   = (float)bitmapHeight / (float)bitmapWidth;
-    if(aspectOfImageSize > aspectOfDesiredSize)
+    uint64_t adjustedDesiredWidth, adjustedDesiredHeight;
+    if(static_cast<uint64_t>(bitmapHeight) * requestedWidth > static_cast<uint64_t>(requestedHeight) * bitmapWidth)
     {
       adjustedDesiredWidth  = requestedWidth;
-      adjustedDesiredHeight = (static_cast<uint64_t>(bitmapHeight) * requestedWidth + bitmapWidth / 2) / bitmapWidth; ///< round up
+      adjustedDesiredHeight = (static_cast<uint64_t>(bitmapHeight) * requestedWidth + bitmapWidth / 2) / bitmapWidth; ///< Round to nearest.
     }
     else
     {
-      adjustedDesiredWidth  = (static_cast<uint64_t>(bitmapWidth) * requestedHeight + bitmapHeight / 2) / bitmapHeight; ///< round up
+      adjustedDesiredWidth  = (static_cast<uint64_t>(bitmapWidth) * requestedHeight + bitmapHeight / 2) / bitmapHeight; ///< Round to nearest.
       adjustedDesiredHeight = requestedHeight;
     }
 
-    requestedWidth  = adjustedDesiredWidth;
-    requestedHeight = adjustedDesiredHeight;
-
-    if(requestedWidth <= maxSize && requestedHeight <= maxSize)
+    if(adjustedDesiredWidth <= maxSize && adjustedDesiredHeight <= maxSize)
     {
-      return ImageDimensions(requestedWidth, requestedHeight);
+      return ImageDimensions(static_cast<uint32_t>(adjustedDesiredWidth), static_cast<uint32_t>(adjustedDesiredHeight));
     }
     else
     {
       // Calculate the size from the max texture size and the source image aspect ratio
-      if(requestedWidth > requestedHeight)
+      if(adjustedDesiredWidth > adjustedDesiredHeight)
       {
-        return ImageDimensions(maxSize, static_cast<uint32_t>(requestedHeight * maxSize / static_cast<float>(requestedWidth) + 0.5f));
+        return ImageDimensions(maxSize, Max(1u, static_cast<uint32_t>((adjustedDesiredHeight * maxSize + adjustedDesiredWidth / 2u) / adjustedDesiredWidth)));
       }
       else
       {
-        return ImageDimensions(static_cast<uint32_t>(requestedWidth * maxSize / static_cast<float>(requestedHeight) + 0.5f), maxSize);
+        return ImageDimensions(Max(1u, static_cast<uint32_t>((adjustedDesiredWidth * maxSize + adjustedDesiredHeight / 2u) / adjustedDesiredHeight)), maxSize);
       }
     }
   }
 
-  // Only one of the dimensions has been requested. Calculate the other from
-  // the requested one and the source image aspect ratio:
   if(requestedWidth != 0)
   {
-    requestedWidth = Min(requestedWidth, maxSize);
-    return ImageDimensions(requestedWidth, static_cast<uint32_t>(bitmapHeight / float(bitmapWidth) * requestedWidth + 0.5f));
+    requestedWidth               = Min(requestedWidth, maxSize);
+    const uint64_t desiredHeight = (static_cast<uint64_t>(bitmapHeight) * requestedWidth + bitmapWidth / 2u) / bitmapWidth;
+    if(desiredHeight > maxSize)
+    {
+      return ImageDimensions(Max(1u, static_cast<uint32_t>((static_cast<uint64_t>(bitmapWidth) * maxSize + bitmapHeight / 2u) / bitmapHeight)), maxSize);
+    }
+    return ImageDimensions(requestedWidth, Max(1u, static_cast<uint32_t>(desiredHeight)));
   }
 
-  requestedHeight = Min(requestedHeight, maxSize);
-  return ImageDimensions(static_cast<uint32_t>(bitmapWidth / float(bitmapHeight) * requestedHeight + 0.5f), requestedHeight);
+  requestedHeight             = Min(requestedHeight, maxSize);
+  const uint64_t desiredWidth = (static_cast<uint64_t>(bitmapWidth) * requestedHeight + bitmapHeight / 2u) / bitmapHeight;
+  if(desiredWidth > maxSize)
+  {
+    return ImageDimensions(maxSize, Max(1u, static_cast<uint32_t>((static_cast<uint64_t>(bitmapHeight) * maxSize + bitmapWidth / 2u) / bitmapWidth)));
+  }
+  return ImageDimensions(Max(1u, static_cast<uint32_t>(desiredWidth)), requestedHeight);
 }
 
 /**
@@ -1063,7 +1069,7 @@ Dali::PixelBuffer DownscaleBitmap(Dali::PixelBuffer  bitmap,
 
   // If a different size than the raw one has been requested, resize the image:
   if(
-    (desiredWidth > 0.0f) && (desiredHeight > 0.0f) &&
+    (desiredWidth > 0u) && (desiredHeight > 0u) &&
     ((desiredWidth < bitmapWidth) || (desiredHeight < bitmapHeight)))
   {
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_DOWNSCALE_BITMAP", [&](std::ostringstream& oss)

@@ -1570,3 +1570,63 @@ int UtcDaliPixelBufferOperationsDevelGetBrightness01N(void)
 
   END_TEST;
 }
+
+int UtcDaliPixelBufferOperationsDevelApplyMaskMinimumDimensions(void)
+{
+  TestApplication application;
+  for(bool transpose : {false, true})
+  {
+    Dali::PixelBuffer image = Dali::PixelBuffer::New(transpose ? 100u : 1u, transpose ? 1u : 100u, Pixel::RGBA8888);
+    Dali::PixelBuffer mask  = Dali::PixelBuffer::New(transpose ? 5u : 1u, transpose ? 1u : 5u, Pixel::A8);
+    memset(image.GetBuffer(), 255, image.GetBufferSize());
+    memset(mask.GetBuffer(), 255, mask.GetBufferSize());
+    DevelPixelBufferOperations::ApplyMask(image, mask, 0.1f, true);
+    DALI_TEST_EQUALS(image.GetWidth(), transpose ? 5u : 1u, TEST_LOCATION);
+    DALI_TEST_EQUALS(image.GetHeight(), transpose ? 1u : 5u, TEST_LOCATION);
+    DALI_TEST_CHECK(image.GetBuffer() != nullptr);
+  }
+  END_TEST;
+}
+
+int UtcDaliPixelBufferOperationsDevelApplyLetterboxMinimumDimensions(void)
+{
+  TestApplication application;
+  for(bool transpose : {false, true})
+  {
+    Dali::PixelBuffer image = Dali::PixelBuffer::New(transpose ? 1u : 100u, transpose ? 100u : 1u, Pixel::RGBA8888);
+    memset(image.GetBuffer(), 255, image.GetBufferSize());
+    DevelPixelBufferOperations::ApplyLetterbox(image, 2u, 2u);
+    DALI_TEST_EQUALS(image.GetWidth(), 2u, TEST_LOCATION);
+    DALI_TEST_EQUALS(image.GetHeight(), 2u, TEST_LOCATION);
+    DALI_TEST_CHECK(image.GetBuffer() != nullptr);
+    // The image occupies one row or column; the remaining pixels are padding.
+    unsigned int opaquePixels = 0u;
+    for(unsigned int pixel = 0u; pixel < 4u; ++pixel)
+    {
+      opaquePixels += image.GetBuffer()[pixel * 4u + 3u] == 255u ? 1u : 0u;
+    }
+    DALI_TEST_EQUALS(opaquePixels, 2u, TEST_LOCATION);
+  }
+  END_TEST;
+}
+
+int UtcDaliPixelBufferOperationsDevelApplyCenterCropMinimumDimensions(void)
+{
+  TestApplication application;
+  for(bool transpose : {false, true})
+  {
+    Dali::PixelBuffer image = Dali::PixelBuffer::New(1u, 1u, Pixel::RGBA8888);
+    memset(image.GetBuffer(), 255, image.GetBufferSize());
+    const uint16_t width  = transpose ? 100u : 1u;
+    const uint16_t height = transpose ? 1u : 100u;
+    DevelPixelBufferOperations::ApplyCenterCrop(image, width, height);
+    DALI_TEST_EQUALS(image.GetWidth(), width, TEST_LOCATION);
+    DALI_TEST_EQUALS(image.GetHeight(), height, TEST_LOCATION);
+    DALI_TEST_CHECK(image.GetBuffer() != nullptr);
+    for(unsigned int byte = 0u; byte < image.GetBufferSize(); ++byte)
+    {
+      DALI_TEST_EQUALS(image.GetBuffer()[byte], 255u, TEST_LOCATION);
+    }
+  }
+  END_TEST;
+}
