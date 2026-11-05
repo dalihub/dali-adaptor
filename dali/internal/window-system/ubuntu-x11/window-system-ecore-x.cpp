@@ -20,6 +20,7 @@
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
+#include <cstring>
 
 // INTERNAL HEADERS
 #include <dali/internal/window-system/common/window-system-impl.h>
@@ -95,6 +96,25 @@ void Shutdown()
     gWindowSystem = nullptr;
   }
   gShutdown = true;
+}
+
+bool GetKeyCodeFromKeymap(const char* keyName, uint32_t& keyCode)
+{
+  if(!gShutdown && gWindowSystem && keyName && *keyName && ecore_x_display_get())
+  {
+    // Reject unknown keysyms before X11 can match an empty keymap entry.
+    if(ecore_x_keysym_get(keyName) == 0 && std::strncmp(keyName, "Keycode-", 8) != 0)
+    {
+      return false;
+    }
+    const int systemKeyCode = ecore_x_keysym_keycode_get(keyName);
+    if(systemKeyCode > 0)
+    {
+      keyCode = static_cast<uint32_t>(systemKeyCode);
+      return true;
+    }
+  }
+  return false;
 }
 
 WindowSystemBase* GetWindowSystem()

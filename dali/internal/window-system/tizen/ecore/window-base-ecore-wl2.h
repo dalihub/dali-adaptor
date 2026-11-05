@@ -28,7 +28,6 @@
 #include <input-method-client-protocol.h>
 #include <tizen-extension-client-protocol.h>
 #include <wayland-egl.h>
-#include <xkbcommon/xkbcommon.h>
 
 namespace DALI_NAMESPACE
 {
@@ -215,11 +214,6 @@ public:
    * @param[in] the completed event's data. It has the latest window geometry data.
    */
   void OnResizeCompleted(void* event);
-
-  /**
-   * @brief Called when a keymap is changed.
-   */
-  void KeymapChanged(void* data, int type, void* event);
 
   /**
    * @brief RegistryGlobalCallback
@@ -872,7 +866,6 @@ private:
   wl_registry*          mDisplayRegistry;
   tizen_policy*         mTizenPolicy;
   tizen_display_policy* mTizenDisplayPolicy;
-  xkb_keymap*           mKeyMap;
 
   std::vector<std::string> mSupportedAuxiliaryHints;
 

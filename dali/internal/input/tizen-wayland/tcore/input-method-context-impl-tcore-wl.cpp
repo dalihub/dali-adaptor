@@ -35,6 +35,7 @@
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 namespace DALI_NAMESPACE
 {
@@ -51,6 +52,22 @@ Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_INP
 bool IsTcoreSuccess(int error)
 {
   return error == TIZEN_CORE_IMF_ERROR_NONE;
+}
+
+uint32_t GetInputMethodKeyCode(const Integration::KeyEvent& keyEvent)
+{
+  const uint32_t keyCode = static_cast<uint32_t>(keyEvent.keyCode);
+  if(KeyLookup::IsSystemKeyCodePriority())
+  {
+    return keyCode;
+  }
+  if(keyEvent.rawKeyCode != 0)
+  {
+    return keyEvent.rawKeyCode;
+  }
+
+  uint32_t systemKeyCode = 0u;
+  return WindowSystem::GetKeyCodeFromKeymap(keyEvent.keyName.CStr(), systemKeyCode) ? systemKeyCode : keyCode;
 }
 
 struct ScopedTcoreEventKey
@@ -2017,7 +2034,7 @@ bool InputMethodContextTcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEve
     tizen_core_imf_event_key_set_device_name(keyDownEvent.handle, deviceName.CStr());
     tizen_core_imf_event_key_set_device_class(keyDownEvent.handle, TIZEN_CORE_IMF_DEVICE_CLASS_KEYBOARD);
     tizen_core_imf_event_key_set_device_subclass(keyDownEvent.handle, TIZEN_CORE_IMF_DEVICE_SUBCLASS_NONE);
-    tizen_core_imf_event_key_set_keycode(keyDownEvent.handle, !KeyLookup::IsSystemKeyCodePriority() && integKeyEvent.rawKeyCode != 0 ? integKeyEvent.rawKeyCode : static_cast<unsigned int>(integKeyEvent.keyCode));
+    tizen_core_imf_event_key_set_keycode(keyDownEvent.handle, GetInputMethodKeyCode(integKeyEvent));
 
     // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
     if((integKeyEvent.deviceName == "ime") && ((!strncmp(integKeyEvent.keyName.CStr(), "Left", 4)) ||
@@ -2080,7 +2097,7 @@ bool InputMethodContextTcoreWl::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent
     tizen_core_imf_event_key_set_device_name(keyUpEvent.handle, deviceName.CStr());
     tizen_core_imf_event_key_set_device_class(keyUpEvent.handle, TIZEN_CORE_IMF_DEVICE_CLASS_KEYBOARD);
     tizen_core_imf_event_key_set_device_subclass(keyUpEvent.handle, TIZEN_CORE_IMF_DEVICE_SUBCLASS_NONE);
-    tizen_core_imf_event_key_set_keycode(keyUpEvent.handle, !KeyLookup::IsSystemKeyCodePriority() && integKeyEvent.rawKeyCode != 0 ? integKeyEvent.rawKeyCode : static_cast<unsigned int>(integKeyEvent.keyCode));
+    tizen_core_imf_event_key_set_keycode(keyUpEvent.handle, GetInputMethodKeyCode(integKeyEvent));
 
     bool filtered = false;
     eventHandled  = IsTcoreSuccess(tizen_core_imf_context_filter_event(mIMFContext,
