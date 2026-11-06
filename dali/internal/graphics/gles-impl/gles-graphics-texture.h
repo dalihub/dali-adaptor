@@ -192,8 +192,10 @@ private:
   uint32_t          mMaxMipMapLevel{0u};
   uint32_t          mDependencyIndex{0xFFFFFFFF};
   void*             mGLOwnerContext{nullptr};
+  const void*       mNativeImageResourceKey{nullptr}; ///< Opaque identity for deferred native-image release
 
   bool mIsCompressed{false};
+  bool mNativeTexturePrepared{false};
 };
 
 } //namespace DALI_NAMESPACE::Graphics::GLES

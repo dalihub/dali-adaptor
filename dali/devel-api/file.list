@@ -2,6 +2,9 @@
 
 SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/widget-engine/widget-engine.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/widget-engine/widget-engine-instance.cpp
+  ${ADAPTOR_ROOT}/dali/internal/widget-engine/common/widget-engine-impl.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/async-task-manager.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/graphics-backend.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/tts-player.cpp
@@ -138,6 +141,12 @@ SET( devel_api_adaptor_framework_web_engine_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-user-media-permission-request.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-device-list-get.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-file-chooser-request.h
+)
+
+SET( devel_api_adaptor_framework_widget_engine_header_files
+  ${adaptor_devel_api_dir}/adaptor-framework/widget-engine/widget-engine.h
+  ${adaptor_devel_api_dir}/adaptor-framework/widget-engine/widget-engine-instance.h
+  ${adaptor_devel_api_dir}/adaptor-framework/widget-engine/widget-engine-plugin.h
 )
 
 

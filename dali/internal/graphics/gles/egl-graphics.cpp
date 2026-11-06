@@ -113,6 +113,11 @@ void EglGraphics::PostRender()
   mGraphicsController.PostRender();
 }
 
+bool EglGraphics::NeedsResourceReleaseProcessing() const
+{
+  return mGraphicsController.NeedsNativeImageReleaseProcessing();
+}
+
 void EglGraphics::Pause()
 {
 }

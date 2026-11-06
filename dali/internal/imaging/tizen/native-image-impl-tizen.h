@@ -98,6 +98,13 @@ public:
   void DestroyResource() override;
 
   /**
+   * @copydoc Dali::DevelNativeImage::CanReleaseSource()
+   */
+  bool CanReleaseSource() override;
+
+  const void* GetResourceDestructionKey() const override;
+
+  /**
    * @copydoc Dali::NativeImage::TargetTexture()
    */
   uint32_t TargetTexture() override;
@@ -185,9 +192,14 @@ public:
   bool ReleaseBuffer(const Rect<uint32_t>& updatedArea) override;
 
   /**
-   * @copydoc Dali::NativeImage::SetResourceDestructionCallback()
+   * @copydoc Dali::DevelNativeImage::SetResourceDestructionCallback(NativeImage&, EventThreadCallback*, bool)
    */
   void SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback) override;
+
+  /**
+   * @copydoc Dali::DevelNativeImage::SetDeferredResourceDestruction(NativeImage&, ResourceDestructionCallback)
+   */
+  void SetDeferredResourceDestruction(DevelNativeImage::ResourceDestructionCallback resultCallback) override;
 
   /**
    * @copydoc Dali::DevelNativeImage::EnableBackBuffer()
@@ -215,6 +227,9 @@ private:
 
   void DestroySurface();
 
+  // Called with mMutex held before replacing either callback form.
+  void ResetResourceDestructionCallback();
+
   /**
    * @brief Create back buffer
    */
@@ -237,7 +252,9 @@ private:
   void*                         mEglImageKHR;                 ///< From EGL extension
   EglGraphics*                  mEglGraphics;                 ///< EGL Graphics
   EglImageExtensions*           mEglImageExtensions;          ///< The EGL Image Extensions
-  EventThreadCallback*          mResourceDestructionCallback; ///< The Resource Destruction Callback
+  EventThreadCallback*          mResourceDestructionCallback; ///< Legacy callback only; never aliases the result callback's event
+
+  std::shared_ptr<NativeImageResourceDestructionResultCallback> mDeferredResultCallback; ///< Pending result registration retained for cancellation
 
   bool mOwnTbmSurface : 1;    ///< Whether we created pixmap or not
   bool mBlendingRequired : 1; ///< Whether blending is required
