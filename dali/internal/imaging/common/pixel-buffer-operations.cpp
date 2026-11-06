@@ -472,6 +472,12 @@ bool Rotate(Dali::PixelBuffer& pixelBuffer, Degree angle)
 
 void MultiplyColorByAlpha(Dali::PixelBuffer& pixelBuffer)
 {
+  if(pixelBuffer.IsAlphaPreMultiplied())
+  {
+    // Already pre-multiplied; multiplying again would darken the colors.
+    return;
+  }
+
   const Pixel::Format pixelFormat = pixelBuffer.GetPixelFormat();
 
   // Do not allow premultiply alpha feature if pixel format compressed.
