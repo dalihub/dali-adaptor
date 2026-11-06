@@ -34,6 +34,7 @@
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <dali/public-api/adaptor-framework/input-method.h>
 
 namespace DALI_NAMESPACE
@@ -49,6 +50,24 @@ Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_INP
 #endif
 
 const int kUninitializedWindowId = 0;
+
+#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
+uint32_t GetInputMethodKeyCode(const Integration::KeyEvent& keyEvent)
+{
+  const uint32_t keyCode = static_cast<uint32_t>(keyEvent.keyCode);
+  if(KeyLookup::IsSystemKeyCodePriority())
+  {
+    return keyCode;
+  }
+  if(keyEvent.rawKeyCode != 0)
+  {
+    return keyEvent.rawKeyCode;
+  }
+
+  uint32_t systemKeyCode = 0u;
+  return WindowSystem::GetKeyCodeFromKeymap(keyEvent.keyName.CStr(), systemKeyCode) ? systemKeyCode : keyCode;
+}
+#endif // Since ecore_imf 1.22 version
 
 // Currently this code is internal to dali/dali/internal/event/text/utf8.h but should be made Public and used from there instead.
 size_t Utf8SequenceLength(const unsigned char leadByte)
@@ -1899,7 +1918,7 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEve
     ecoreKeyDownEvent.dev_class    = static_cast<Ecore_IMF_Device_Class>(integKeyEvent.deviceClass);       // ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyDownEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>(integKeyEvent.deviceSubclass); // ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
-    ecoreKeyDownEvent.keycode = !KeyLookup::IsSystemKeyCodePriority() && integKeyEvent.rawKeyCode != 0 ? integKeyEvent.rawKeyCode : static_cast<uint32_t>(integKeyEvent.keyCode);
+    ecoreKeyDownEvent.keycode = GetInputMethodKeyCode(integKeyEvent);
 #endif // Since ecore_imf 1.22 version
 
     // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
@@ -1955,7 +1974,7 @@ bool InputMethodContextEcoreWl::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent
     ecoreKeyUpEvent.dev_class    = static_cast<Ecore_IMF_Device_Class>(integKeyEvent.deviceClass);       // ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyUpEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>(integKeyEvent.deviceSubclass); // ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
-    ecoreKeyUpEvent.keycode = !KeyLookup::IsSystemKeyCodePriority() && integKeyEvent.rawKeyCode != 0 ? integKeyEvent.rawKeyCode : static_cast<uint32_t>(integKeyEvent.keyCode);
+    ecoreKeyUpEvent.keycode = GetInputMethodKeyCode(integKeyEvent);
 #endif // Since ecore_imf 1.22 version
 
     eventHandled = ecore_imf_context_filter_event(mIMFContext,

@@ -1113,6 +1113,11 @@ WindowSystemX& GetImplementation()
   return *gWindowSystem;
 }
 
+bool GetKeyCodeFromKeymap(const char* keyName, uint32_t& keyCode)
+{
+  return false;
+}
+
 WindowSystemBase* GetWindowSystem()
 {
   if(gShutdown)
