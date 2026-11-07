@@ -121,6 +121,11 @@ bool NativeBitmapBuffer::RequiresBlending() const
   return Pixel::HasAlpha(mPixelFormat);
 }
 
+bool NativeBitmapBuffer::IsAlphaPreMultiplied() const
+{
+  return false;
+}
+
 int NativeBitmapBuffer::GetTextureTarget() const
 {
   return 0;

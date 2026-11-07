@@ -235,6 +235,22 @@ public:
     return false;
   }
 
+  /**
+   * @copydoc Dali::NativeImage::SetAlphaPreMultiplied()
+   */
+  inline void SetAlphaPreMultiplied(bool preMultiplied)
+  {
+    mAlphaPreMultiplied = preMultiplied;
+  }
+
+  /**
+   * @copydoc Dali::NativeImageInterface::IsAlphaPreMultiplied()
+   */
+  inline bool IsAlphaPreMultiplied() const
+  {
+    return mAlphaPreMultiplied;
+  }
+
 protected:
   std::shared_ptr<NativeImageResourceDestructionResultCallback> mResourceDestructionResultCallback;
 
@@ -268,7 +284,8 @@ public: // graphics library lifetime
   }
 
 private:
-  std::shared_ptr<void> mGraphicsLibrary; ///< Keeps the graphics backend library loaded while this object is alive
+  std::shared_ptr<void> mGraphicsLibrary;           ///< Keeps the graphics backend library loaded while this object is alive
+  bool                  mAlphaPreMultiplied{false}; ///< Whether the colors are pre-multiplied by alpha; metadata declared by the producer
 };
 
 } // namespace Adaptor

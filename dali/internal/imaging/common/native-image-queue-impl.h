@@ -172,6 +172,22 @@ public:
    */
   virtual NativeImageInterface::Extension* GetNativeImageInterfaceExtension() = 0;
 
+  /**
+   * @copydoc Dali::NativeImageQueue::SetAlphaPreMultiplied()
+   */
+  inline void SetAlphaPreMultiplied(bool preMultiplied)
+  {
+    mAlphaPreMultiplied = preMultiplied;
+  }
+
+  /**
+   * @copydoc Dali::NativeImageInterface::IsAlphaPreMultiplied()
+   */
+  inline bool IsAlphaPreMultiplied() const
+  {
+    return mAlphaPreMultiplied;
+  }
+
 public: // graphics library lifetime
   /**
    * @brief Sets the graphics backend module that keeps the library loaded while this object is alive.
@@ -196,7 +212,8 @@ public: // graphics library lifetime
   }
 
 private:
-  std::shared_ptr<void> mGraphicsLibrary; ///< Keeps the graphics backend library loaded while this object is alive
+  std::shared_ptr<void> mGraphicsLibrary;           ///< Keeps the graphics backend library loaded while this object is alive
+  bool                  mAlphaPreMultiplied{false}; ///< Whether the colors are pre-multiplied by alpha; metadata declared by the producer
 };
 
 } // namespace Adaptor
