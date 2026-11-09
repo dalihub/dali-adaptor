@@ -36,6 +36,7 @@ namespace Extension
  * The given table is deep-copied and owned internally, so the caller does not need to keep it alive.
  * If the key extension plugin has already been loaded, this call is ignored.
  *
+ * @SINCE_3_0.0
  * @param[in] table The extension key lookup table
  * @param[in] count The number of entries in the table
  */

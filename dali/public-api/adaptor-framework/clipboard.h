@@ -209,6 +209,7 @@ private:
    * Used by the template GetData() overloads to forward the tracked callback
    * request to the internal clipboard implementation.
    *
+   * @SINCE_3_0.0
    * @param[in] mimeType MIME type to request.
    * @param[in] connectionTracker Connection tracker for lifetime management.
    * @param[in] callback The callback. Ownership is transferred.

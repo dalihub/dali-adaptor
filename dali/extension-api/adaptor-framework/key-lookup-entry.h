@@ -27,6 +27,7 @@ namespace Extension
 {
 /**
  * @brief A single entry describing how a platform key name maps to a Dali key code.
+ * @SINCE_3_0.0
  */
 struct KeyLookupEntry
 {
