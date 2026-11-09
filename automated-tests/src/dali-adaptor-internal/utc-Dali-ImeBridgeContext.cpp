@@ -181,9 +181,26 @@ public:
 /// Dali::Actor requires an initialised Core), so the IME->app tests at the
 /// bottom of this file stand up an AdaptorTestApplication and call New()
 /// directly instead of using this.
+class TestInputMethodContextBridge : public Dali::Internal::Adaptor::InputMethodContextBridge
+{
+public:
+  static Dali::IntrusivePtr<TestInputMethodContextBridge> New()
+  {
+    return Dali::IntrusivePtr<TestInputMethodContextBridge>(new TestInputMethodContextBridge());
+  }
+
+protected:
+  TestInputMethodContextBridge()
+  : Dali::Internal::Adaptor::InputMethodContextBridge(Dali::Actor())
+  {
+  }
+
+  ~TestInputMethodContextBridge() override = default;
+};
+
 Dali::Internal::Adaptor::InputMethodContextPtr MakeBridgeContext()
 {
-  auto* sim = new Dali::Internal::Adaptor::InputMethodContextBridge(Dali::Actor());
+  auto sim = TestInputMethodContextBridge::New();
 
   Dali::Internal::Adaptor::InputMethodContextPtr context(sim);
   sim->RegisterWithBridge();

@@ -67,7 +67,7 @@ public:
    * @param[in] isTransparent Whether window is transparent
    * @return A newly allocated Window
    */
-  static GlWindow* New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
+  static Dali::IntrusivePtr<GlWindow> New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
    * @copydoc Dali::GlWindow::SetGraphicsConfig()
@@ -205,11 +205,6 @@ public: // For implementation
    * Currently the child window is default window.
    */
   void SetChild(Dali::Window& child);
-
-  /**
-   * Destructor. Need to be public for unique_ptr destructor.
-   */
-  virtual ~GlWindow();
 
 private:
   /**
@@ -388,6 +383,12 @@ public: // Signals
   {
     return mVisibilityChangedSignal;
   }
+
+protected:
+  /**
+   * Destructor. Need to be public for unique_ptr destructor.
+   */
+  virtual ~GlWindow();
 
 private:
   std::unique_ptr<WindowBase>                  mWindowBase;

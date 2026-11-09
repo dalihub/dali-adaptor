@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 #include <memory>
 
@@ -39,14 +40,23 @@ class Hyphenation : public BaseObject
 {
 public:
   /**
-   * Constructor
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
    */
-  Hyphenation();
+  static DALI_INTERNAL Hyphenation* NewForBaseHandle()
+  {
+    return new Hyphenation();
+  }
 
   /**
-   * Destructor
+   * @brief Creates a reference-counted implementation.
    */
-  ~Hyphenation();
+  static Dali::IntrusivePtr<Hyphenation> New()
+  {
+    return Dali::IntrusivePtr<Hyphenation>(new Hyphenation());
+  }
 
   /**
    * @copydoc Dali::Hyphenation::Get()
@@ -65,13 +75,22 @@ public:
                               Length      wordLength,
                               const char* lang);
 
+protected:
+  /**
+   * Constructor
+   */
+  Hyphenation();
+
+  /**
+   * Destructor
+   */
+  ~Hyphenation();
+
 private:
   /**
    * Helper for lazy initialization.
    */
   void CreatePlugin();
-
-private:
   // Undefined copy constructor.
   Hyphenation(const Hyphenation&);
 

@@ -71,7 +71,7 @@ struct SignalHelper : public ConnectionTracker
 
 TiltSensor GetTiltSensor()
 {
-  return Dali::TiltSensor(Dali::Internal::Adaptor::TiltSensorFactory::Create());
+  return Dali::TiltSensor(Dali::Internal::Adaptor::TiltSensorFactory::Create().Get());
 }
 
 bool          ecore_timer_running = false;

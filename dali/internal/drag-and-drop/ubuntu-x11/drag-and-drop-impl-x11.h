@@ -22,6 +22,7 @@
 #include <Ecore.h>
 #include <Ecore_Input.h>
 #include <Ecore_X.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <map>
 #include <string>
 #include <vector>
@@ -63,8 +64,24 @@ class DragAndDropX11 : public Dali::Internal::Adaptor::DragAndDrop,
                        public Dali::ConnectionTracker
 {
 public:
-  DragAndDropX11();
-  ~DragAndDropX11() override;
+  /**
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
+   */
+  static DALI_INTERNAL DragAndDropX11* NewForBaseHandle()
+  {
+    return new DragAndDropX11();
+  }
+
+  /**
+   * @brief Creates a reference-counted implementation.
+   */
+  static Dali::IntrusivePtr<DragAndDropX11> New()
+  {
+    return Dali::IntrusivePtr<DragAndDropX11>(new DragAndDropX11());
+  }
 
   bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, SourceCallback callback) override;
   bool AddListener(Dali::Actor target, const Dali::String& mimeType, DragCallback callback) override;
@@ -89,10 +106,12 @@ public:
   // because ecore_x does not deliver XDND target events for same-process drags)
   void DoPositionUpdate(int cx, int cy);
 
-private:
-  void DropTargetSceneOn(Dali::Actor target);
+protected:
+  DragAndDropX11();
+  ~DragAndDropX11() override;
 
 private:
+  void DropTargetSceneOn(Dali::Actor target);
   DragAndDropX11(const DragAndDropX11&)       = delete;
   DragAndDropX11& operator=(DragAndDropX11&)  = delete;
   DragAndDropX11(DragAndDropX11&&)            = delete;

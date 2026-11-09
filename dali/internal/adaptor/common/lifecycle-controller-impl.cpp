@@ -38,7 +38,7 @@ Dali::LifecycleController LifecycleController::Get()
   // describes is process-wide. It is therefore kept alive for the lifetime of the process rather
   // than being owned by SingletonService, so that observers can connect to the signals before Core
   // has been created (e.g. from main() before the application main loop starts).
-  static Dali::LifecycleController lifecycleController(new LifecycleController());
+  static Dali::LifecycleController lifecycleController(LifecycleController::NewForBaseHandle());
 
   // Register with SingletonService, when available, so the instance can still be discovered through it.
   Dali::SingletonService service(SingletonService::Get());

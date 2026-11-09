@@ -40,18 +40,8 @@ public:
   static TimerMacPtr New(uint32_t milliSec);
 
   /**
-   * Constructor
-   * @param[in]  milliSec  Interval in milliseconds.
-   */
-  TimerMac(uint32_t milliSec);
-
-  /**
-   * Destructor.
-   */
-  virtual ~TimerMac();
 
 public:
-  /**
    * @copydoc Dali::Timer::Start()
    */
   void Start() override;
@@ -91,7 +81,20 @@ public:
    */
   bool Tick();
 
-private: // Implementation
+protected:
+  /**
+   * Constructor
+   * @param[in]  milliSec  Interval in milliseconds.
+   */
+  TimerMac(uint32_t milliSec);
+
+  /**
+   * Destructor.
+   */
+  virtual ~TimerMac();
+
+private:
+  // Implementation
   // not implemented
   TimerMac(const TimerMac&)            = delete;
   TimerMac& operator=(const TimerMac&) = delete;

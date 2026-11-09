@@ -1320,7 +1320,7 @@ Dali::IntrusivePtr<Dali::RefCountedVector<uint32_t> > MakeCheckerboardImageRGBA8
 {
   const unsigned int                                    imageWidth  = width * checkerSize;
   const unsigned int                                    imageHeight = height * checkerSize;
-  Dali::IntrusivePtr<Dali::RefCountedVector<uint32_t> > image       = new Dali::RefCountedVector<uint32_t>;
+  Dali::IntrusivePtr<Dali::RefCountedVector<uint32_t> > image       = Dali::RefCountedVector<uint32_t>::New();
   image->GetVector().Resize(imageWidth * imageHeight);
 
   uint32_t rowColor = 0xffffffff;

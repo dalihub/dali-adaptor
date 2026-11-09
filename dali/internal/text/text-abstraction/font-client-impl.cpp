@@ -151,7 +151,7 @@ Dali::TextAbstraction::FontClient FontClient::Get()
       else
       {
         FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "Create standard FontClient\n");
-        fontClientHandle = Dali::TextAbstraction::FontClient(new FontClient);
+        fontClientHandle = Dali::TextAbstraction::FontClient(FontClient::NewForBaseHandle());
       }
 
       fontClientHandle.InitDefaultFontDescription();
@@ -181,7 +181,7 @@ Dali::TextAbstraction::FontClient FontClient::PreInitialize()
   if(!gPreCreatedFontClient)
   {
     FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "Create new FontClient\n");
-    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(FontClient::NewForBaseHandle());
   }
 
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreInitialize InitDefaultFontDescription\n");
@@ -243,7 +243,7 @@ void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFa
   if(!gPreCreatedFontClient)
   {
     FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "Create new FontClient\n");
-    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(FontClient::NewForBaseHandle());
   }
 
   gFontPreCacheAvailable  = false;
@@ -301,7 +301,7 @@ void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& m
   if(!gPreCreatedFontClient)
   {
     FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "Create new FontClient\n");
-    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(FontClient::NewForBaseHandle());
   }
 
   gFontPreLoadAvailable   = false;

@@ -19,6 +19,7 @@
  */
 
 #include <dali/devel-api/adaptor-framework/tilt-sensor.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 
 namespace DALI_NAMESPACE
 {
@@ -34,7 +35,7 @@ namespace TiltSensorFactory
  * Creates new instance of tilt sensor implementation
  * @return pointer to tilt sensor implementation instance
  */
-Dali::Internal::Adaptor::TiltSensor* Create();
+Dali::IntrusivePtr<Dali::Internal::Adaptor::TiltSensor> Create();
 
 /**
  * Obtains existing or creates new instance of the tilt sensor

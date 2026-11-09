@@ -54,11 +54,6 @@ public:
   static AnimatedImageLoadingPtr New(const std::string& url, bool isLocalResource);
 
   /**
-   * @brief Destructor
-   */
-  ~AnimatedImageLoading() override = default;
-
-  /**
    * @brief Load a frame of the animated image.
    *
    * @note This function will load the entire animated image into memory if not already loaded.
@@ -114,7 +109,11 @@ public:
   virtual bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::PixelBuffer>& pixelBuffers, ImageDimensions size) = 0;
 
 protected:
-  AnimatedImageLoading() = default;
+  /**
+   * @brief Destructor
+   */
+  ~AnimatedImageLoading() override = default;
+  AnimatedImageLoading()           = default;
 
 private:
   // Not movable and not copyable

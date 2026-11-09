@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -38,17 +39,15 @@ namespace Adaptor
 class TiltSensor : public Dali::BaseObject
 {
 public:
-  /**
-   * Constructor
-   */
-  TiltSensor();
-
-  /**
-   * Destructor
-   */
-  ~TiltSensor() override;
-
   typedef Dali::TiltSensor::TiltedSignalType TiltedSignalType;
+
+  /**
+   * @brief Creates a reference-counted implementation.
+   */
+  static Dali::IntrusivePtr<TiltSensor> New()
+  {
+    return Dali::IntrusivePtr<TiltSensor>(new TiltSensor());
+  }
 
   /**
    * @copydoc Dali::TiltSensor::Start()
@@ -115,6 +114,17 @@ public:
    * @post If a signal was connected, ownership of functor was passed to CallbackBase. Otherwise the caller is responsible for deleting the unused functor.
    */
   static bool DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const Dali::String& signalName, FunctorDelegate* functor);
+
+protected:
+  /**
+   * Constructor
+   */
+  TiltSensor();
+
+  /**
+   * Destructor
+   */
+  ~TiltSensor() override;
 };
 
 } // namespace Adaptor

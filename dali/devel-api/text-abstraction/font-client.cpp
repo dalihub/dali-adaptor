@@ -59,20 +59,20 @@ FontClient FontClient::Get()
 
 FontClient FontClient::New()
 {
-  auto fontClientImpl = new Internal::FontClient();
+  auto fontClientImpl = Internal::FontClient::New();
 
   fontClientImpl->SetDpiFromWindowSystem();
 
-  return FontClient(fontClientImpl);
+  return FontClient(fontClientImpl.Get());
 }
 
 FontClient FontClient::New(uint32_t horizontalDpi, uint32_t verticalDpi)
 {
-  auto fontClientImpl = new Internal::FontClient();
+  auto fontClientImpl = Internal::FontClient::New();
 
   fontClientImpl->SetDpi(horizontalDpi, verticalDpi);
 
-  return FontClient(fontClientImpl);
+  return FontClient(fontClientImpl.Get());
 }
 
 FontClient::FontClient()

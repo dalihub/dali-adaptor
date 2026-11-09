@@ -75,7 +75,7 @@ Dali::StyleMonitor StyleMonitor::Get()
     }
     else
     {
-      styleMonitor = Dali::StyleMonitor(new StyleMonitor());
+      styleMonitor = Dali::StyleMonitor(StyleMonitor::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, styleMonitor);
     }
   }

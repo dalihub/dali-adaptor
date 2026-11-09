@@ -53,6 +53,18 @@ public:
   static ComponentApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, const WindowData& windowData);
 
   /**
+   *@brief Undefined assignment operator.
+   */
+  ComponentApplication& operator=(const ComponentApplication&) = delete;
+
+public: // From Framework::Observer
+  /**
+   * Called when the framework is Component Application Created.
+   */
+  Any OnCreate() override;
+
+protected:
+  /**
    * @brief The default constructor.
    */
   ComponentApplication(int* argc, char** argv[], const std::string& stylesheet, const WindowData& windowData);
@@ -66,17 +78,6 @@ public:
    * @brief Destructor
    */
   virtual ~ComponentApplication() = default;
-
-  /**
-   *@brief Undefined assignment operator.
-   */
-  ComponentApplication& operator=(const ComponentApplication&) = delete;
-
-public: // From Framework::Observer
-  /**
-   * Called when the framework is Component Application Created.
-   */
-  Any OnCreate() override;
 
 public:
   CreateSignal mCreateSignal;

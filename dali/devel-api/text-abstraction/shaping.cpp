@@ -45,9 +45,9 @@ Shaping Shaping::Get()
 
 Shaping Shaping::New()
 {
-  auto shapingImpl = new Internal::Shaping();
+  auto shapingImpl = Internal::Shaping::New();
 
-  return Shaping(shapingImpl);
+  return Shaping(shapingImpl.Get());
 }
 
 Length Shaping::Shape(TextAbstraction::FontClient& fontClient,

@@ -45,9 +45,9 @@ Hyphenation Hyphenation::Get()
 
 Hyphenation Hyphenation::New()
 {
-  auto hyphenationImpl = new Internal::Hyphenation();
+  auto hyphenationImpl = Internal::Hyphenation::New();
 
-  return Hyphenation(hyphenationImpl);
+  return Hyphenation(hyphenationImpl.Get());
 }
 
 const char* Hyphenation::GetDictionaryEncoding(const char* lang)

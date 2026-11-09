@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -38,14 +39,12 @@ class ICU : public BaseObject
 {
 public:
   /**
-   * Constructor
+   * @brief Creates a reference-counted implementation.
    */
-  ICU();
-
-  /**
-   * Destructor
-   */
-  ~ICU();
+  static Dali::IntrusivePtr<ICU> New()
+  {
+    return Dali::IntrusivePtr<ICU>(new ICU());
+  }
 
   /**
    * @brief Dali::TextAbstraction::ICU::UpdateLineBreakInfoByLocale()
@@ -54,6 +53,17 @@ public:
                                    Length             numberOfCharacters,
                                    const char*        locale,
                                    LineBreakInfo*     breakInfo);
+
+protected:
+  /**
+   * Constructor
+   */
+  ICU();
+
+  /**
+   * Destructor
+   */
+  ~ICU();
 
 private:
   /**
@@ -72,8 +82,6 @@ private:
   DestroyICUPluginFunction mDestroyICUPluginPtr;
 
   bool mInitialized : 1; ///< Whether Initialize() has been called, prevents dlopen from being attempted again.
-
-private:
   ICU(const ICU&);
   ICU& operator=(const ICU&);
 

@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -38,14 +39,23 @@ class Segmentation : public BaseObject
 {
 public:
   /**
-   * Constructor
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
    */
-  Segmentation();
+  static DALI_INTERNAL Segmentation* NewForBaseHandle()
+  {
+    return new Segmentation();
+  }
 
   /**
-   * Destructor
+   * @brief Creates a reference-counted implementation.
    */
-  ~Segmentation();
+  static Dali::IntrusivePtr<Segmentation> New()
+  {
+    return Dali::IntrusivePtr<Segmentation>(new Segmentation());
+  }
 
   /**
    * @copydoc Dali::Segmentation::Get()
@@ -80,13 +90,22 @@ public:
                                  Length               numberOfCharacters,
                                  WordBreakInfo*       breakInfo);
 
+protected:
+  /**
+   * Constructor
+   */
+  Segmentation();
+
+  /**
+   * Destructor
+   */
+  ~Segmentation();
+
 private:
   /**
    * Helper for lazy initialization.
    */
   void CreatePlugin();
-
-private:
   // Undefined copy constructor.
   Segmentation(const Segmentation&);
 

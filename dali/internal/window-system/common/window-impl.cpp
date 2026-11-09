@@ -65,9 +65,9 @@ namespace
 Dali::TypeRegistration WINDOW_TYPE(typeid(Dali::Internal::Adaptor::Window), typeid(Dali::BaseHandle), nullptr);
 } // unnamed namespace
 
-Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader, const bool isShowOnAdaptorSet)
+Dali::IntrusivePtr<Window> Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader, const bool isShowOnAdaptorSet)
 {
-  std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window());
+  Dali::IntrusivePtr<Window> window(new Window());
 
   // OnAdaptorSet() is dispatched from SceneHolder::SetAdaptor() when the window is added to
   // the adaptor, which happens after this function returns. Setting the flag here is therefore
@@ -75,16 +75,16 @@ Window* Window::New(Any surface, const std::string& name, const std::string& cla
   window->mIsShowOnAdaptorSet = isShowOnAdaptorSet;
 
   window->Initialize(surface, windowData, name, className, isUsePreLoader);
-  return window.release();
+  return window;
 }
 
-Window* Window::New(PositionSize positionSize)
+Dali::IntrusivePtr<Window> Window::New(PositionSize positionSize)
 {
-  Any                     surface;
-  std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window());
+  Any                        surface;
+  Dali::IntrusivePtr<Window> window(new Window());
   window->Initialize(surface, positionSize);
-  DALI_WINDOW_INIT_LOG("Window (%p), WinId (%d), (%d, %d) [%d x %d]\n", window.get(), window->mNativeWindowId, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
-  return window.release();
+  DALI_WINDOW_INIT_LOG("Window (%p), WinId (%d), (%d, %d) [%d x %d]\n", window.Get(), window->mNativeWindowId, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  return window;
 }
 
 Window::Window()
@@ -277,7 +277,7 @@ void Window::SetRenderNotification(TriggerEventInterface* renderNotification)
 
 void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 {
-  mEventHandler = EventHandlerPtr(new EventHandler(mWindowSurface->GetWindowBase(), *mAdaptor));
+  mEventHandler = EventHandlerPtr(EventHandler::New(mWindowSurface->GetWindowBase(), *mAdaptor));
   mEventHandler->AddObserver(*this);
 
   // Second phase initialize after adaptor set.
