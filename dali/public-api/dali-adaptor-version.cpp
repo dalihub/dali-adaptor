@@ -25,9 +25,9 @@
 
 namespace DALI_NAMESPACE
 {
-const unsigned int ADAPTOR_MAJOR_VERSION = 2;
-const unsigned int ADAPTOR_MINOR_VERSION = 5;
-const unsigned int ADAPTOR_MICRO_VERSION = 47;
+const unsigned int ADAPTOR_MAJOR_VERSION = 3;
+const unsigned int ADAPTOR_MINOR_VERSION = 0;
+const unsigned int ADAPTOR_MICRO_VERSION = 0;
 const char* const  ADAPTOR_BUILD_DATE    = __DATE__ " " __TIME__;
 
 #ifdef DEBUG_ENABLED
