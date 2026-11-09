@@ -262,11 +262,8 @@ private:
     // Destroy ready plugins after their completion callback has returned.
     if(Dali::Adaptor::IsAvailable())
     {
-      auto* callback = Dali::MakeCallback(&Collect);
-      if(!Dali::Adaptor::Get().AddIdle(callback, false))
-      {
-        delete callback;
-      }
+      // AddIdle takes ownership even if registration fails.
+      Dali::Adaptor::Get().AddIdle(Dali::MakeCallback(&Collect), false);
     }
   }
 
