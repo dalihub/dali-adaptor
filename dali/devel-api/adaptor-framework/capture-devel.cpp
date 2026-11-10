@@ -24,6 +24,11 @@ namespace DALI_NAMESPACE
 namespace DevelCapture
 {
 
+Dali::PixelBuffer GetCapturedBuffer(Dali::Capture capture)
+{
+  return capture.GetCapturedBuffer();
+}
+
 Dali::Texture GetTexture(Dali::Capture capture)
 {
   return GetImpl(capture).GetTexture();
