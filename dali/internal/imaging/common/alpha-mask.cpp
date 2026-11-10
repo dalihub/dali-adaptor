@@ -18,7 +18,6 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/images/pixel-buffer-devel.h>
 #include <dali/internal/imaging/common/alpha-mask.h>
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/imaging/common/pixel-manipulation.h>
@@ -59,7 +58,7 @@ void ApplyMaskToAlphaChannel(Dali::PixelBuffer& buffer, Dali::PixelBuffer& mask)
   unsigned int destStrideBytes   = buffer.GetStrideBytes();
 
   // if image is premultiplied, the other channels of the image need to multiply by alpha.
-  if(DevelPixelBuffer::IsAlphaPreMultiplied(buffer))
+  if(buffer.IsAlphaPreMultiplied())
   {
     // Collect all valid channel list before lookup whole buffer
     std::vector<Channel> validChannelList;

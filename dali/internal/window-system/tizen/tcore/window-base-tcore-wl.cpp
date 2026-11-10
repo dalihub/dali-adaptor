@@ -179,8 +179,9 @@ inline void DisconnectAndDestroyDisplay(tizen_core_wl_display_h& display)
   display = nullptr;
 }
 
-void GetKeyData(tizen_core_wl_event_input_base_h ev, char** keyname, char** compose, char** symbol, unsigned int* keycode, unsigned int* modifiers, unsigned int* flags)
+bool GetKeyData(tizen_core_wl_event_input_base_h ev, char** keyname, char** compose, char** symbol, unsigned int* keycode, unsigned int* modifiers, unsigned int* flags)
 {
+  bool keyCodeAvailable = false;
   if(keyname)
   {
     int ret = tizen_core_wl_event_key_get_keyname(ev, keyname);
@@ -200,6 +201,7 @@ void GetKeyData(tizen_core_wl_event_input_base_h ev, char** keyname, char** comp
   {
     int ret = tizen_core_wl_event_key_get_keycode(ev, keycode);
     DALI_LOG_RELEASE_INFO("GetKeyData::key_get_keycode ret=%d keycode=%u\n", ret, *keycode);
+    keyCodeAvailable = ret == TIZEN_CORE_WL_ERROR_NONE;
   }
   if(modifiers)
   {
@@ -211,6 +213,7 @@ void GetKeyData(tizen_core_wl_event_input_base_h ev, char** keyname, char** comp
     int ret = tizen_core_wl_event_key_get_event_flags(ev, flags);
     DALI_LOG_RELEASE_INFO("GetKeyData::key_get_event_flags ret=%d flags=%u\n", ret, *flags);
   }
+  return keyCodeAvailable;
 }
 
 void GetDeviceInfo(tizen_core_wl_display_h display, char* identifier, const char** name, tizen_core_wl_device_class_e* tizenClass, tizen_core_wl_device_subclass_e* tizenSubclass)
@@ -1897,7 +1900,7 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
 
     GetBaseData(ev, nullptr, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, &devName, &tizenClass, &tizenSubclass);
-    GetKeyData(ev, &name, &compose, &symbol, &keyCode, &modifiers, &flags);
+    const uint32_t rawKeyCode = GetKeyData(ev, &name, &compose, &symbol, &keyCode, &modifiers, &flags) ? keyCode : 0;
     GetDeviceClass(tizenClass, deviceClass);
     GetDeviceSubclass(tizenSubclass, deviceSubclass);
     Dali::String deviceName(devName);
@@ -1942,6 +1945,7 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
     }
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, static_cast<int>(keyCode), static_cast<int>(modifiers), static_cast<uint32_t>(timestamp), Integration::KeyEvent::DOWN, keyCompose, deviceName, deviceClass, deviceSubclass);
+    keyEvent.rawKeyCode  = rawKeyCode;
     keyEvent.isRepeat    = isRepeat;
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
@@ -1986,7 +1990,7 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
 
     GetBaseData(ev, nullptr, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, &devName, &tizenClass, &tizenSubclass);
-    GetKeyData(ev, &name, &compose, &symbol, &keyCode, &modifiers, &flags);
+    const uint32_t rawKeyCode = GetKeyData(ev, &name, &compose, &symbol, &keyCode, &modifiers, &flags) ? keyCode : 0;
     GetDeviceClass(tizenClass, deviceClass);
     GetDeviceSubclass(tizenSubclass, deviceSubclass);
     Dali::String deviceName(devName);
@@ -2030,6 +2034,7 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
     }
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, static_cast<int>(keyCode), static_cast<int>(modifiers), static_cast<uint32_t>(timestamp), Integration::KeyEvent::UP, keyCompose, deviceName, deviceClass, deviceSubclass);
+    keyEvent.rawKeyCode  = rawKeyCode;
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
 

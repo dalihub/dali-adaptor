@@ -1060,7 +1060,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     TRACE_UPDATE_RENDER_BEGIN("DALI_POST_RENDER");
     TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_POST_RENDER");
-    if(postRenderRequired)
+    // Process pending releases even when scene rendering was skipped.
+    // Upload-only cycles do not request additional release processing.
+    if(postRenderRequired || (!uploadOnly && graphics.NeedsResourceReleaseProcessing()))
     {
       graphics.PostRender();
     }
@@ -1094,8 +1096,11 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     mForceClear = false;
 
+    // Recheck after PostRender: pending releases need another cycle even when
+    // the producer cannot submit a new frame until its buffers are returned.
+    const bool resourceReleasePending = !uploadOnly && graphics.NeedsResourceReleaseProcessing();
     // Trigger event thread to request Update/Render thread to sleep if update not required
-    if((Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus) && !renderStatus.NeedsUpdate())
+    if((Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus) && !renderStatus.NeedsUpdate() && !resourceReleasePending)
     {
       mSleepTrigger->Trigger();
       updateRequired = false;

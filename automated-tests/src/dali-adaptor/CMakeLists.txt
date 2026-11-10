@@ -34,6 +34,7 @@ SET(TC_SOURCES
     utc-Dali-TtsPlayer.cpp
     utc-Dali-WidgetApplication.cpp
     utc-Dali-Widget.cpp
+    utc-Dali-WidgetEngine.cpp
     utc-Dali-Window.cpp
     utc-Dali-WindowExtension.cpp
     utc-Dali-WindowSystem.cpp
@@ -120,6 +121,23 @@ INCLUDE_DIRECTORIES(
 )
 
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
+
+ADD_LIBRARY(widget-engine-test-plugin SHARED
+    dali-test-suite-utils/test-widget-engine-plugin.cpp
+)
+TARGET_LINK_LIBRARIES(widget-engine-test-plugin
+    ${${CAPI_LIB}_LDFLAGS}
+    --coverage
+)
+SET_TARGET_PROPERTIES(widget-engine-test-plugin PROPERTIES
+    PREFIX "lib"
+    OUTPUT_NAME "dali2-widget-engine-test-plugin"
+)
+
+ADD_DEPENDENCIES(${EXEC_NAME} widget-engine-test-plugin)
+TARGET_COMPILE_DEFINITIONS(${EXEC_NAME} PRIVATE
+    TEST_WIDGET_ENGINE_PLUGIN_PATH="$<TARGET_FILE:widget-engine-test-plugin>"
+)
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
   ${${CAPI_LIB}_LIBRARIES}
   -ldl --coverage

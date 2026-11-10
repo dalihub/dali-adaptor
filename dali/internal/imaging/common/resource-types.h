@@ -38,18 +38,18 @@ struct BitmapResourceType
 {
   /**
    * Constructor.
-   * @param[in] size The requested size for the bitmap.
-   * @param[in] samplingMode The filter to use if the bitmap needs to be downsampled
+   * @param[in] initSize The requested size for the bitmap.
+   * @param[in] initSamplingMode The filter to use if the bitmap needs to be downsampled
    * to the requested size.
-   * @param[in] orientationCorrection Whether to use bitmap metadata to rotate or
+   * @param[in] initOrientationCorrection Whether to use bitmap metadata to rotate or
    * flip the bitmap, e.g., from portrait to landscape.
    */
-  BitmapResourceType(ImageDimensions    size                  = ImageDimensions(0, 0),
-                     SamplingMode::Type samplingMode          = SamplingMode::DEFAULT,
-                     bool               orientationCorrection = true)
-  : size(size),
-    samplingMode(samplingMode),
-    orientationCorrection(orientationCorrection)
+  BitmapResourceType(ImageDimensions    initSize                  = ImageDimensions(0, 0),
+                     SamplingMode::Type initSamplingMode          = SamplingMode::DEFAULT,
+                     bool               initOrientationCorrection = true)
+  : size(initSize),
+    samplingMode(initSamplingMode),
+    orientationCorrection(initOrientationCorrection)
   {
   }
 

@@ -232,6 +232,7 @@ public:
   /**
    * @brief This constructor is used by Adaptor::GetDragAndDrop().
    *
+   * @SINCE_3_0.0
    * @param[in] dnd A pointer to the DragAndDrop.
    */
   explicit DALI_INTERNAL DragAndDrop(Internal::Adaptor::DragAndDrop* dnd);

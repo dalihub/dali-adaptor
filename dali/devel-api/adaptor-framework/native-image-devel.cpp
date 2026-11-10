@@ -45,14 +45,25 @@ bool SetPixels(NativeImage& image, uint8_t* pixbuf, const Pixel::Format& pixelFo
   return Dali::Internal::Adaptor::NativeImage::GetImplementation(image).SetPixels(pixbuf, pixelFormat);
 }
 
+void SetDeferredResourceDestruction(NativeImage& image, ResourceDestructionCallback resultCallback)
+{
+  Dali::Internal::Adaptor::NativeImage::GetImplementation(image).SetDeferredResourceDestruction(std::move(resultCallback));
+}
+
 void SetResourceDestructionCallback(NativeImage& image, EventThreadCallback* callback, bool ownedCallback)
 {
   Dali::Internal::Adaptor::NativeImage::GetImplementation(image).SetResourceDestructionCallback(callback, ownedCallback);
+  Dali::Internal::Adaptor::NativeImage::GetImplementation(image).ClearResourceDestructionResultCallback();
 }
 
 void EnableBackBuffer(NativeImage& image, bool enable)
 {
   Dali::Internal::Adaptor::NativeImage::GetImplementation(image).EnableBackBuffer(enable);
+}
+
+bool CanReleaseSource(NativeImage& image)
+{
+  return image.ReferenceCount() == 1u && Dali::Internal::Adaptor::NativeImage::GetImplementation(image).CanReleaseSource();
 }
 
 } // namespace DevelNativeImage

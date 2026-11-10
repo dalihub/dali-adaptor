@@ -52,11 +52,13 @@ class DALI_ADAPTOR_API WindowData
 public:
   /**
    * @brief Creates a WindowData object.
+   * @SINCE_3_0.0
    */
   WindowData();
 
   /**
    * @brief Destructor.
+   * @SINCE_3_0.0
    */
   ~WindowData();
 

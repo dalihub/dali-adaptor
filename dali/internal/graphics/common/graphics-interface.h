@@ -227,11 +227,23 @@ public:
   virtual void AcquireNextImage(Integration::RenderSurfaceInterface* surface) = 0;
 
   /**
-   * Inform graphics interface that all the surfaces have been rendered.
+   * Finish a normal render cycle, including cycles that only process pending
+   * resource releases without drawing a surface.
    *
    * @note This should not be called if uploading resource only without rendering any surface.
    */
   virtual void PostRender() = 0;
+
+  /**
+   * @brief Whether resource releases need another render cycle and PostRender call.
+   *
+   * Queried on the render thread when deciding whether to enter idle. Excludes
+   * failed releases that cannot progress. Explicit pause/stop takes precedence.
+   */
+  virtual bool NeedsResourceReleaseProcessing() const
+  {
+    return false;
+  }
 
   /**
    * Shut down the graphics implementation

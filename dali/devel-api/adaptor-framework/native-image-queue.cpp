@@ -137,6 +137,16 @@ uint32_t NativeImageQueue::GetQueueCount() const
   return mImpl->GetQueueCount();
 }
 
+void NativeImageQueue::SetAlphaPreMultiplied(bool preMultiplied)
+{
+  mImpl->SetAlphaPreMultiplied(preMultiplied);
+}
+
+bool NativeImageQueue::IsAlphaPreMultiplied() const
+{
+  return mImpl->IsAlphaPreMultiplied();
+}
+
 uint32_t NativeImageQueue::GetWidth() const
 {
   return mImpl->GetWidth();

@@ -70,6 +70,20 @@ ADD_EXECUTABLE(tct-dali-adaptor-core
   ${COMMON_ALL_SOURCES}
 )
 
+ADD_LIBRARY(widget-engine-test-plugin SHARED
+  "${COMMON_TEST_DIR}/dali-test-suite-utils/test-widget-engine-plugin.cpp"
+)
+SET_TARGET_PROPERTIES(widget-engine-test-plugin PROPERTIES
+  OUTPUT_NAME "dali2-widget-engine-test-plugin"
+  WINDOWS_EXPORT_ALL_SYMBOLS ON
+)
+TARGET_LINK_LIBRARIES(widget-engine-test-plugin PRIVATE
+  dali3-adaptor::dali3-adaptor
+  dali3-core::dali3-core
+)
+
+ADD_DEPENDENCIES(tct-dali-adaptor-core widget-engine-test-plugin)
+
 TARGET_INCLUDE_DIRECTORIES(tct-dali-adaptor-core PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
   "${CMAKE_CURRENT_BINARY_DIR}"
@@ -84,6 +98,7 @@ TARGET_COMPILE_DEFINITIONS(tct-dali-adaptor-core PRIVATE
   __restrict__=__restrict
   NOMINMAX
   WIN32_LEAN_AND_MEAN
+  TEST_WIDGET_ENGINE_PLUGIN_PATH="$<TARGET_FILE_NAME:widget-engine-test-plugin>"
 )
 
 TARGET_COMPILE_OPTIONS(tct-dali-adaptor-core PRIVATE /vmg /utf-8 /W3 /wd4251 /wd4275 /WX)
@@ -93,4 +108,6 @@ TARGET_LINK_LIBRARIES(tct-dali-adaptor-core PRIVATE
   dali3-core::dali3-core
 )
 
-INSTALL(TARGETS tct-dali-adaptor-core RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+INSTALL(TARGETS tct-dali-adaptor-core widget-engine-test-plugin
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)

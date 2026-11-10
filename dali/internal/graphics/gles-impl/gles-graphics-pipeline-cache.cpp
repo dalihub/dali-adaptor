@@ -177,12 +177,12 @@ void InitialiseStateCompareLookupTable()
     const auto& rvi = *rhs->vertexInputState;
     return lvi.bufferBindings.size() == rvi.bufferBindings.size() &&
            lvi.attributes.size() == rvi.attributes.size() &&
-           std::equal(lvi.bufferBindings.begin(), lvi.bufferBindings.end(), rvi.bufferBindings.begin(), [](const auto& lhs, const auto& rhs)
+           std::equal(lvi.bufferBindings.begin(), lvi.bufferBindings.end(), rvi.bufferBindings.begin(), [](const auto& lBinding, const auto& rBinding)
     {
-      return operator==(lhs, rhs);
-    }) && std::equal(lvi.attributes.begin(), lvi.attributes.end(), rvi.attributes.begin(), [](const auto& lhs, const auto& rhs)
+      return operator==(lBinding, rBinding);
+    }) && std::equal(lvi.attributes.begin(), lvi.attributes.end(), rvi.attributes.begin(), [](const auto& lAttribute, const auto& rAttribute)
     {
-      return operator==(lhs, rhs);
+      return operator==(lAttribute, rAttribute);
     });
   });
   GetStateCompareFuncTable().push_back([](const auto* lhs, const auto* rhs) -> bool // inputAssemblyState

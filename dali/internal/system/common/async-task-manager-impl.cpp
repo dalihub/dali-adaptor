@@ -358,20 +358,20 @@ public:
       // Erase from completed excute callback list.
 
       // Lock while removing excute callback list to the queue
-      Mutex::ScopedLock lock(mExcuteCallbacksMutex);
+      Mutex::ScopedLock excuteCallbacksLock(mExcuteCallbacksMutex);
 
-      for(auto iter = mExcuteCallbackList.begin(); iter != mExcuteCallbackList.end();)
+      for(auto callbackIter = mExcuteCallbackList.begin(); callbackIter != mExcuteCallbackList.end();)
       {
-        if(iter->second == id)
+        if(callbackIter->second == id)
         {
-          iter = mExcuteCallbackList.erase(iter);
+          callbackIter = mExcuteCallbackList.erase(callbackIter);
 
           DALI_LOG_DEBUG_INFO("CompletedCallback id[%u] completed, but not execute callback.\n", id);
           return true;
         }
         else
         {
-          ++iter;
+          ++callbackIter;
         }
       }
 
@@ -722,7 +722,7 @@ void AsyncTaskManager::AddTask(AsyncTaskPtr task)
 
       {
         // For thread safety
-        Mutex::ScopedLock lock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
+        Mutex::ScopedLock runningTasksLock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
 
         // Finish all Running threads are working
         if(mRunningTasks.size() >= mTasks.GetElementCount())
@@ -1162,7 +1162,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
   if(mWaitingHighProirityTaskCounts == 0u && !mWaitingTasks.empty())
   {
     // For thread safety
-    Mutex::ScopedLock lock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
+    Mutex::ScopedLock runningTasksLock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
 
     if(mAvaliableLowPriorityTaskCounts == 0u)
     {
@@ -1180,7 +1180,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
       if(!taskAvaliable)
       {
         // For thread safety
-        Mutex::ScopedLock lock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
+        Mutex::ScopedLock runningTasksLock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
 
         taskAvaliable = (mAvaliableLowPriorityTaskCounts > 0u); // priority is low, but we can use it.
       }
@@ -1188,7 +1188,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
       // Check whether we try to running same task at multiple threads.
       if(taskAvaliable)
       {
-        Mutex::ScopedLock lock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
+        Mutex::ScopedLock runningTasksLock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
         auto              mapIter = mCacheImpl->mRunningTasksCache.find((*iter).Get());
         if(mapIter != mCacheImpl->mRunningTasksCache.end())
         {
@@ -1208,7 +1208,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
         // Add Running queue
         {
           // Lock while popping task out from the queue
-          Mutex::ScopedLock lock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
+          Mutex::ScopedLock runningTasksLock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
 
           DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Waiting -> Running [%p][%s]\n", nextTask.Get(), GetTaskName(nextTask));
 
@@ -1330,7 +1330,7 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
 
         // Move task into completed, for ensure that AsyncTask destroy at main thread.
         {
-          Mutex::ScopedLock lock(mCompletedTasksMutex); // We can lock this mutex under mRunningTasksMutex.
+          Mutex::ScopedLock completedTasksLock(mCompletedTasksMutex); // We can lock this mutex under mRunningTasksMutex.
 
           const bool callbackRequired = notify && (task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD);
 

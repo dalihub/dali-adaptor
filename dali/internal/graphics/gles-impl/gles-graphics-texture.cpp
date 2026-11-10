@@ -27,6 +27,7 @@
 #include <vector>
 
 // INTERNAL INCLUDES
+#include <dali/internal/imaging/common/native-image-impl.h>
 #include "egl-graphics-controller.h"
 #include "gles-graphics-sampler.h"
 #include "gles-graphics-types.h"
@@ -131,6 +132,11 @@ bool Texture::InitializeResource()
 
 bool Texture::InitializeNativeImage()
 {
+  if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
+  {
+    return false;
+  }
+
   auto*  context = mController.GetCurrentContext();
   auto*  gl      = mController.GetGL();
   GLuint texture{0};
@@ -168,6 +174,12 @@ bool Texture::InitializeNativeImage()
     else
     {
       mTextureId = texture;
+      if(auto* image = dynamic_cast<Dali::NativeImage*>(nativeImage.Get()))
+      {
+        mNativeImageResourceKey = Dali::Internal::Adaptor::NativeImage::GetImplementation(*image).GetResourceDestructionKey();
+      }
+      // Also cover imports that are discarded before the first draw.
+      mController.UpdateNativeImageResourceSync(mNativeImageResourceKey);
     }
     context->BindTexture(mGlTarget, 0);
   }
@@ -339,6 +351,8 @@ void Texture::DestroyResource()
       // TODO : Shouldn't we call DestroyResource even if shutting down?
       // For now, we use EglExtensions API at DestroyResource. So just block for now.
       mCreateInfo.nativeImagePtr->DestroyResource();
+      mNativeImageResourceKey = nullptr;
+      mNativeTexturePrepared  = false;
     }
   }
 }
@@ -417,6 +431,7 @@ bool Texture::PrepareNativeTexture(GLES::Context* prepareContext)
     }
 
     nativeImage->TargetTexture();
+    mNativeTexturePrepared = true;
   }
   else
   {
@@ -431,6 +446,15 @@ void Texture::ResetPrepare()
 {
   if(mCreateInfo.nativeImagePtr)
   {
+    if(mNativeTexturePrepared)
+    {
+      // ResetPrepare runs after the render pass, with its context current.
+      if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+      {
+        mController.UpdateNativeImageResourceSync(mNativeImageResourceKey, false);
+      }
+      mNativeTexturePrepared = false;
+    }
     mCreateInfo.nativeImagePtr->PostRender();
   }
 }

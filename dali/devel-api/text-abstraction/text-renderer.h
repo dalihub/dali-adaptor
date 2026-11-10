@@ -74,18 +74,18 @@ public:
     /**
      * @brief Parameters for the text renderer function.
      */
-    Parameters(Vector<GlyphInfo>&         glyphs,
-               Vector<Vector2>&           positions,
-               Vector<Vector4>&           colors,
-               Vector<ColorIndex>&        colorIndices,
-               Vector<ColorBlendingMode>& blendingMode,
-               Vector<bool>&              isEmoji)
-    : glyphs(glyphs),
-      positions(positions),
-      colors(colors),
-      colorIndices(colorIndices),
-      blendingMode(blendingMode),
-      isEmoji(isEmoji),
+    Parameters(Vector<GlyphInfo>&         initGlyphs,
+               Vector<Vector2>&           initPositions,
+               Vector<Vector4>&           initColors,
+               Vector<ColorIndex>&        initColorIndices,
+               Vector<ColorBlendingMode>& initBlendingMode,
+               Vector<bool>&              initIsEmoji)
+    : glyphs(initGlyphs),
+      positions(initPositions),
+      colors(initColors),
+      colorIndices(initColorIndices),
+      blendingMode(initBlendingMode),
+      isEmoji(initIsEmoji),
       width{0u},
       height{0u},
       radius{0u},

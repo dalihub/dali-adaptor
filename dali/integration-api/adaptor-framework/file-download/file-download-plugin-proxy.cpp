@@ -61,8 +61,8 @@ typedef bool (*ShutdownPluginFunction)(Dali::FileDownloadPlugin*);
 
 struct AsyncDownloadRequest
 {
-  explicit AsyncDownloadRequest(FileDownloadPluginProxy::AsyncCompletionCallback&& callback)
-  : callback(std::move(callback))
+  explicit AsyncDownloadRequest(FileDownloadPluginProxy::AsyncCompletionCallback&& initCallback)
+  : callback(std::move(initCallback))
   {
   }
 

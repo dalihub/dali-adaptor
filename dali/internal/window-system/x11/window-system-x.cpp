@@ -650,8 +650,8 @@ struct WindowSystemX::Impl
   void DeleteEventHandler(WindowSystemX::EventHandler* eventHandler)
   {
     int  id   = eventHandler->handlerId;
-    auto iter = std::find_if(mHandlers.begin(), mHandlers.end(), [id](const WindowSystemX::EventHandler& eventHandler)
-    { return eventHandler.handlerId == id; });
+    auto iter = std::find_if(mHandlers.begin(), mHandlers.end(), [id](const WindowSystemX::EventHandler& handler)
+    { return handler.handlerId == id; });
     if(iter != mHandlers.end())
     {
       mHandlers.erase(iter);
@@ -1111,6 +1111,11 @@ WindowSystemX& GetImplementation()
     gWindowSystem = new WindowSystemX();
   }
   return *gWindowSystem;
+}
+
+bool GetKeyCodeFromKeymap(const char* keyName, uint32_t& keyCode)
+{
+  return false;
 }
 
 WindowSystemBase* GetWindowSystem()

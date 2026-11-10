@@ -330,22 +330,22 @@ void GlWindowRenderThread::Run()
 
   if(mIsEGLInitialize)
   {
-    EglGraphics*                          eglGraphics = static_cast<EglGraphics*>(mGraphics);
-    Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
+    EglGraphics*                          terminateEglGraphics = static_cast<EglGraphics*>(mGraphics);
+    Internal::Adaptor::EglImplementation& terminateEglImpl     = terminateEglGraphics->GetEglImplementation();
 
     if(mEGLSurface)
     {
-      eglImpl.DestroySurface(mEGLSurface);
+      terminateEglImpl.DestroySurface(mEGLSurface);
       mEGLSurface = nullptr;
     }
 
     if(mEGLContext)
     {
-      eglImpl.DestroyContext(mEGLContext);
+      terminateEglImpl.DestroyContext(mEGLContext);
       mEGLContext = nullptr;
     }
 
-    eglImpl.TerminateGles();
+    terminateEglImpl.TerminateGles();
   }
 }
 

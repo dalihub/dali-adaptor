@@ -189,8 +189,8 @@ struct DBusWrapper
     CallId id;
 
     SignalId() = default;
-    SignalId(CallId id)
-    : id(id)
+    SignalId(CallId initId)
+    : id(initId)
     {
     }
   };
@@ -503,9 +503,9 @@ struct Error
   ErrorType   errorType{ErrorType::DEFAULT};
 
   Error() = default;
-  Error(std::string msg, ErrorType errorType = ErrorType::DEFAULT)
+  Error(std::string msg, ErrorType initErrorType = ErrorType::DEFAULT)
   : message(std::move(msg)),
-    errorType(errorType)
+    errorType(initErrorType)
   {
     assert(!message.empty());
   }

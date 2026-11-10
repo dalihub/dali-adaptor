@@ -73,6 +73,16 @@ void NativeImage::SetSource(Any source)
   mImpl->SetSource(source);
 }
 
+void NativeImage::SetAlphaPreMultiplied(bool preMultiplied)
+{
+  mImpl->SetAlphaPreMultiplied(preMultiplied);
+}
+
+bool NativeImage::IsAlphaPreMultiplied() const
+{
+  return mImpl->IsAlphaPreMultiplied();
+}
+
 bool NativeImage::IsColorDepthSupported(ColorDepth colorDepth)
 {
   return mImpl->IsColorDepthSupported(colorDepth);

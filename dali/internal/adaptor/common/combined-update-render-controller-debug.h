@@ -50,18 +50,21 @@ Debug::Filter* gLogRenderSceneFilter = Debug::Filter::New(Debug::NoLogging, fals
 #define LOG_THREAD_SYNC(level, color, format, ...) \
   DALI_LOG_INFO(gLogFilter, level, "%s" format "%s\n", color, ##__VA_ARGS__, COLOR_CLEAR)
 
-#define LOG_THREAD_SYNC_TRACE(color)                                                                      \
-  Dali::Integration::Log::TraceObj debugTraceObj(gLogFilter, "%s%s%s", color, __FUNCTION__, COLOR_CLEAR); \
-  if(!gLogFilter->IsTraceEnabled())                                                                       \
-  {                                                                                                       \
-    LOG_THREAD_SYNC(Debug::Concise, color, "%s", __FUNCTION__);                                           \
+#define LOG_THREAD_SYNC_CONCAT_INNER(a, b) a##b
+#define LOG_THREAD_SYNC_CONCAT(a, b) LOG_THREAD_SYNC_CONCAT_INNER(a, b)
+
+#define LOG_THREAD_SYNC_TRACE(color)                                                                                                        \
+  Dali::Integration::Log::TraceObj LOG_THREAD_SYNC_CONCAT(debugTraceObj, __LINE__)(gLogFilter, "%s%s%s", color, __FUNCTION__, COLOR_CLEAR); \
+  if(!gLogFilter->IsTraceEnabled())                                                                                                         \
+  {                                                                                                                                         \
+    LOG_THREAD_SYNC(Debug::Concise, color, "%s", __FUNCTION__);                                                                             \
   }
 
-#define LOG_THREAD_SYNC_TRACE_FMT(color, format, ...)                                                                                \
-  Dali::Integration::Log::TraceObj debugTraceObj(gLogFilter, "%s%s: " format "%s", color, __FUNCTION__, ##__VA_ARGS__, COLOR_CLEAR); \
-  if(!gLogFilter->IsTraceEnabled())                                                                                                  \
-  {                                                                                                                                  \
-    LOG_THREAD_SYNC(Debug::Concise, color, "%s: " format, __FUNCTION__, ##__VA_ARGS__);                                              \
+#define LOG_THREAD_SYNC_TRACE_FMT(color, format, ...)                                                                                                                  \
+  Dali::Integration::Log::TraceObj LOG_THREAD_SYNC_CONCAT(debugTraceObj, __LINE__)(gLogFilter, "%s%s: " format "%s", color, __FUNCTION__, ##__VA_ARGS__, COLOR_CLEAR); \
+  if(!gLogFilter->IsTraceEnabled())                                                                                                                                    \
+  {                                                                                                                                                                    \
+    LOG_THREAD_SYNC(Debug::Concise, color, "%s: " format, __FUNCTION__, ##__VA_ARGS__);                                                                                \
   }
 
 #define LOG_RENDER_SCENE(format, ...) \

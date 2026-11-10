@@ -103,6 +103,11 @@ public:
   bool RequiresBlending() const override;
 
   /**
+   * @copydoc Dali::NativeImageInterface::IsAlphaPreMultiplied()
+   */
+  bool IsAlphaPreMultiplied() const override;
+
+  /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()
    */
   int GetTextureTarget() const override;

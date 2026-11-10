@@ -691,6 +691,7 @@ void WindowBaseWin::EmitKeyDown(TWinEventInfo* event, bool isRepeat)
   const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
 
   Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, KEYBOARD_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
+  keyEvent.rawKeyCode  = static_cast<uint32_t>(rawKeyCode);
   keyEvent.isRepeat    = isRepeat;
   keyEvent.windowId    = GetNativeWindowId();
   keyEvent.receiveTime = TimeService::GetMilliSeconds();
@@ -785,6 +786,7 @@ void WindowBaseWin::OnKeyUp(int, TWinEventInfo* event)
     // Match the Linux backends: the released key still carries its translated string
     // (keyEvent->string), so populate keyString on UP just like DOWN.
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, KEYBOARD_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
+    keyEvent.rawKeyCode  = static_cast<uint32_t>(rawKeyCode);
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
 

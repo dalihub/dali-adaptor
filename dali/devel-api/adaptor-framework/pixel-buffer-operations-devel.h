@@ -96,6 +96,8 @@ DALI_ADAPTOR_API void ApplyLetterbox(PixelBuffer pixelBuffer, uint16_t width, ui
  * @note Compressed pixel format doesn't have any efforts.
  * @note Even if pixel format doesn't have an alpha channel, it will be marked as
  * PreMultiplied.
+ * @note Does nothing if the pixel buffer is already marked as pre-multiplied, so the
+ * colors are never multiplied twice.
  *
  * @param[in] pixelBuffer The pixel buffer to pre-multiply
  */

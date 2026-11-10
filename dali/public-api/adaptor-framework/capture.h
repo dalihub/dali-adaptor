@@ -87,8 +87,8 @@ public:
    */
   enum class FinishState
   {
-    SUCCEEDED, ///< Succeeded in saving the result after capture
-    FAILED     ///< Failed to capture by time out or to save the result
+    SUCCEEDED, ///< Succeeded in saving the result after capture @SINCE_1_3_4
+    FAILED     ///< Failed to capture by time out or to save the result @SINCE_1_3_4
   };
 
   /**
@@ -249,6 +249,7 @@ public:
   /**
    * @brief Set result image quality in case of jpeg
    *
+   * @SINCE_3_0.0
    * @param[in] quality The value to control image quality for jpeg file format in the range [1, 100]
    */
   void SetImageQuality(uint32_t quality);
@@ -300,6 +301,7 @@ public:
    *
    * @brief Get Texture of captured image.
    *
+   * @SINCE_2_3.26
    * @return Texture Captured result
    * @note GetTexture is only available inside FinishedSignal.
    */

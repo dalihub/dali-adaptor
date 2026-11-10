@@ -144,11 +144,14 @@ public:
   void AcquireNextImage(Integration::RenderSurfaceInterface* surface) override;
 
   /**
-   * This is called after all the surfaces have been rendered.
-   *
-   * @note This should not be called if uploading resource only without rendering any surface.
+   * @copydoc Dali::Graphics::GraphicsInterface::PostRender()
    */
   void PostRender() override;
+
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::NeedsResourceReleaseProcessing()
+   */
+  bool NeedsResourceReleaseProcessing() const override;
 
   /**
    * Generate frame statistics and post to debug log.

@@ -37,6 +37,7 @@ namespace Extension
  * The returned value is always stored as a void* pointer, unlike GetNativeHandle() which may use
  * different representations.
  *
+ * @SINCE_3_0.0
  * @param[in] window The window object
  * @return An Any object containing the native window handle as void*, or an empty Any if the handle
  *         is not available (e.g., if the window is not yet created or has been destroyed)

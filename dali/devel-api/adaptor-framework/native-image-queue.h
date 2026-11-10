@@ -213,9 +213,28 @@ public:
   void SetQueueUsageHint(QueueUsageType type);
 
   /**
-   * @copydoc Dali::NativeImageInterface::GetTextureTarget()
+   * @brief Get the number of queue count for this image.
+   *
+   * @return The number of queue count.
    */
-  int GetTextureTarget() const override;
+  uint32_t GetQueueCount() const;
+
+  /**
+   * @brief Declares whether the colors of this native image are pre-multiplied by their
+   * alpha value.
+   *
+   * The declaration is metadata only; the pixels themselves are not inspected or changed.
+   * @note A texture created from this image reads the flag at creation, so declare it beforehand.
+   *
+   * @param[in] preMultiplied True if the colors are pre-multiplied by their alpha value
+   */
+  void SetAlphaPreMultiplied(bool preMultiplied);
+
+public: // native image
+  /**
+   * @copydoc Dali::NativeImageInterface::IsAlphaPreMultiplied()
+   */
+  bool IsAlphaPreMultiplied() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(Dali::String& shader, int mask);
@@ -223,18 +242,26 @@ public:
   bool ApplyNativeFragmentShader(Dali::String& shader, int mask) override;
 
   /**
+   * @copydoc Dali::NativeImageInterface::GetTextureTarget()
+   */
+  int GetTextureTarget() const override;
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()
    */
   const char* GetCustomSamplerTypename() const override;
 
-  /**
-   * @brief Get the number of queue count for this image.
-   *
-   * @return The number of queue count.
-   */
-  uint32_t GetQueueCount() const;
-
 private: // native image
+  /**
+   * @copydoc Dali::NativeImageInterface::GetWidth()
+   */
+  uint32_t GetWidth() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetHeight()
+   */
+  uint32_t GetHeight() const override;
+
   /**
    * @copydoc Dali::NativeImageInterface::CreateResource()
    */
@@ -254,16 +281,6 @@ private: // native image
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
    */
   Dali::NativeImageInterface::PrepareTextureResult PrepareTexture() override;
-
-  /**
-   * @copydoc Dali::NativeImageInterface::GetWidth()
-   */
-  uint32_t GetWidth() const override;
-
-  /**
-   * @copydoc Dali::NativeImageInterface::GetHeight()
-   */
-  uint32_t GetHeight() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()

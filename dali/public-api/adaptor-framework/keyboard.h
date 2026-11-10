@@ -31,6 +31,7 @@ namespace DALI_NAMESPACE
 
 /**
  * @brief Keyboard functions.
+ * @SINCE_3_0.0
  */
 namespace Keyboard
 {
@@ -96,6 +97,7 @@ DALI_ADAPTOR_API bool GetVerticalRepeatInfo(float& rate, float& delay);
 
 /**
  * @brief Keyboard repeat settings changed signal
+ * @SINCE_3_0.0
  */
 using RepeatSettingsChangedSignalType = Dali::Signal<void()>;
 

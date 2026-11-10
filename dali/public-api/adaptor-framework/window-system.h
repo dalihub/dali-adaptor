@@ -35,6 +35,7 @@ namespace DALI_NAMESPACE
  * @brief Window system functions.
  *
  * These functions apply to the window system as a whole rather than to a particular window.
+ * @SINCE_3_0.0
  */
 namespace WindowSystem
 {

@@ -48,6 +48,15 @@ void Initialize();
 void Shutdown();
 
 /**
+ * @brief Resolves a key name using the default display's system keymap.
+ *
+ * @param[in] keyName The platform key name
+ * @param[out] keyCode The system key code, unchanged on failure
+ * @return True if the key name was resolved, false if unavailable or unsupported
+ */
+bool GetKeyCodeFromKeymap(const char* keyName, uint32_t& keyCode);
+
+/**
  * @brief Set the DPI of the target screen.
  *
  * @note Multiple screens are not currently supported.

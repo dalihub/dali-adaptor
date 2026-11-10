@@ -261,33 +261,33 @@ void SetFontList(FcConfig* fontConfig, const FontDescription& fontDescription, F
 
 } // namespace
 
-FontClient::Plugin::CacheHandler::FallbackCacheItem::FallbackCacheItem(FontDescription&& font, FontList* fallbackFonts, CharacterSetList* characterSets)
+FontClient::Plugin::CacheHandler::FallbackCacheItem::FallbackCacheItem(FontDescription&& font, FontList* initFallbackFonts, CharacterSetList* initCharacterSets)
 : fontDescription{std::move(font)},
-  fallbackFonts{fallbackFonts},
-  characterSets{characterSets}
+  fallbackFonts{initFallbackFonts},
+  characterSets{initCharacterSets}
 {
 }
 
-FontClient::Plugin::CacheHandler::FontDescriptionCacheItem::FontDescriptionCacheItem(const FontDescription& fontDescription,
-                                                                                     FontDescriptionId      index)
-: fontDescription{fontDescription},
-  index{index}
+FontClient::Plugin::CacheHandler::FontDescriptionCacheItem::FontDescriptionCacheItem(const FontDescription& initFontDescription,
+                                                                                     FontDescriptionId      initIndex)
+: fontDescription{initFontDescription},
+  index{initIndex}
 {
 }
 
-FontClient::Plugin::CacheHandler::FontDescriptionCacheItem::FontDescriptionCacheItem(FontDescription&& fontDescription,
-                                                                                     FontDescriptionId index)
-: fontDescription{std::move(fontDescription)},
-  index{index}
+FontClient::Plugin::CacheHandler::FontDescriptionCacheItem::FontDescriptionCacheItem(FontDescription&& initFontDescription,
+                                                                                     FontDescriptionId initIndex)
+: fontDescription{std::move(initFontDescription)},
+  index{initIndex}
 {
 }
 
-FontClient::Plugin::CacheHandler::FontDescriptionSizeCacheKey::FontDescriptionSizeCacheKey(FontDescriptionId fontDescriptionId,
-                                                                                           PointSize26Dot6   requestedPointSize,
-                                                                                           std::size_t       variationsMapHash)
-: fontDescriptionId(fontDescriptionId),
-  requestedPointSize(requestedPointSize),
-  variationsMapHash(variationsMapHash)
+FontClient::Plugin::CacheHandler::FontDescriptionSizeCacheKey::FontDescriptionSizeCacheKey(FontDescriptionId initFontDescriptionId,
+                                                                                           PointSize26Dot6   initRequestedPointSize,
+                                                                                           std::size_t       initVariationsMapHash)
+: fontDescriptionId(initFontDescriptionId),
+  requestedPointSize(initRequestedPointSize),
+  variationsMapHash(initVariationsMapHash)
 {
 }
 

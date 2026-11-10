@@ -32,19 +32,19 @@ FrameTimeStamp::FrameTimeStamp()
 {
 }
 
-FrameTimeStamp::FrameTimeStamp(unsigned int frame,
-                               uint64_t     microseconds,
-                               unsigned int bufferIndex)
-: frame(frame),
-  microseconds(microseconds),
-  bufferIndex(bufferIndex)
+FrameTimeStamp::FrameTimeStamp(unsigned int initFrame,
+                               uint64_t     initMicroseconds,
+                               unsigned int initBufferIndex)
+: frame(initFrame),
+  microseconds(initMicroseconds),
+  bufferIndex(initBufferIndex)
 {
 }
 
-FrameTimeStamp::FrameTimeStamp(unsigned int bufferIndex)
+FrameTimeStamp::FrameTimeStamp(unsigned int initBufferIndex)
 : frame(0),
   microseconds(0),
-  bufferIndex(bufferIndex)
+  bufferIndex(initBufferIndex)
 {
 }
 

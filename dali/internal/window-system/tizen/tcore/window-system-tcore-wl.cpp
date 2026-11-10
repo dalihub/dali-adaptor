@@ -29,6 +29,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/common/window-system-impl.h>
+#include <dali/internal/window-system/tizen/keymap.h>
 #include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
 #define START_DURATION_CHECK()                               \
@@ -217,6 +218,19 @@ public:
     }
     DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "tizen_core_wl_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
     tizen_core_wl_shutdown();
+  }
+
+  bool GetKeyCodeFromKeymap(const char* keyName, uint32_t& keyCode)
+  {
+    tizen_core_wl_seat_h          seat   = nullptr;
+    tizen_core_wl_native_keymap_h keymap = nullptr;
+    if(!mTcoreDisplay ||
+       tizen_core_wl_display_get_default_seat(mTcoreDisplay, &seat) != TIZEN_CORE_WL_ERROR_NONE || !seat ||
+       tizen_core_wl_seat_get_native_keymap(seat, &keymap) != TIZEN_CORE_WL_ERROR_NONE || !keymap)
+    {
+      return false;
+    }
+    return GetKeyCodeFromXkbKeymap(static_cast<xkb_keymap*>(keymap), keyName, keyCode);
   }
 
   void GetScreenSize(int32_t& width, int32_t& height) override
@@ -430,6 +444,11 @@ void Shutdown()
   delete gWindowSystem;
   gWindowSystem = nullptr;
   gShutdown     = true;
+}
+
+bool GetKeyCodeFromKeymap(const char* keyName, uint32_t& keyCode)
+{
+  return !gShutdown && gWindowSystem && gWindowSystem->GetKeyCodeFromKeymap(keyName, keyCode);
 }
 
 WindowSystemBase* GetWindowSystem()

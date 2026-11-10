@@ -72,8 +72,8 @@ void PerformanceLogger::EnableLogging(bool enable)
   Internal::Adaptor::GetImplementation(*this).EnableLogging(enable);
 }
 
-PerformanceLogger::PerformanceLogger(Internal::Adaptor::PerformanceLogger* PerformanceLogger)
-: BaseHandle(PerformanceLogger)
+PerformanceLogger::PerformanceLogger(Internal::Adaptor::PerformanceLogger* performanceLogger)
+: BaseHandle(performanceLogger)
 {
 }
 

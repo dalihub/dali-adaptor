@@ -60,10 +60,10 @@ struct DALI_ADAPTOR_API Range
   {
   }
 
-  Range(std::size_t start, std::size_t end, std::string content)
+  Range(std::size_t start, std::size_t end, std::string initContent)
   : startOffset(static_cast<int32_t>(start)),
     endOffset(static_cast<int32_t>(end)),
-    content(std::move(content))
+    content(std::move(initContent))
   {
   }
 };

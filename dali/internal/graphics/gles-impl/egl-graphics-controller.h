@@ -20,10 +20,12 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/map-wrapper.h>
 #include <dali/graphics-api/graphics-controller.h>
+#include <functional>
 #include <memory>
 #include <queue>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/graphics-sync-abstraction.h>
@@ -858,6 +860,52 @@ public:
    */
   void PostRender();
 
+  /// Includes failed releases retained until shutdown.
+  bool HasPendingNativeImageReleases() const
+  {
+    return !mDeferredNativeImageReleases.empty();
+  }
+
+  /// Only releases whose completion can still be checked require more frames.
+  bool NeedsNativeImageReleaseProcessing() const;
+
+  /// Discard imports at graphics shutdown without reporting GPU completion.
+  void DiscardNativeImageReleases();
+
+  /// Record completion of native-image use in the current GL context.
+  /// Set flush to false only when the enclosing render pass will flush it.
+  void UpdateNativeImageResourceSync(const void* resourceKey, bool flush = true);
+
+  /// Remove tracking when a native image returns to the legacy release path.
+  void DiscardNativeImageResourceSync(const void* resourceKey);
+
+  /// Transfer all context fences to one deferred resource release.
+  void ReleaseNativeImageResource(const void*           resourceKey,
+                                  std::function<void()> releaseCallback,
+                                  const void*           nativeSurface,
+                                  std::function<void()> errorCallback,
+                                  std::function<void()> discardCallback);
+
+  /**
+   * @brief Retains a native-image resource until its render fence is signaled.
+   *
+   * Callbacks run on the render thread. A wait failure reports an error once and
+   * retains the resource until shutdown. A null sync denotes completed GL work.
+   *
+   * @param[in] sync Fence transferred to the release queue.
+   * @param[in] releaseCallback Destroys the resource and notifies successful release.
+   * @param[in] nativeImage Image identity used in diagnostic messages.
+   * @param[in] nativeSurface Surface identity used in diagnostic messages.
+   * @param[in] errorCallback Reports failure to establish GPU completion.
+   * @param[in] discardCallback Destroys the import at shutdown without reporting success.
+   */
+  void AddDeferredNativeImageRelease(Graphics::UniquePtr<GLES::SyncObject> sync,
+                                     std::function<void()>                 releaseCallback,
+                                     const void*                           nativeImage,
+                                     const void*                           nativeSurface,
+                                     std::function<void()>                 errorCallback   = {},
+                                     std::function<void()>                 discardCallback = {});
+
   /**
    * Creates a GLES context for the given render surface
    *
@@ -941,6 +989,11 @@ private:
    */
   GLES::Context* GetSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface) const;
 
+  /**
+   * Check native-image release fences without blocking the render thread.
+   */
+  void ProcessDeferredNativeImageReleases();
+
 private:
   Integration::GlAbstraction* mGlAbstraction{nullptr};
 
@@ -990,6 +1043,27 @@ private:
 
   GLES::SyncPool mSyncPool;
   std::size_t    mCapacity{0u}; ///< Memory Usage (of command buffers)
+
+  struct DeferredNativeImageRelease
+  {
+    std::vector<Graphics::UniquePtr<GLES::SyncObject>> syncs;
+    std::function<void()> releaseCallback;
+    const void*           nativeImage{nullptr};
+    const void*           nativeSurface{nullptr};
+    std::function<void()> errorCallback;
+    std::function<void()> discardCallback;
+    bool                  firstPoll{true};
+    bool                  waitFailed{false};
+  };
+
+  std::vector<DeferredNativeImageRelease> mDeferredNativeImageReleases;
+
+  struct NativeImageResourceSync
+  {
+    const GLES::Context* context{nullptr};
+    Graphics::UniquePtr<GLES::SyncObject> sync;
+  };
+  std::unordered_map<const void*, std::vector<NativeImageResourceSync>> mNativeImageResourceSyncs;
 
   bool mResourceInitializeFailed : 1;
   bool mUseProgramBinary : 1;

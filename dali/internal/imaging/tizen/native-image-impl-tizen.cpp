@@ -28,6 +28,7 @@
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
+#include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/imaging/tizen/tbm-surface-counter.h>
 
@@ -40,6 +41,52 @@ namespace Adaptor
 namespace
 {
 const char* SAMPLER_TYPE = "samplerExternalOES";
+
+struct DeferredNativeImageResource
+{
+  DeferredNativeImageResource(EglImageExtensions*                                           imageExtensions,
+                             void*                                                         eglImage,
+                             tbm_surface_h                                                 resourceSurface,
+                             std::shared_ptr<NativeImageResourceDestructionResultCallback> resultCallback)
+  : imageExtensions(imageExtensions),
+    eglImage(eglImage),
+    resourceSurface(resourceSurface),
+    resultCallback(std::move(resultCallback))
+  {
+    if(resourceSurface)
+    {
+      tbm_surface_internal_ref(resourceSurface);
+    }
+  }
+
+  ~DeferredNativeImageResource()
+  {
+    if(resourceSurface)
+    {
+      tbm_surface_internal_unref(resourceSurface);
+    }
+  }
+
+  void Discard()
+  {
+    if(eglImage)
+    {
+      imageExtensions->DestroyImageKHR(eglImage);
+      eglImage = nullptr;
+    }
+  }
+
+  void Release()
+  {
+    Discard();
+    resultCallback->Notify(DevelNativeImage::ResourceDestructionResult::SUCCESS);
+  }
+
+  EglImageExtensions*                                           imageExtensions{nullptr};
+  void*                                                         eglImage{nullptr};
+  tbm_surface_h                                                 resourceSurface{nullptr};
+  std::shared_ptr<NativeImageResourceDestructionResultCallback> resultCallback;
+};
 
 // clang-format off
 tbm_format FORMATS_BLENDING_REQUIRED[] = {
@@ -84,6 +131,7 @@ NativeImageTizen::NativeImageTizen(uint32_t width, uint32_t height, Dali::Native
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
   mResourceDestructionCallback(nullptr),
+  mDeferredResultCallback(),
   mOwnTbmSurface(false),
   mBlendingRequired(false),
   mEglImageChanged(false),
@@ -225,12 +273,7 @@ NativeImageTizen::~NativeImageTizen()
 {
   {
     std::scoped_lock lock(mMutex);
-    if(mOwnResourceDestructionCallback)
-    {
-      delete mResourceDestructionCallback;
-      mResourceDestructionCallback    = nullptr;
-      mOwnResourceDestructionCallback = false;
-    }
+    ResetResourceDestructionCallback();
   }
   DestroySurface();
 }
@@ -579,17 +622,70 @@ bool NativeImageTizen::CreateResource()
 void NativeImageTizen::DestroyResource()
 {
   std::scoped_lock lock(mMutex);
+  if(mResourceDestructionResultCallback && mEglImageKHR)
+  {
+    DALI_ASSERT_DEBUG(mEglImageExtensions);
+
+    if(mDeferredResultCallback)
+    {
+      DALI_LOG_ERROR("Replacing a pending native image destruction callback. image=%p surface=%p\n", this, mTbmSurface);
+      mDeferredResultCallback->Cancel();
+    }
+
+    // Move the active registration to the pending release. Keep a reference
+    // so replacing the callback or destroying the image can cancel notification.
+    mDeferredResultCallback        = std::move(mResourceDestructionResultCallback);
+    tbm_surface_h resourceSurface  = mTbmBackSurface ? mTbmBackSurface : mTbmSurface;
+    auto          deferredResource = std::make_shared<DeferredNativeImageResource>(mEglImageExtensions,
+                                                                                   mEglImageKHR,
+                                                                                   resourceSurface,
+                                                                                   mDeferredResultCallback);
+    if(DALI_LIKELY(!Graphics::EglGraphicsController::IsShuttingDown()))
+    {
+      auto& controller = static_cast<Graphics::EglGraphicsController&>(mEglGraphics->GetController());
+      controller.ReleaseNativeImageResource(this,
+                                            [deferredResource]()
+      { deferredResource->Release(); },
+                                            mTbmSurface,
+                                            [callback = mDeferredResultCallback]()
+      {
+        if(callback)
+        {
+          callback->Notify(DevelNativeImage::ResourceDestructionResult::ERROR);
+        }
+      },
+                                            [deferredResource]()
+      { deferredResource->Discard(); });
+    }
+    else
+    {
+      // Shutdown discards imports without reporting GPU completion.
+      deferredResource->Discard();
+    }
+    mEglImageKHR       = NULL;
+    mEglImageChanged   = true;
+    return;
+  }
+
+  if(DALI_LIKELY(!Graphics::EglGraphicsController::IsShuttingDown()))
+  {
+    auto& controller = static_cast<Graphics::EglGraphicsController&>(mEglGraphics->GetController());
+    controller.DiscardNativeImageResourceSync(this);
+  }
+
   if(mEglImageKHR)
   {
     DALI_ASSERT_DEBUG(mEglImageExtensions);
     mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
-
-    mEglImageKHR = NULL;
-
+    mEglImageKHR     = NULL;
     mEglImageChanged = true;
   }
 
-  if(mResourceDestructionCallback)
+  if(mResourceDestructionResultCallback)
+  {
+    mResourceDestructionResultCallback->Notify(DevelNativeImage::ResourceDestructionResult::SUCCESS);
+  }
+  else if(mResourceDestructionCallback)
   {
     mResourceDestructionCallback->Trigger();
   }
@@ -597,6 +693,8 @@ void NativeImageTizen::DestroyResource()
 
 uint32_t NativeImageTizen::TargetTexture()
 {
+  std::scoped_lock lock(mMutex);
+
   if(DALI_LIKELY(mEglImageExtensions && mEglImageKHR) && mEglImageChanged)
   {
     mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
@@ -625,8 +723,8 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageTizen::PrepareTextur
   Dali::NativeImageInterface::PrepareTextureResult result = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
   if(DALI_LIKELY(mEglImageKHR))
   {
-    result     = mSetSource ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
-    mSetSource = false;
+    result           = mSetSource ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
+    mSetSource       = false;
   }
   else
   {
@@ -804,12 +902,47 @@ bool NativeImageTizen::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
 void NativeImageTizen::SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback)
 {
   std::scoped_lock lock(mMutex);
+  ResetResourceDestructionCallback();
+  mResourceDestructionCallback    = callback;
+  mOwnResourceDestructionCallback = ownedCallback;
+}
+
+void NativeImageTizen::SetDeferredResourceDestruction(DevelNativeImage::ResourceDestructionCallback resultCallback)
+{
+  auto             notification = resultCallback ? std::make_shared<NativeImageResourceDestructionResultCallback>(std::move(resultCallback)) : nullptr;
+  std::scoped_lock lock(mMutex);
+  ResetResourceDestructionCallback();
+  mResourceDestructionResultCallback = std::move(notification);
+}
+
+void NativeImageTizen::ResetResourceDestructionCallback()
+{
+  if(mDeferredResultCallback)
+  {
+    mDeferredResultCallback->Cancel();
+    mDeferredResultCallback.reset();
+  }
   if(mOwnResourceDestructionCallback)
   {
     delete mResourceDestructionCallback;
   }
-  mResourceDestructionCallback    = callback;
-  mOwnResourceDestructionCallback = ownedCallback;
+  mResourceDestructionCallback    = nullptr;
+  mOwnResourceDestructionCallback = false;
+  ClearResourceDestructionResultCallback();
+}
+
+bool NativeImageTizen::CanReleaseSource()
+{
+  std::scoped_lock lock(mMutex);
+  // A deferred fence holds the TBM surface, not a NativeImage reference. A
+  // reference-count check alone therefore cannot establish GPU completion.
+  return !mEglImageKHR && !mDeferredResultCallback;
+}
+
+const void* NativeImageTizen::GetResourceDestructionKey() const
+{
+  std::scoped_lock lock(mMutex);
+  return mResourceDestructionResultCallback ? this : nullptr;
 }
 
 void NativeImageTizen::EnableBackBuffer(bool enable)
@@ -855,8 +988,10 @@ void NativeImageTizen::DestroyBackBuffer()
 
 void NativeImageTizen::PostRender()
 {
+  std::scoped_lock lock(mMutex);
   mEglImageChanged = false;
 }
+
 } // namespace Adaptor
 
 } // namespace Internal

@@ -154,18 +154,18 @@ struct FontDescription
   {
   }
 
-  FontDescription(const FontPath&         path,
-                  const FontFamily&       family,
-                  const FontWidth::Type&  width,
-                  const FontWeight::Type& weight,
-                  const FontSlant::Type&  slant,
-                  const Type&             type)
-  : path(path),
-    family(family),
-    width(width),
-    weight(weight),
-    slant(slant),
-    type(type)
+  FontDescription(const FontPath&         initPath,
+                  const FontFamily&       initFamily,
+                  const FontWidth::Type&  initWidth,
+                  const FontWeight::Type& initWeight,
+                  const FontSlant::Type&  initSlant,
+                  const Type&             initType)
+  : path(initPath),
+    family(initFamily),
+    width(initWidth),
+    weight(initWeight),
+    slant(initSlant),
+    type(initType)
   {
   }
 

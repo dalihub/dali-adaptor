@@ -94,9 +94,9 @@ struct GlyphBuffer
     DELETE
   };
 
-  GlyphBuffer(Dali::TextAbstraction::GlyphBufferData& data, DestructorType type)
-  : data(data),
-    type(type)
+  GlyphBuffer(Dali::TextAbstraction::GlyphBufferData& initData, DestructorType initType)
+  : data(initData),
+    type(initType)
   {
   }
 
@@ -566,7 +566,7 @@ void RenderGlyphs(
   cairo_font_face_t*                                               fontFace = fontFacePtr.get();
 
   static const cairo_user_data_key_t key    = {0};
-  cairo_status_t                     status = cairo_font_face_set_user_data(fontFace, &key, run.fontFace, reinterpret_cast<cairo_destroy_func_t>(FT_Done_Face));
+  cairo_status_t                     status = cairo_font_face_set_user_data(fontFace, &key, run.fontFace, reinterpret_cast<cairo_destroy_func_t>(reinterpret_cast<void (*)()>(FT_Done_Face)));
   if(status)
   {
     cairo_font_face_destroy(fontFace);

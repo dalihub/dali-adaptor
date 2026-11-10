@@ -206,12 +206,12 @@ public:
   struct UniformExtraInfo
   {
     UniformExtraInfo() = default;
-    UniformExtraInfo(uint32_t location, uint32_t size, uint32_t offset, uint32_t arraySize, GLenum type)
-    : location(location),
-      size(size),
-      offset(offset),
-      arraySize(arraySize),
-      type(type) {};
+    UniformExtraInfo(uint32_t initLocation, uint32_t initSize, uint32_t initOffset, uint32_t initArraySize, GLenum initType)
+    : location(initLocation),
+      size(initSize),
+      offset(initOffset),
+      arraySize(initArraySize),
+      type(initType) {};
 
     uint32_t location;  ///< Location of uniform
     uint32_t size;      ///< size of uniform

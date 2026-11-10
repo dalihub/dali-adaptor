@@ -61,24 +61,24 @@ struct GdbusDBusWrapper : public DBusWrapper
     return std::make_shared<name##Impl>(const_cast<g_dbus_name*>(v), std::forward<ARGS>(args)...); \
   }
 
-#define DEFINE_TYPE(name, g_dbus_name, unref_call)           \
-  struct name##Impl : public name                            \
-  {                                                          \
-    g_dbus_name* Value       = nullptr;                      \
-    bool         EraseOnExit = false;                        \
-    name##Impl(g_dbus_name* Value, bool EraseOnExit = false) \
-    : Value(Value),                                          \
-      EraseOnExit(EraseOnExit)                               \
-    {                                                        \
-    }                                                        \
-    ~name##Impl()                                            \
-    {                                                        \
-      if(EraseOnExit && Value)                               \
-      {                                                      \
-        unref_call;                                          \
-      }                                                      \
-    }                                                        \
-  };                                                         \
+#define DEFINE_TYPE(name, g_dbus_name, unref_call)                   \
+  struct name##Impl : public name                                    \
+  {                                                                  \
+    g_dbus_name* Value       = nullptr;                              \
+    bool         EraseOnExit = false;                                \
+    name##Impl(g_dbus_name* initValue, bool initEraseOnExit = false) \
+    : Value(initValue),                                              \
+      EraseOnExit(initEraseOnExit)                                   \
+    {                                                                \
+    }                                                                \
+    ~name##Impl()                                                    \
+    {                                                                \
+      if(EraseOnExit && Value)                                       \
+      {                                                              \
+        unref_call;                                                  \
+      }                                                              \
+    }                                                                \
+  };                                                                 \
   DEFINE_GS(name, g_dbus_name, )
 
   struct MessageIterImpl : public MessageIter
@@ -1128,13 +1128,13 @@ struct GdbusDBusWrapper : public DBusWrapper
 
     destructors.push_back([impl, interfaceName, fallback]()
     {
-      std::lock_guard<std::recursive_mutex> lock(GlobalEntries::Get().mutex);
-      auto info = impl->interface_infos.find(interfaceName);
-      if(info == impl->interface_infos.end()) return;
+      std::lock_guard<std::recursive_mutex> entriesLock(GlobalEntries::Get().mutex);
+      auto                                  infoIter = impl->interface_infos.find(interfaceName);
+      if(infoIter == impl->interface_infos.end()) return;
 
       impl->interface_methods.erase(interfaceName);
-      g_dbus_interface_info_unref(info->second);
-      impl->interface_infos.erase(info);
+      g_dbus_interface_info_unref(infoIter->second);
+      impl->interface_infos.erase(infoIter);
       impl->interface_properties.erase(interfaceName);
 
       if(fallback)

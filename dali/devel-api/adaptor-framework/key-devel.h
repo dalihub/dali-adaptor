@@ -47,6 +47,9 @@ namespace DevelKey
  * can keep it. It is not intended for applications, and it must be called before the adaptor
  * starts delivering key events.
  *
+ * On Tizen, the legacy mode also preserves the resolved key code sent to the input method.
+ * The default mode sends the raw key code when available, falling back to the resolved code.
+ *
  * @param[in] preferSystemKeyCode True to restore the legacy Tizen order, false for the default
  *                                order shared by every backend.
  */

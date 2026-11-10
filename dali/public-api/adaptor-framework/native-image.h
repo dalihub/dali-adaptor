@@ -144,6 +144,18 @@ public:
   void SetSource(Any source);
 
   /**
+   * @brief Declares whether the colors of this native image are pre-multiplied by their
+   * alpha value.
+   *
+   * The declaration is metadata only; the pixels themselves are not inspected or changed.
+   * @note A texture created from this image reads the flag at creation, so declare it beforehand.
+   *
+   * @SINCE_3_0.0
+   * @param[in] preMultiplied True if the colors are pre-multiplied by their alpha value
+   */
+  void SetAlphaPreMultiplied(bool preMultiplied);
+
+  /**
    * @brief Checks if the specified color depth is supported.
    *
    * @SINCE_1_1.34
@@ -164,14 +176,19 @@ public: // native image
   uint32_t GetHeight() const override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::GetTextureTarget()
+   * @copydoc Dali::NativeImageInterface::IsAlphaPreMultiplied()
    */
-  int GetTextureTarget() const override;
+  bool IsAlphaPreMultiplied() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(Dali::String&, int)
    */
   bool ApplyNativeFragmentShader(Dali::String& shader, int mask) override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetTextureTarget()
+   */
+  int GetTextureTarget() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()

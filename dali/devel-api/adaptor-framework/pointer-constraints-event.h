@@ -37,16 +37,16 @@ struct DALI_ADAPTOR_API PointerConstraintsEvent
 {
   /**
    * @brief Constructor which creates a PointerConstraintsEvent instance
-   * @param[in] x The x coordinate relative to window where event happened
-   * @param[in] y The y coordinate relative to window where event happened
-   * @param[in] locked The status whether pointer is locked/unlocked
-   * @param[in] confined The status whether pointer is confined/unconfined
+   * @param[in] initX The x coordinate relative to window where event happened
+   * @param[in] initY The y coordinate relative to window where event happened
+   * @param[in] initLocked The status whether pointer is locked/unlocked
+   * @param[in] initConfined The status whether pointer is confined/unconfined
    */
-  PointerConstraintsEvent(int32_t x, int32_t y, bool locked, bool confined)
-  : x(x),
-    y(y),
-    locked(locked),
-    confined(confined)
+  PointerConstraintsEvent(int32_t initX, int32_t initY, bool initLocked, bool initConfined)
+  : x(initX),
+    y(initY),
+    locked(initLocked),
+    confined(initConfined)
   {
   }
 

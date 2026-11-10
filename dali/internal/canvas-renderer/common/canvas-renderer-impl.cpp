@@ -696,9 +696,9 @@ void CanvasRenderer::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawabl
     }
 
     tvg::Paint*     tvgDuplicatedCompositeObject = tvgCompositeObject->duplicate();
-    Drawable::Types type                         = compositeDrawableImpl.GetType();
+    Drawable::Types compositeType                = compositeDrawableImpl.GetType();
 
-    if(type == Drawable::Types::DRAWABLE_GROUP)
+    if(compositeType == Drawable::Types::DRAWABLE_GROUP)
     {
       Dali::CanvasRenderer::DrawableGroup& compositeGroup             = static_cast<Dali::CanvasRenderer::DrawableGroup&>(compositeDrawable);
       Internal::Adaptor::DrawableGroup&    compositeDrawableGroupImpl = Dali::GetImplementation(compositeGroup);

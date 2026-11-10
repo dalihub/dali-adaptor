@@ -30,6 +30,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/common/window-system-impl.h>
+#include <dali/internal/window-system/tizen/keymap.h>
 
 #define START_DURATION_CHECK()                               \
   uint32_t durationMilliSeconds = static_cast<uint32_t>(-1); \
@@ -78,19 +79,40 @@ public:
     }
 
     mKeyboardRepeatEventHandler = ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_KEYBOARD_REPEAT_CHANGED, OnKeyboardRepeatChanged, this);
+    mKeymapChangedEventHandler  = ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_KEYMAP_CHANGED, OnKeymapChanged, this);
+    mDisconnectedEventHandler   = ecore_event_handler_add(ECORE_WL2_EVENT_DISCONNECT, OnKeymapChanged, this);
+    UpdateKeymap();
   }
 
   ~WindowSystemEcoreWl2()
   {
+    if(mKeymapChangedEventHandler)
+    {
+      ecore_event_handler_del(mKeymapChangedEventHandler);
+    }
+    if(mDisconnectedEventHandler)
+    {
+      ecore_event_handler_del(mDisconnectedEventHandler);
+    }
     if(mKeyboardRepeatEventHandler)
     {
       ecore_event_handler_del(mKeyboardRepeatEventHandler);
     }
+    SetKeymap(nullptr, nullptr);
     DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "ecore_wl2_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
     ecore_wl2_shutdown();
 
     DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "ecore_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
     ecore_shutdown();
+  }
+
+  bool GetKeyCodeFromKeymap(const char* keyName, uint32_t& keyCode)
+  {
+    if(!mKeyMap || !mKeymapChangedEventHandler || !mDisconnectedEventHandler)
+    {
+      UpdateKeymap();
+    }
+    return GetKeyCodeFromXkbKeymap(mKeyMap, keyName, keyCode);
   }
 
   void GetScreenSize(int32_t& width, int32_t& height) override
@@ -253,6 +275,55 @@ public:
   }
 
 private:
+  void SetKeymap(xkb_keymap* keymap, Ecore_Wl2_Display* display)
+  {
+    // Retain the new map before releasing the old one, which may be the same map.
+    if(keymap)
+    {
+      xkb_keymap_ref(keymap);
+    }
+    if(mKeyMap)
+    {
+      xkb_keymap_unref(mKeyMap);
+    }
+    mKeyMap        = keymap;
+    mKeymapDisplay = keymap ? display : nullptr;
+  }
+
+  void UpdateKeymap()
+  {
+    Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(nullptr);
+    Ecore_Wl2_Input*   input   = display ? ecore_wl2_input_default_input_get(display) : nullptr;
+    xkb_keymap*        keymap  = nullptr;
+    if(input && (ecore_wl2_input_seat_capabilities_get(input) & ECORE_WL2_SEAT_CAPABILITIES_KEYBOARD))
+    {
+      keymap = ecore_wl2_input_keymap_get(input);
+    }
+    // Keep the last keymap for fed events when the keyboard is removed.
+    if(keymap || display != mKeymapDisplay)
+    {
+      SetKeymap(keymap, display);
+    }
+  }
+
+  static Eina_Bool OnKeymapChanged(void* data, int type, void* event)
+  {
+    auto& windowSystem = *static_cast<WindowSystemEcoreWl2*>(data);
+    if(type == ECORE_WL2_EVENT_DISCONNECT)
+    {
+      auto* disconnected = static_cast<Ecore_Wl2_Event_Disconnect*>(event);
+      if(disconnected && disconnected->display == windowSystem.mKeymapDisplay)
+      {
+        windowSystem.SetKeymap(nullptr, nullptr);
+      }
+    }
+    else
+    {
+      windowSystem.UpdateKeymap();
+    }
+    return ECORE_CALLBACK_RENEW;
+  }
+
   static Eina_Bool OnKeyboardRepeatChanged(void* data, int type, void* event)
   {
     if(Dali::Adaptor::IsAvailable())
@@ -266,6 +337,10 @@ private:
   int32_t                              mScreenHeight{0};
   std::vector<Dali::ScreenInformation> mScreenList;
   Ecore_Event_Handler*                 mKeyboardRepeatEventHandler{nullptr};
+  Ecore_Event_Handler*                 mKeymapChangedEventHandler{nullptr};
+  Ecore_Event_Handler*                 mDisconnectedEventHandler{nullptr};
+  Ecore_Wl2_Display*                   mKeymapDisplay{nullptr};
+  xkb_keymap*                          mKeyMap{nullptr};
 };
 
 // The lifetime is managed explicitly by Initialize() / Shutdown().
@@ -294,6 +369,11 @@ void Shutdown()
   delete gWindowSystem;
   gWindowSystem = nullptr;
   gShutdown     = true;
+}
+
+bool GetKeyCodeFromKeymap(const char* keyName, uint32_t& keyCode)
+{
+  return !gShutdown && gWindowSystem && gWindowSystem->GetKeyCodeFromKeymap(keyName, keyCode);
 }
 
 WindowSystemBase* GetWindowSystem()

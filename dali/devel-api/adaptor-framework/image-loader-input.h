@@ -35,9 +35,9 @@ namespace ImageLoader
 class ScalingParameters
 {
 public:
-  ScalingParameters(ImageDimensions dimensions = ImageDimensions(), SamplingMode::Type samplingMode = SamplingMode::DEFAULT)
-  : dimensions(dimensions),
-    samplingMode(samplingMode)
+  ScalingParameters(ImageDimensions initDimensions = ImageDimensions(), SamplingMode::Type initSamplingMode = SamplingMode::DEFAULT)
+  : dimensions(initDimensions),
+    samplingMode(initSamplingMode)
   {
   }
   const ImageDimensions    dimensions;
@@ -49,10 +49,10 @@ public:
  */
 struct Input
 {
-  Input(FILE* file, ScalingParameters scalingParameters = ScalingParameters(), bool reorientationRequested = true)
-  : file(file),
-    scalingParameters(scalingParameters),
-    reorientationRequested(reorientationRequested)
+  Input(FILE* initFile, ScalingParameters initScalingParameters = ScalingParameters(), bool initReorientationRequested = true)
+  : file(initFile),
+    scalingParameters(initScalingParameters),
+    reorientationRequested(initReorientationRequested)
   {
   }
   FILE*             file;

@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/math/rect.h>
+#include <functional>
 #include <string>
 
 // INTERNAL INCLUDES
@@ -84,11 +85,73 @@ DALI_ADAPTOR_API bool SetPixels(NativeImage& image, uint8_t* pixbuf, const Pixel
 /**
  * @brief Set the Resource Destruction Callback object
  *
+ * This function does not opt into the Tizen GLES deferred GPU release path.
+ * Use SetDeferredResourceDestruction() to request GPU completion tracking.
+ *
+ * @note This registration and SetDeferredResourceDestruction() are mutually
+ * exclusive. The latest registration replaces the previous one. On Tizen GLES,
+ * this function clears the deferred configuration and cancels its pending result
+ * notifications. Resources already transferred to the deferred release queue
+ * continue to be processed without notifying the replacement callback.
+ * Select the destruction mode before graphics use.
+ *
  * @param[in] image The instance of NativeImage.
  * @param[in] callback The Resource Destruction callback
  * @param[in] ownedCallback True if ownership of the callback is passed onto this class. False if ownership of the callback is exclude.
  */
 DALI_ADAPTOR_API void SetResourceDestructionCallback(NativeImage& image, EventThreadCallback* callback, bool ownedCallback);
+
+/**
+ * @brief The result of a resource destruction request.
+ */
+enum class ResourceDestructionResult
+{
+  SUCCESS, ///< The backend has destroyed the graphics resource.
+  ERROR    ///< GPU completion could not be confirmed; the resource is retained.
+};
+
+using ResourceDestructionCallback = std::function<void(ResourceDestructionResult)>;
+
+/**
+ * @brief Configures deferred graphics-resource destruction with a one-shot result callback.
+ *
+ * On Tizen GLES, a non-empty resultCallback enables GPU completion tracking.
+ * A subsequent resource destruction request defers release when necessary.
+ * This function does not itself request resource destruction.
+ *
+ * The callback runs on the event thread after resource destruction succeeds
+ * or GPU completion checking fails. Pending fences do not notify the callback.
+ * ERROR does not permit source reuse.
+ * Backends supporting deferred destruction report wait failures as ERROR;
+ * other backends report SUCCESS through their existing destruction path.
+ *
+ * Register or clear on the event thread, before graphics use or destruction of
+ * objects captured by the callback. An executing callback may clear itself or
+ * destroy its owner and remains valid until return.
+ * Register again to receive a result for another resource destruction request.
+ *
+ * @note This configuration and SetResourceDestructionCallback() are mutually
+ * exclusive. The latest registration replaces the previous one. An empty
+ * resultCallback clears the configuration and cancels future and queued result
+ * notifications. Resources already transferred to the deferred release queue
+ * continue to be processed without notifying a replacement callback.
+ *
+ * @param[in] image The instance of NativeImage.
+ * @param[in] resultCallback The result callback, or an empty function to clear the configuration.
+ */
+DALI_ADAPTOR_API void SetDeferredResourceDestruction(NativeImage& image, ResourceDestructionCallback resultCallback);
+
+/**
+ * @brief Whether the sole owner may return the source without waiting for graphics.
+ *
+ * Call on the event thread after delivering a frame. Returns false if another
+ * owner can still submit the image, GPU release is pending, or the backend
+ * cannot establish that release is safe. Does not release any resource.
+ *
+ * @param[in] image The instance of NativeImage.
+ * @return True if the image has sole ownership and no live or pending graphics resources.
+ */
+DALI_ADAPTOR_API bool CanReleaseSource(NativeImage& image);
 
 /**
  * @brief Enable a back buffer.

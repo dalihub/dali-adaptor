@@ -156,8 +156,8 @@ DBus::DBusServer::DBusServer(const DBusWrapper::ConnectionPtr& conn)
     connection = conn;
 }
 
-DBus::DBusInterfaceDescription::DBusInterfaceDescription(std::string interfaceName)
-: interfaceName(std::move(interfaceName))
+DBus::DBusInterfaceDescription::DBusInterfaceDescription(std::string initInterfaceName)
+: interfaceName(std::move(initInterfaceName))
 {
 }
 

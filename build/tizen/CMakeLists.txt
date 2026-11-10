@@ -658,6 +658,7 @@ SET( tizencanvasrendererpublicapidir ${tizenadaptorframeworkpublicapidir}/canvas
 SET( tizenadaptortextabstractionpublicapidir ${tizenadaptorpublicapidir}/text-abstraction )
 SET( tizenadaptorframeworkdevelapidir ${tizenadaptordevelapidir}/adaptor-framework )
 SET( tizenwebenginedevelapidir ${tizenadaptorframeworkdevelapidir}/web-engine )
+SET( tizenwidgetenginedevelapidir ${tizenadaptorframeworkdevelapidir}/widget-engine )
 SET( tizenatspiinterfacesdevelapidir ${tizenadaptordevelapidir}/atspi-interfaces )
 SET( tizentextabstractiondevelapidir ${tizenadaptordevelapidir}/text-abstraction )
 SET( tizenadaptordaliheaderdir ${INCLUDE_DIR}/dali )
@@ -682,6 +683,7 @@ INSTALL( FILES ${public_api_text_abstraction_header_files} DESTINATION ${tizenad
 INSTALL( FILES ${devel_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_egl_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_web_engine_header_files} DESTINATION ${tizenwebenginedevelapidir} )
+INSTALL( FILES ${devel_api_adaptor_framework_widget_engine_header_files} DESTINATION ${tizenwidgetenginedevelapidir} )
 INSTALL( FILES ${devel_api_atspi_interfaces_header_files} DESTINATION ${tizenatspiinterfacesdevelapidir} )
 INSTALL( FILES ${devel_api_text_abstraction_header_files} DESTINATION ${tizentextabstractiondevelapidir} )
 

@@ -101,14 +101,14 @@ public:
   void SetSize(uint32_t width, uint32_t height);
 
   /**
-   * @copydoc Dali::NativeImageInterface::GetTextureTarget()
-   */
-  int GetTextureTarget() const override;
-
-  /**
    * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(Dali::String& shader, int mask);
    */
   bool ApplyNativeFragmentShader(Dali::String& shader, int mask) override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetTextureTarget()
+   */
+  int GetTextureTarget() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()
@@ -123,6 +123,21 @@ public:
   uint32_t GetQueueCount() const;
 
 private: // native image
+  /**
+   * @copydoc Dali::NativeImageInterface::GetWidth()
+   */
+  uint32_t GetWidth() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetHeight()
+   */
+  uint32_t GetHeight() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::IsAlphaPreMultiplied()
+   */
+  bool IsAlphaPreMultiplied() const override;
+
   /**
    * @copydoc Dali::NativeImageInterface::CreateResource()
    */
@@ -142,16 +157,6 @@ private: // native image
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
    */
   Dali::NativeImageInterface::PrepareTextureResult PrepareTexture() override;
-
-  /**
-   * @copydoc Dali::NativeImageInterface::GetWidth()
-   */
-  uint32_t GetWidth() const override;
-
-  /**
-   * @copydoc Dali::NativeImageInterface::GetHeight()
-   */
-  uint32_t GetHeight() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()
