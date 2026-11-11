@@ -204,8 +204,12 @@ public:
    * When native rendering is about to be executed, the dedicated EGL context
    * is acquired (created or reused) and made current. The Window/Surface context
    * is cached to be restored afterwards.
+   *
+   * @return True if the dedicated context is now current. False leaves the
+   *         window/surface context current and nothing prepared for native
+   *         rendering, so the caller must not run the native code.
    */
-  void PrepareForNativeRendering();
+  bool PrepareForNativeRendering();
 
   /**
    * @brief Restores window/surface context after native rendering.
