@@ -27,6 +27,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
 #if defined(DEBUG_ENABLED)

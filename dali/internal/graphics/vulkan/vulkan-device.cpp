@@ -564,9 +564,9 @@ void Device::CreateDevice(SurfaceImpl* surface)
           pNextChain                                = &extendedGlobalPriorityQueryFeatures;
 
           // Check each queue family for global priority support before applying
-          for(auto& info : queueInfos)
+          for(auto& queueInfo : queueInfos)
           {
-            mGlobalPrioritySupportedInfo->AppendGlobalPriorityInfo(info, globalInfoReferenceHolder);
+            mGlobalPrioritySupportedInfo->AppendGlobalPriorityInfo(queueInfo, globalInfoReferenceHolder);
           }
         }
         else

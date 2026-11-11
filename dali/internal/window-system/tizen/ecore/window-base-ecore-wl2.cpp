@@ -1648,13 +1648,13 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     }
 #endif
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
-    keyEvent.rawKeyCode  = rawKeyCode;
-    keyEvent.isRepeat    = isRepeat;
-    keyEvent.windowId    = GetNativeWindowId();
-    keyEvent.receiveTime = TimeService::GetMilliSeconds();
+    Integration::KeyEvent integrationEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
+    integrationEvent.rawKeyCode  = rawKeyCode;
+    integrationEvent.isRepeat    = isRepeat;
+    integrationEvent.windowId    = GetNativeWindowId();
+    integrationEvent.receiveTime = TimeService::GetMilliSeconds();
 
-    mKeyEventSignal.Emit(keyEvent);
+    mKeyEventSignal.Emit(integrationEvent);
   }
 }
 
@@ -1743,12 +1743,12 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     GetDeviceClass(ecore_device_class_get(keyEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
-    keyEvent.rawKeyCode  = rawKeyCode;
-    keyEvent.windowId    = GetNativeWindowId();
-    keyEvent.receiveTime = TimeService::GetMilliSeconds();
+    Integration::KeyEvent integrationEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
+    integrationEvent.rawKeyCode  = rawKeyCode;
+    integrationEvent.windowId    = GetNativeWindowId();
+    integrationEvent.receiveTime = TimeService::GetMilliSeconds();
 
-    mKeyEventSignal.Emit(keyEvent);
+    mKeyEventSignal.Emit(integrationEvent);
   }
 }
 

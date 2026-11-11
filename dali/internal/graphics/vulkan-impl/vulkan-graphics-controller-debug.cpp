@@ -508,9 +508,9 @@ void DumpCommandBuffer(GraphicsFrameDump& frameDump, const Vulkan::StoredCommand
                 cmd.beginRenderPass.renderArea.height);
         fprintf(output, "\"clearValues\":[");
         bool firstV = true;
-        for(auto i = 0u; i < cmd.beginRenderPass.clearValuesCount; ++i)
+        for(auto valueIndex = 0u; valueIndex < cmd.beginRenderPass.clearValuesCount; ++valueIndex)
         {
-          auto value = cmd.beginRenderPass.clearValues.Ptr()[i];
+          auto value = cmd.beginRenderPass.clearValues.Ptr()[valueIndex];
           if(!firstV)
           {
             fprintf(output, ",");

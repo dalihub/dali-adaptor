@@ -44,18 +44,18 @@ const char* SAMPLER_TYPE = "samplerExternalOES";
 
 struct DeferredNativeImageResource
 {
-  DeferredNativeImageResource(EglImageExtensions*                                           imageExtensions,
-                              void*                                                         eglImage,
-                              tbm_surface_h                                                 resourceSurface,
-                              std::shared_ptr<NativeImageResourceDestructionResultCallback> resultCallback)
-  : imageExtensions(imageExtensions),
-    eglImage(eglImage),
-    resourceSurface(resourceSurface),
-    resultCallback(std::move(resultCallback))
+  DeferredNativeImageResource(EglImageExtensions*                                           inputImageExtensions,
+                             void*                                                         inputEglImage,
+                             tbm_surface_h                                                 inputResourceSurface,
+                             std::shared_ptr<NativeImageResourceDestructionResultCallback> inputResultCallback)
+  : imageExtensions(inputImageExtensions),
+    eglImage(inputEglImage),
+    resourceSurface(inputResourceSurface),
+    resultCallback(std::move(inputResultCallback))
   {
-    if(resourceSurface)
+    if(inputResourceSurface)
     {
-      tbm_surface_internal_ref(resourceSurface);
+      tbm_surface_internal_ref(inputResourceSurface);
     }
   }
 

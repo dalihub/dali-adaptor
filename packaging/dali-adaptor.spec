@@ -317,6 +317,10 @@ Feedback plugin to play haptic and audio feedback for Dali
 # Build
 ##############################
 %build
+# Keep shadow diagnostics enabled independently of the build server policy.
+export CFLAGS="${CFLAGS:-%optflags} -Werror=shadow"
+export CXXFLAGS="${CXXFLAGS:-%optflags} -Werror=shadow"
+
 PREFIX="$PREFIX/usr"
 CXXFLAGS="$CXXFLAGS -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES -Wno-psabi"
 LDFLAGS="$LDFLAGS -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -lttrace -Wl,-Bsymbolic-functions "

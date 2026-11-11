@@ -84,10 +84,10 @@ void TextureDependencyChecker::RemoveRenderTarget(Vulkan::RenderTarget* renderTa
 {
   // In theory, we should only be removing during message processing/discard, so we should
   // be outside a frame. However, lets try and clean up anyway.
-  auto iter = mLookupByRenderTarget.find(renderTarget);
-  if(iter != mLookupByRenderTarget.end())
+  auto lookupIter = mLookupByRenderTarget.find(renderTarget);
+  if(lookupIter != mLookupByRenderTarget.end())
   {
-    auto& textureGenerator = mTextureGenerators[(*iter).second];
+    auto& textureGenerator = mTextureGenerators[(*lookupIter).second];
     auto  genTexture       = textureGenerator.texture;
     auto& generators       = textureGenerator.generators;
     auto  genIter          = std::find(generators.begin(), generators.end(), renderTarget);
@@ -103,7 +103,7 @@ void TextureDependencyChecker::RemoveRenderTarget(Vulkan::RenderTarget* renderTa
         // Ignore mTextureGenerators, it's getting dropped at the beginning of the next frame.
       }
     }
-    mLookupByRenderTarget.erase(iter);
+    mLookupByRenderTarget.erase(lookupIter);
   }
   auto eraseIter = mRenderTargets.end();
   for(auto iter = mRenderTargets.begin(); iter != mRenderTargets.end(); ++iter)
