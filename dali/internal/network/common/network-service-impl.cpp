@@ -45,7 +45,7 @@ NetworkServicePtr NetworkService::Get()
     else
     {
       // Create a singleon instance
-      networkService = NetworkServicePtr(new NetworkService());
+      networkService = NetworkServicePtr(NetworkService::New());
       service.Register(gSingletonTypeInfoId, BaseHandle(networkService.Get()));
     }
   }

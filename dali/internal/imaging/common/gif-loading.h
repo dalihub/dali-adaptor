@@ -54,20 +54,6 @@ public:
   static AnimatedImageLoadingPtr New(const std::string& url, bool isLocalResource);
 
   /**
-   * @brief Constructor
-   *
-   * Construct a Loader with the given URL
-   * @param[in] url The url of the gif image to load
-   * @param[in] isLocalResource The true or false whether this is a local resource.
-   */
-  GifLoading(const std::string& url, bool isLocalResource);
-
-  /**
-   * @brief Destructor
-   */
-  ~GifLoading() override;
-
-  /**
    * @brief Load the next Frame of the animated image.
    *
    * @note This function will load the entire animated image into memory if not already loaded.
@@ -122,6 +108,21 @@ public:
    * @return false, as GIF does not support planes.
    */
   bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::PixelBuffer>& pixelBuffers, ImageDimensions size) override;
+
+protected:
+  /**
+   * @brief Constructor
+   *
+   * Construct a Loader with the given URL
+   * @param[in] url The url of the gif image to load
+   * @param[in] isLocalResource The true or false whether this is a local resource.
+   */
+  GifLoading(const std::string& url, bool isLocalResource);
+
+  /**
+   * @brief Destructor
+   */
+  ~GifLoading() override;
 
 private:
   struct Impl;

@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <Ecore.h>
 #include <Ecore_Wl2.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <string>
 #include <vector>
 
@@ -69,14 +70,23 @@ class DragAndDropEcoreWl : public Dali::Internal::Adaptor::DragAndDrop,
 {
 public:
   /**
-   * Constructor
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
    */
-  DragAndDropEcoreWl();
+  static DALI_INTERNAL DragAndDropEcoreWl* NewForBaseHandle()
+  {
+    return new DragAndDropEcoreWl();
+  }
 
   /**
-   * Destructor
+   * @brief Creates a reference-counted implementation.
    */
-  ~DragAndDropEcoreWl() override;
+  static Dali::IntrusivePtr<DragAndDropEcoreWl> New()
+  {
+    return Dali::IntrusivePtr<DragAndDropEcoreWl>(new DragAndDropEcoreWl());
+  }
 
   /**
    * @copydoc Dali::DragAndDrop::StartDragAndDrop()
@@ -163,6 +173,17 @@ public:
    */
   void ResetDropTargets();
 
+protected:
+  /**
+   * Constructor
+   */
+  DragAndDropEcoreWl();
+
+  /**
+   * Destructor
+   */
+  ~DragAndDropEcoreWl() override;
+
 private:
   /**
    * @brief Callback function to check whether listening target is scene on.
@@ -179,8 +200,6 @@ private:
    * @return The recalculated position by orientation
    */
   Vector2 RecalculatePositionByOrientation(int x, int y, Dali::Window window);
-
-private:
   DragAndDropEcoreWl(const DragAndDropEcoreWl&)       = delete;
   DragAndDropEcoreWl& operator=(DragAndDropEcoreWl&)  = delete;
   DragAndDropEcoreWl(DragAndDropEcoreWl&&)            = delete;

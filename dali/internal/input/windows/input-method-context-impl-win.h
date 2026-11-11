@@ -55,12 +55,6 @@ public:
    */
   static void ProcessWindowMessage(WinWindowHandle window, uint32_t message, uintptr_t wParam, intptr_t lParam);
 
-  /**
-   * Constructor
-   * @param[in] win32Window, The window is created by application.
-   */
-  explicit InputMethodContextWin(Dali::Actor actor);
-
 public:
   /**
    * @brief Initializes member data.
@@ -331,7 +325,13 @@ private:
    */
   void OnStaged(Dali::Actor actor);
 
-public:
+protected:
+  /**
+   * Constructor
+   * @param[in] win32Window, The window is created by application.
+   */
+  explicit InputMethodContextWin(Dali::Actor actor);
+
   /**
    * Destructor.
    */

@@ -18,6 +18,7 @@
 // CLASS HEADER
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
 #include <dali/internal/sensor/tizen/tilt-sensor-impl-tizen.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
@@ -100,9 +101,9 @@ static Dali::String get_sensor_error_string(int errorValue)
 }
 #endif
 
-TiltSensorTizen* TiltSensorTizen::New()
+Dali::IntrusivePtr<TiltSensorTizen> TiltSensorTizen::New()
 {
-  return new TiltSensorTizen();
+  return Dali::IntrusivePtr<TiltSensorTizen>(new TiltSensorTizen());
 }
 
 TiltSensorTizen::~TiltSensorTizen()

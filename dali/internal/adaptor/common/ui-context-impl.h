@@ -64,11 +64,6 @@ public:
   static Dali::UiContext New(Dali::Adaptor* adaptor);
 
   /**
-   * @brief Destructor.
-   */
-  ~UiContext();
-
-  /**
    * @brief Sets the default window for the UI context.
    *
    * @param[in] window The window to set as default
@@ -141,6 +136,12 @@ public:
    * @copydoc Dali::UiContext::GetRenderingBehavior()
    */
   Dali::UiContext::RenderingBehavior GetRenderingBehavior() const;
+
+protected:
+  /**
+   * @brief Destructor.
+   */
+  ~UiContext();
 
 private:
   /**

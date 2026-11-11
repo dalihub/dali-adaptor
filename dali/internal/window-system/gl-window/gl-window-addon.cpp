@@ -37,9 +37,9 @@ const char* const DALI_ADAPTOR_GL_WINDOW_ADDON_NAME("AdaptorGlWindowAddOn");
 GlWindow
 GlWindowNew(PositionSize positionSize, const std::string& name, const std::string& className, bool isTransparent)
 {
-  GlWindow                     newWindow;
-  Internal::Adaptor::GlWindow* window = Internal::Adaptor::GlWindow::New(positionSize, name, className, isTransparent);
-  newWindow                           = GlWindow(window);
+  GlWindow newWindow;
+  auto     window = Internal::Adaptor::GlWindow::New(positionSize, name, className, isTransparent);
+  newWindow       = GlWindow(window.Get());
 
   const bool isAdaptorAvailable = Dali::Adaptor::IsAvailable();
   if(isAdaptorAvailable)

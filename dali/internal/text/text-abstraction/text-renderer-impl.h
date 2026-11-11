@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -37,14 +38,23 @@ class TextRenderer : public BaseObject
 {
 public:
   /**
-   * Constructor
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
    */
-  TextRenderer();
+  static DALI_INTERNAL TextRenderer* NewForBaseHandle()
+  {
+    return new TextRenderer();
+  }
 
   /**
-   * Destructor
+   * @brief Creates a reference-counted implementation.
    */
-  ~TextRenderer();
+  static Dali::IntrusivePtr<TextRenderer> New()
+  {
+    return Dali::IntrusivePtr<TextRenderer>(new TextRenderer());
+  }
 
   /**
    * @copydoc Dali::TextRenderer::Get()
@@ -55,6 +65,17 @@ public:
    * @copydoc Dali::TextRenderer::Render()
    */
   Dali::PixelBuffer Render(const TextAbstraction::TextRenderer::Parameters& parameters);
+
+protected:
+  /**
+   * Constructor
+   */
+  TextRenderer();
+
+  /**
+   * Destructor
+   */
+  ~TextRenderer();
 
 private:
   // Undefined copy constructor.

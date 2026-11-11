@@ -40,7 +40,13 @@ typedef IntrusivePtr<Timer> TimerPtr;
  */
 class Timer : public BaseObject, public TimerInterface
 {
-public:
+public: // Signals
+  Dali::Timer::TimerSignalType& TickSignal()
+  {
+    return mTickSignal;
+  }
+
+protected:
   /**
    * Constructor
    */
@@ -51,13 +57,8 @@ public:
    */
   virtual ~Timer() = default;
 
-public: // Signals
-  Dali::Timer::TimerSignalType& TickSignal()
-  {
-    return mTickSignal;
-  }
-
-private: // Implementation
+private:
+  // Implementation
   // not implemented
   Timer(const Timer&)            = delete;
   Timer& operator=(const Timer&) = delete;

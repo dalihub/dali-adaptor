@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 #include <deque>
 
@@ -45,7 +46,7 @@ public:
    * Public constructor
    * @return New instance of TiltSensorUbuntu
    */
-  static TiltSensorUbuntu* New();
+  static Dali::IntrusivePtr<TiltSensorUbuntu> New();
 
   /**
    * @copydoc Dali::TiltSensor::Start()

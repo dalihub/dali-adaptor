@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 
 namespace DALI_NAMESPACE
 {
@@ -37,14 +38,23 @@ class DragAndDropGeneric : public Dali::Internal::Adaptor::DragAndDrop
 {
 public:
   /**
-   * Constructor
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
    */
-  DragAndDropGeneric();
+  static DALI_INTERNAL DragAndDropGeneric* NewForBaseHandle()
+  {
+    return new DragAndDropGeneric();
+  }
 
   /**
-   * Destructor
+   * @brief Creates a reference-counted implementation.
    */
-  ~DragAndDropGeneric() override;
+  static Dali::IntrusivePtr<DragAndDropGeneric> New()
+  {
+    return Dali::IntrusivePtr<DragAndDropGeneric>(new DragAndDropGeneric());
+  }
 
   /**
    * @copydoc Dali::DragAndDrop::StartDragAndDrop()
@@ -91,13 +101,22 @@ public:
    */
   bool CalculateViewRegion(void* event) override;
 
+protected:
+  /**
+   * Constructor
+   */
+  DragAndDropGeneric();
+
+  /**
+   * Destructor
+   */
+  ~DragAndDropGeneric() override;
+
 private:
   DragAndDropGeneric(const DragAndDropGeneric&)       = delete;
   DragAndDropGeneric& operator=(DragAndDropGeneric&)  = delete;
   DragAndDropGeneric(DragAndDropGeneric&&)            = delete;
   DragAndDropGeneric& operator=(DragAndDropGeneric&&) = delete;
-
-public:
 }; // class DragAndDropGeneric
 
 } // namespace Adaptor

@@ -538,7 +538,7 @@ public:
           // Thus you have to call \"ecore_imf_context_client_window_set\" somewhere.
           // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
           Clipboard::Impl* impl(new Clipboard::Impl(ecoreXwin));
-          clipboard = Dali::Clipboard(new Clipboard(impl));
+          clipboard = Dali::Clipboard(Clipboard::NewForBaseHandle(impl));
           service.Register(gSingletonTypeInfoId, clipboard);
         }
       }

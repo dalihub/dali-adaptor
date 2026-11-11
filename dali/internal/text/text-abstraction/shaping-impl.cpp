@@ -347,7 +347,7 @@ TextAbstraction::Shaping Shaping::Get()
     }
     else // create and register the object
     {
-      shapingHandle = TextAbstraction::Shaping(new Shaping);
+      shapingHandle = TextAbstraction::Shaping(Shaping::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, shapingHandle);
     }
   }

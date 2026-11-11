@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -38,14 +39,23 @@ class Shaping : public BaseObject
 {
 public:
   /**
-   * Constructor
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
    */
-  Shaping();
+  static DALI_INTERNAL Shaping* NewForBaseHandle()
+  {
+    return new Shaping();
+  }
 
   /**
-   * Destructor
+   * @brief Creates a reference-counted implementation.
    */
-  ~Shaping();
+  static Dali::IntrusivePtr<Shaping> New()
+  {
+    return Dali::IntrusivePtr<Shaping>(new Shaping());
+  }
 
   /**
    * @copydoc Dali::Shaping::Get()
@@ -67,13 +77,22 @@ public:
   void GetGlyphs(GlyphInfo*      glyphInfo,
                  CharacterIndex* glyphToCharacterMap);
 
+protected:
+  /**
+   * Constructor
+   */
+  Shaping();
+
+  /**
+   * Destructor
+   */
+  ~Shaping();
+
 private:
   /**
    * Helper for lazy initialization.
    */
   void CreatePlugin();
-
-private:
   // Undefined copy constructor.
   Shaping(const Shaping&);
 

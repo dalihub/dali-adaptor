@@ -155,9 +155,7 @@ Dali::DragAndDrop GetDragAndDrop()
     else
     {
       // Create a singleon instance
-      DragAndDropEcoreWl* dndImpl = new DragAndDropEcoreWl();
-
-      dnd = Dali::DragAndDrop(dndImpl);
+      dnd = Dali::DragAndDrop(DragAndDropEcoreWl::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, dnd);
     }
   }

@@ -46,12 +46,6 @@ public:
    */
   static IntrusivePtr<OffscreenApplication> New(Dali::OffscreenApplication::FrameworkBackend framework, Dali::OffscreenApplication::RenderMode renderMode);
 
-public:
-  /**
-   * @brief Destructor
-   */
-  virtual ~OffscreenApplication();
-
   /**
    * @copydoc Dali::OffscreenApplication::Start()
    */
@@ -71,6 +65,12 @@ public:
    * @copydoc Dali::OffscreenApplication::RenderOnce()
    */
   void RenderOnce();
+
+protected:
+  /**
+   * @brief Destructor
+   */
+  virtual ~OffscreenApplication();
 
 private:
   /**

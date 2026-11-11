@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -42,14 +43,23 @@ class FontClient : public BaseObject
 {
 public:
   /**
-   * Constructor
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
    */
-  FontClient();
+  static DALI_INTERNAL FontClient* NewForBaseHandle()
+  {
+    return new FontClient();
+  }
 
   /**
-   * Destructor
+   * @brief Creates a reference-counted implementation.
    */
-  ~FontClient();
+  static Dali::IntrusivePtr<FontClient> New()
+  {
+    return Dali::IntrusivePtr<FontClient>(new FontClient());
+  }
 
 public: // API for Dali::TextAbstraction::FontClient used.
   /**
@@ -422,6 +432,17 @@ public: // API for Dali::TextAbstraction::Internal::FontClient used.
    * If false, the preload task will be stopped and returned when a preload join is requested. This prevents main thread block.
    */
   void FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, const bool syncCreation);
+
+protected:
+  /**
+   * Constructor
+   */
+  FontClient();
+
+  /**
+   * Destructor
+   */
+  ~FontClient();
 
 private:
   /**

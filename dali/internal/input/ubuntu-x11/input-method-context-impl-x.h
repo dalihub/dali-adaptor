@@ -45,12 +45,6 @@ public:
    */
   static InputMethodContextPtr New(Dali::Actor actor);
 
-  /**
-   * Constructor
-   * @param[in] actor The actor that uses the new InputMethodContext instance.
-   */
-  explicit InputMethodContextX(Dali::Actor actor);
-
 public:
   /**
    * @brief Initializes member data.
@@ -389,7 +383,13 @@ private:
    */
   void OnStaged(Dali::Actor actor);
 
-public:
+protected:
+  /**
+   * Constructor
+   * @param[in] actor The actor that uses the new InputMethodContext instance.
+   */
+  explicit InputMethodContextX(Dali::Actor actor);
+
   /**
    * Destructor.
    */

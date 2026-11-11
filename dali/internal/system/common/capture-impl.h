@@ -29,6 +29,7 @@
 #include <dali/public-api/rendering/texture.h>
 #include <memory>
 #include <string>
+#include <utility>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/async-task-manager.h>
@@ -52,13 +53,6 @@ class Capture : public BaseObject, public ConnectionTracker, public Integration:
 {
 public:
   static constexpr uint32_t DEFAULT_QUALITY = 100;
-
-  /**
-   * @brief Constructor.
-   */
-  Capture();
-
-  Capture(Dali::CameraActor cameraActor);
 
   /**
    * @copydoc Dali::Capture::New
@@ -116,6 +110,13 @@ public:
   Dali::Capture::CaptureFinishedSignalType& FinishedSignal();
 
 protected:
+  /**
+   * @brief Constructor.
+   */
+  Capture();
+
+  Capture(Dali::CameraActor cameraActor);
+
   /**
    * @brief A reference counted object may only be deleted by calling Unreference()
    */
@@ -203,8 +204,6 @@ private:
    * @param[in] successed True is success to capture, false is fail.
    */
   void EmitCaptureFinished(bool successed);
-
-private:
   // Undefined
   Capture(const Capture&);
 
@@ -229,15 +228,10 @@ private: // For CaptureFileSaveTask
   class CaptureFileSaveTask : public Dali::AsyncTask
   {
   public:
-    /**
-     * Constructor.
-     */
-    CaptureFileSaveTask(Dali::RenderTask renderTask, Dali::PixelBuffer pixelBuffer, std::string path, uint32_t quality, CallbackBase* callback);
-
-    /**
-     * Destructor.
-     */
-    ~CaptureFileSaveTask() override;
+    static Dali::IntrusivePtr<CaptureFileSaveTask> New(Dali::RenderTask renderTask, Dali::PixelBuffer pixelBuffer, std::string path, uint32_t quality, CallbackBase* callback)
+    {
+      return Dali::IntrusivePtr<CaptureFileSaveTask>(new CaptureFileSaveTask(renderTask, pixelBuffer, std::move(path), quality, callback));
+    }
 
     const Dali::RenderTask& GetRenderTask() const
     {
@@ -263,10 +257,20 @@ private: // For CaptureFileSaveTask
       return Dali::StringView("CaptureFileSaveTask");
     }
 
-  private:
+  protected:
+    /**
+     * Constructor.
+     */
+    CaptureFileSaveTask(Dali::RenderTask renderTask, Dali::PixelBuffer pixelBuffer, std::string path, uint32_t quality, CallbackBase* callback);
+
+    /**
+     * Destructor.
+     */
+    ~CaptureFileSaveTask() override;
     // Undefined
     CaptureFileSaveTask(const CaptureFileSaveTask& rhs);
 
+  private:
     // Undefined
     CaptureFileSaveTask& operator=(const CaptureFileSaveTask& rhs);
 

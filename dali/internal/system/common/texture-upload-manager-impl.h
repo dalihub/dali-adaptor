@@ -23,6 +23,7 @@
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/graphics-api/graphics-controller.h>
 #include <dali/graphics-api/graphics-texture.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 #include <utility> ///< for std::pair
 
@@ -42,6 +43,13 @@ class TextureUploadManager : public Dali::BaseObject
 {
 public:
   using ResourceId = Dali::Devel::TextureUploadManager::ResourceId;
+  /**
+   * @brief Creates a reference-counted implementation.
+   */
+  static Dali::IntrusivePtr<TextureUploadManager> New()
+  {
+    return Dali::IntrusivePtr<TextureUploadManager>(new TextureUploadManager());
+  }
 
 public: // Main thread called method
   /**
@@ -50,16 +58,6 @@ public: // Main thread called method
    * @return The TextureUploadManager object
    */
   static Dali::Devel::TextureUploadManager Get();
-
-  /**
-   * Constructor.
-   */
-  TextureUploadManager();
-
-  /**
-   * Destructor.
-   */
-  ~TextureUploadManager() override;
 
   /**
    * @copydoc Dali::Devel::TextureUploadManager::GenerateTexture2D()
@@ -111,6 +109,17 @@ public: // Worker thread called method
    * @copydoc Dali::Devel::TextureUploadManager::RequestUpload()
    */
   void RequestUpload(ResourceId id, Dali::PixelData pixelData);
+
+protected:
+  /**
+   * Constructor.
+   */
+  TextureUploadManager();
+
+  /**
+   * Destructor.
+   */
+  ~TextureUploadManager() override;
 
 private:
   // Undefined

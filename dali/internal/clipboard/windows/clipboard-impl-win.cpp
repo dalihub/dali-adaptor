@@ -645,7 +645,7 @@ public:
       }
       else
       {
-        clipboard = Dali::Clipboard(new Clipboard(new Clipboard::Impl(GetApplicationWindow())));
+        clipboard = Dali::Clipboard(Clipboard::NewForBaseHandle(new Clipboard::Impl(GetApplicationWindow())));
         service.Register(gSingletonTypeInfoId, clipboard);
       }
     }

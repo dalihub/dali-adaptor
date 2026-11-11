@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <deque>
 #include <map>
 #include <memory>
@@ -60,6 +61,25 @@ public:
   struct Impl;
 
   /**
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
+   */
+  static DALI_INTERNAL Clipboard* NewForBaseHandle(Impl* impl)
+  {
+    return new Clipboard(impl);
+  }
+
+  /**
+   * @brief Creates a reference-counted implementation.
+   */
+  static Dali::IntrusivePtr<Clipboard> New(Impl* impl)
+  {
+    return Dali::IntrusivePtr<Clipboard>(new Clipboard(impl));
+  }
+
+  /**
    * @copydoc Dali::Clipboard::Get()
    */
   static Dali::Clipboard Get();
@@ -68,17 +88,6 @@ public:
    * @copydoc Dali::Clipboard::IsAvailable()
    */
   static bool IsAvailable();
-
-  /**
-   * Constructor
-   * @param[in] impl Clipboard impl.
-   */
-  Clipboard(Impl* impl);
-
-  /**
-   * Destructor
-   */
-  ~Clipboard() override;
 
   /**
    * @brief Signal emitted when clipboard data send is completed.
@@ -178,6 +187,18 @@ public:
    * invoked.
    */
   void FinalizeGetDataCallbacks();
+
+protected:
+  /**
+   * Constructor
+   * @param[in] impl Clipboard impl.
+   */
+  Clipboard(Impl* impl);
+
+  /**
+   * Destructor
+   */
+  ~Clipboard() override;
 
 private:
   Clipboard(const Clipboard&);

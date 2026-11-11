@@ -151,8 +151,7 @@ Dali::DragAndDrop GetDragAndDrop()
     }
     else
     {
-      DragAndDropX11* impl = new DragAndDropX11();
-      dnd                  = Dali::DragAndDrop(impl);
+      dnd = Dali::DragAndDrop(DragAndDropX11::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, dnd);
     }
   }
