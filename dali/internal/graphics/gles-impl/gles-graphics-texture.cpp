@@ -426,7 +426,13 @@ bool Texture::PrepareNativeTexture(GLES::Context* prepareContext)
     if(DALI_UNLIKELY(result >= Dali::NativeImageInterface::PrepareTextureResult::ERROR_MIN &&
                      result <= Dali::NativeImageInterface::PrepareTextureResult::ERROR_MAX))
     {
-      DALI_LOG_ERROR("[ERROR] NativeImage::PrepareTexture failed with error code [%x]\n", result);
+      // Not initialized yet is a transient state rather than a failure: there is
+      // nothing to draw this time, but a later PrepareTexture() may well succeed.
+      if(result != Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE &&
+         result != Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS)
+      {
+        DALI_LOG_ERROR("[ERROR] NativeImage::PrepareTexture failed with error code [%x]\n", result);
+      }
       return false;
     }
 

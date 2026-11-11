@@ -105,7 +105,9 @@ public:
    *       Also, TargetTexture() will called only if image buffer changed per each context.
    *       To make sure that the texture is prepared again, call ResetPrepare().
    * @param[in] prepareContext The context who call Prepare().
-   * @return True if it is not a native texture or prepare successed, False if some error occured.
+   * @return True if the native image is ready to be sampled. False if there is nothing
+   *         to draw from it yet (not initialized), on an actual failure (logged), or
+   *         for a standard texture.
    */
   bool PrepareNativeTexture(GLES::Context* prepareContext);
 

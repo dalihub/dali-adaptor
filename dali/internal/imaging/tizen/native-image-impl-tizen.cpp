@@ -45,9 +45,9 @@ const char* SAMPLER_TYPE = "samplerExternalOES";
 struct DeferredNativeImageResource
 {
   DeferredNativeImageResource(EglImageExtensions*                                           imageExtensions,
-                             void*                                                         eglImage,
-                             tbm_surface_h                                                 resourceSurface,
-                             std::shared_ptr<NativeImageResourceDestructionResultCallback> resultCallback)
+                              void*                                                         eglImage,
+                              tbm_surface_h                                                 resourceSurface,
+                              std::shared_ptr<NativeImageResourceDestructionResultCallback> resultCallback)
   : imageExtensions(imageExtensions),
     eglImage(eglImage),
     resourceSurface(resourceSurface),
@@ -662,8 +662,8 @@ void NativeImageTizen::DestroyResource()
       // Shutdown discards imports without reporting GPU completion.
       deferredResource->Discard();
     }
-    mEglImageKHR       = NULL;
-    mEglImageChanged   = true;
+    mEglImageKHR     = NULL;
+    mEglImageChanged = true;
     return;
   }
 
@@ -723,12 +723,12 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageTizen::PrepareTextur
   Dali::NativeImageInterface::PrepareTextureResult result = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
   if(DALI_LIKELY(mEglImageKHR))
   {
-    result           = mSetSource ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
-    mSetSource       = false;
+    result     = mSetSource ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
+    mSetSource = false;
   }
   else
   {
-    result = mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE;
+    result = mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS;
   }
 
   return result;
