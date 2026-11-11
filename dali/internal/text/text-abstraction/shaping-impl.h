@@ -58,12 +58,12 @@ public:
   }
 
   /**
-   * @copydoc Dali::Shaping::Get()
+   * @copydoc Dali::TextAbstraction::Shaping::Get()
    */
   static TextAbstraction::Shaping Get();
 
   /**
-   * @copydoc Dali::Shaping::Shape()
+   * @copydoc Dali::TextAbstraction::Shaping::Shape(TextAbstraction::FontClient&, const Character* const, Length, FontId, Script)
    */
   Length Shape(TextAbstraction::FontClient& fontClient,
                const Character* const       text,
@@ -72,7 +72,17 @@ public:
                Script                       script);
 
   /**
-   * @copydoc Dali::Shaping::GetGlyphs()
+   * @copydoc Dali::TextAbstraction::Shaping::ShapeWithLanguage(TextAbstraction::FontClient&, const Character*, Length, FontId, Script, const std::string&)
+   */
+  Length ShapeWithLanguage(TextAbstraction::FontClient& fontClient,
+                           const Character*             text,
+                           Length                       numberOfCharacters,
+                           FontId                       fontId,
+                           Script                       script,
+                           const std::string&           language);
+
+  /**
+   * @copydoc Dali::TextAbstraction::Shaping::GetGlyphs()
    */
   void GetGlyphs(GlyphInfo*      glyphInfo,
                  CharacterIndex* glyphToCharacterMap);

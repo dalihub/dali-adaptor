@@ -18,13 +18,28 @@
 // CLASS HEADER
 #include <dali/devel-api/text-abstraction/shaping.h>
 
+// EXTERNAL INCLUDES
+#include <array>
+
 // INTERNAL INCLUDES
 #include <dali/internal/text/text-abstraction/shaping-impl.h>
+#include <dali/internal/text/text-abstraction/text-language.h>
 
 namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
+bool NormalizeLanguageTag(const std::string& languageTag, std::string& normalizedLanguageTag)
+{
+  std::array<char, 256u> normalized;
+  if(!Internal::NormalizeLanguageTag(languageTag, normalized))
+  {
+    return false;
+  }
+  normalizedLanguageTag.assign(normalized.data(), languageTag.size());
+  return true;
+}
+
 Shaping::Shaping()
 {
 }
@@ -61,6 +76,16 @@ Length Shaping::Shape(TextAbstraction::FontClient& fontClient,
                                         numberOfCharacters,
                                         fontId,
                                         script);
+}
+
+Length Shaping::ShapeWithLanguage(TextAbstraction::FontClient& fontClient,
+                                  const Character*             text,
+                                  Length                       numberOfCharacters,
+                                  FontId                       fontId,
+                                  Script                       script,
+                                  const std::string&           language)
+{
+  return GetImplementation(*this).ShapeWithLanguage(fontClient, text, numberOfCharacters, fontId, script, language);
 }
 
 void Shaping::GetGlyphs(GlyphInfo*      glyphInfo,
