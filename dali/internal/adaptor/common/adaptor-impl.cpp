@@ -68,6 +68,7 @@
 #include <dali/internal/system/common/configuration-manager.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/locale-utils.h>
+#include <dali/internal/system/common/locale-context.h>
 #include <dali/internal/system/common/logging.h>
 #include <dali/internal/system/common/object-profiler.h>
 #include <dali/internal/system/common/performance-interface-factory.h>
@@ -346,7 +347,7 @@ void Adaptor::Start()
   }
 
   SetupSystemInformation();
-  TextAbstraction::EnsureLocale();
+  Locale::EnsureLocale();
 
   // Start the callback manager
   mCallbackManager->Start();
@@ -1558,7 +1559,7 @@ void Adaptor::SetApplicationLocale(const std::string& locale)
 
 void Adaptor::UpdateLocale(const std::string& locale)
 {
-  TextAbstraction::SetLocale(locale);
+  Locale::SetLocale(locale);
   TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
   fontClient.ClearCacheOnLocaleChanged();
   fontClient.InitDefaultFontDescription();
