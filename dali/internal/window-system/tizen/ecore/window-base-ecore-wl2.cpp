@@ -4002,17 +4002,26 @@ void WindowBaseEcoreWl2::SetWindowFrontBufferMode(bool enable)
 
 void WindowBaseEcoreWl2::SetModal(bool modal)
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_set, window: [%p], flag [%d]\n", mEcoreWindow, modal);
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_modal_set");
   ecore_wl2_window_modal_set(mEcoreWindow, modal);
+#else
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_set NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
 }
 
 bool WindowBaseEcoreWl2::IsModal()
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_modal_get");
   bool ret = ecore_wl2_window_modal_get(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_get, window: [%p], flag [%d]\n", mEcoreWindow, ret);
   return ret;
+#else
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_get NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+  return false;
+#endif
 }
 
 void WindowBaseEcoreWl2::SetAlwaysOnTop(bool alwaysOnTop)
