@@ -21,6 +21,8 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/base-object.h>
+#include <memory>
+#include <utility>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/tts-player.h>
@@ -34,9 +36,15 @@ namespace Adaptor
 /**
  * Text-to-speech player
  */
-class TtsPlayer : public Dali::BaseObject
+class TtsPlayer
 {
 public:
+  TtsPlayer()          = default;
+  virtual ~TtsPlayer() = default;
+
+  TtsPlayer(const TtsPlayer&)            = delete;
+  TtsPlayer& operator=(const TtsPlayer&) = delete;
+
   /**
    * Create a TtsPlayer with the given mode.
    * This should only be called once by the Adaptor class for each given mode.
@@ -76,6 +84,43 @@ public:
   virtual Dali::TtsPlayer::StateChangedSignalType& StateChangedSignal();
 };
 
+/**
+ * Owns a platform player for the lifetime of its public handles.
+ */
+class TtsPlayerObject : public Dali::BaseObject
+{
+public:
+  /**
+   * @brief Transfers the player to an object used to construct a BaseHandle.
+   * @warning Pass the result directly to a BaseHandle constructor.
+   */
+  static DALI_INTERNAL TtsPlayerObject* NewForBaseHandle(std::unique_ptr<TtsPlayer> player)
+  {
+    return player ? new TtsPlayerObject(std::move(player)) : nullptr;
+  }
+
+  TtsPlayer& GetPlayer()
+  {
+    return *mPlayer;
+  }
+
+  const TtsPlayer& GetPlayer() const
+  {
+    return *mPlayer;
+  }
+
+protected:
+  ~TtsPlayerObject() override = default;
+
+private:
+  explicit TtsPlayerObject(std::unique_ptr<TtsPlayer> player)
+  : mPlayer(std::move(player))
+  {
+  }
+
+  std::unique_ptr<TtsPlayer> mPlayer;
+};
+
 } // namespace Adaptor
 
 } // namespace Internal
@@ -88,7 +133,7 @@ inline Internal::Adaptor::TtsPlayer& GetImplementation(Dali::TtsPlayer& player)
 
   BaseObject& handle = player.GetBaseObject();
 
-  return static_cast<Internal::Adaptor::TtsPlayer&>(handle);
+  return static_cast<Internal::Adaptor::TtsPlayerObject&>(handle).GetPlayer();
 }
 
 inline const Internal::Adaptor::TtsPlayer& GetImplementation(const Dali::TtsPlayer& player)
@@ -97,7 +142,7 @@ inline const Internal::Adaptor::TtsPlayer& GetImplementation(const Dali::TtsPlay
 
   const BaseObject& handle = player.GetBaseObject();
 
-  return static_cast<const Internal::Adaptor::TtsPlayer&>(handle);
+  return static_cast<const Internal::Adaptor::TtsPlayerObject&>(handle).GetPlayer();
 }
 
 } //namespace DALI_NAMESPACE

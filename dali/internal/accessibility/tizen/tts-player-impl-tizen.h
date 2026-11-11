@@ -24,7 +24,6 @@
 #include <string>
 
 #include <dali/integration-api/debug.h>
-#include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/tts-player.h>

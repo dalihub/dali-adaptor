@@ -24,6 +24,7 @@ SET(TC_SOURCES
     utc-Dali-LRUCacheContainer.cpp
     utc-Dali-SocketFactory.cpp
     utc-Dali-TiltSensor.cpp
+    utc-Dali-TtsPlayer-internal.cpp
     utc-Dali-WbmpLoader.cpp
 )
 

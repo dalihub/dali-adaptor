@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/devel-api/adaptor-framework/tts-player.h>
 
+// EXTERNAL INCLUDES
+#include <memory>
+
 // INTERNAL INCLUDES
 #include <dali/integration-api/string-utils.h>
 #include <dali/internal/accessibility/common/tts-player-impl.h>
@@ -86,7 +89,7 @@ TtsPlayer::StateChangedSignalType& TtsPlayer::StateChangedSignal()
 }
 
 TtsPlayer::TtsPlayer(Internal::Adaptor::TtsPlayer* player)
-: BaseHandle(player)
+: BaseHandle(Internal::Adaptor::TtsPlayerObject::NewForBaseHandle(std::unique_ptr<Internal::Adaptor::TtsPlayer>(player)))
 {
 }
 
