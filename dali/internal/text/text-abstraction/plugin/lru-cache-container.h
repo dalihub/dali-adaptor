@@ -87,9 +87,9 @@ public:
   struct iterator
   {
   public:
-    iterator(LRUCacheContainer& owner, const CacheId& id)
-    : owner(owner),
-      id(id)
+    iterator(LRUCacheContainer& initOwner, const CacheId& initId)
+    : owner(initOwner),
+      id(initId)
     {
     }
 

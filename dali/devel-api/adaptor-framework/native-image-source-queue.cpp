@@ -91,6 +91,11 @@ bool NativeImageSourceQueue::RequiresBlending() const
   return mImpl->RequiresBlending();
 }
 
+bool NativeImageSourceQueue::IsAlphaPreMultiplied() const
+{
+  return mImpl->IsAlphaPreMultiplied();
+}
+
 int NativeImageSourceQueue::GetTextureTarget() const
 {
   return mImpl->GetTextureTarget();

@@ -45,7 +45,7 @@ public:
     mPollSource(nullptr)
   {
     mPollSource = g_unix_fd_source_new(fileDescriptor, eventsToMonitor);
-    g_source_set_callback(mPollSource, reinterpret_cast<GSourceFunc>(PollCallback), this, nullptr);
+    g_source_set_callback(mPollSource, reinterpret_cast<GSourceFunc>(reinterpret_cast<void (*)()>(PollCallback)), this, nullptr);
     g_source_attach(mPollSource, GetMainLoopContext());
   }
 

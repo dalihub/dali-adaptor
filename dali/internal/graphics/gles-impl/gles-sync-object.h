@@ -78,6 +78,20 @@ public:
    */
   bool IsSynced() override;
 
+  enum class PollResult
+  {
+    PENDING,
+    SIGNALED,
+    FAILED
+  };
+
+  /**
+   * @brief Check completion without blocking, preserving wait failures.
+   * @param[in] flush Whether to submit commands in the current context.
+   * @return Pending, signaled, or failed status.
+   */
+  PollResult Poll(bool flush = false);
+
 private:
   GLsync mGlSyncObject;
 };

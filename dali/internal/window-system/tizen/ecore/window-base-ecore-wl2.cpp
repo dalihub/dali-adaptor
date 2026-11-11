@@ -90,13 +90,6 @@ const ResizeLocation RESIZE_LOCATIONS[]       = {ResizeLocation::TOP_LEFT, Resiz
 const char* DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME = "db/setting/accessibility/font_name"; // It will be update at vconf-key.h and replaced.
 #endif
 
-struct KeyCodeMap
-{
-  xkb_keysym_t  keySym;
-  xkb_keycode_t keyCode;
-  bool          isKeyCode;
-};
-
 /**
  * Get the device name
  */
@@ -236,30 +229,6 @@ void GetDeviceSubclass(Ecore_Device_Subclass ecoreDeviceSubclass, Device::Subcla
     {
       deviceSubclass = Device::Subclass::NONE;
       break;
-    }
-  }
-}
-
-void FindKeyCode(struct xkb_keymap* keyMap, xkb_keycode_t key, void* data)
-{
-  KeyCodeMap* foundKeyCode = static_cast<KeyCodeMap*>(data);
-  if(foundKeyCode->isKeyCode)
-  {
-    return;
-  }
-
-  xkb_keysym_t        keySym  = foundKeyCode->keySym;
-  int                 nsyms   = 0;
-  const xkb_keysym_t* symsOut = NULL;
-
-  nsyms = xkb_keymap_key_get_syms_by_level(keyMap, key, 0, 0, &symsOut);
-
-  if(nsyms && symsOut)
-  {
-    if(*symsOut == keySym)
-    {
-      foundKeyCode->keyCode   = key;
-      foundKeyCode->isKeyCode = true;
     }
   }
 }
@@ -693,21 +662,6 @@ static Eina_Bool EcoreEventEffectEnd(void* data, int type, void* event)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-// Keymap Changed Callbacks
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-static Eina_Bool EcoreEventSeatKeymapChanged(void* data, int type, void* event)
-{
-  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
-  if(windowBase)
-  {
-    windowBase->KeymapChanged(data, type, event);
-  }
-
-  return ECORE_CALLBACK_RENEW;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
 // Font Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -924,7 +878,6 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surf
   mDisplayRegistry(nullptr),
   mTizenPolicy(nullptr),
   mTizenDisplayPolicy(nullptr),
-  mKeyMap(nullptr),
   mSupportedAuxiliaryHints(),
   mWindowPositionSize(positionSize),
   mAuxiliaryHints(),
@@ -1043,15 +996,7 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
 
   SetTransparency(isTransparent);
 
-  Ecore_Wl2_Display* display      = ecore_wl2_connected_display_get(NULL);
-  Ecore_Wl2_Input*   ecoreWlInput = ecore_wl2_input_default_input_get(display);
-
-  if(ecoreWlInput)
-  {
-    mKeyMap = ecore_wl2_input_keymap_get(ecoreWlInput);
-
-    mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_KEYMAP_CHANGED, EcoreEventSeatKeymapChanged, this));
-  }
+  Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
 
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this));
@@ -1644,7 +1589,8 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
       logicalKey = keyEvent->key;
     }
 
-    int keyCode = 0;
+    const uint32_t rawKeyCode = keyEvent->keycode;
+    int            keyCode    = 0;
 
     if(KeyLookup::IsSystemKeyCodePriority())
     {
@@ -1703,6 +1649,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
 #endif
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
+    keyEvent.rawKeyCode  = rawKeyCode;
     keyEvent.isRepeat    = isRepeat;
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
@@ -1745,7 +1692,8 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
       logicalKey = keyEvent->key;
     }
 
-    int keyCode = 0;
+    const uint32_t rawKeyCode = keyEvent->keycode;
+    int            keyCode    = 0;
 
     if(KeyLookup::IsSystemKeyCodePriority())
     {
@@ -1796,6 +1744,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
+    keyEvent.rawKeyCode  = rawKeyCode;
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
 
@@ -1982,17 +1931,6 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
         mInsetsChangedSignal.Emit(WindowInsetsInfo(partType, partState, Insets(left, right, top, bottom)));
       }
     }
-  }
-}
-
-void WindowBaseEcoreWl2::KeymapChanged(void* data, int type, void* event)
-{
-  Ecore_Wl2_Event_Seat_Keymap_Changed* changed = static_cast<Ecore_Wl2_Event_Seat_Keymap_Changed*>(event);
-  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::KeymapChanged, keymap id[ %d ]\n", changed->id);
-  Ecore_Wl2_Input* ecoreWlInput = ecore_wl2_input_default_input_get(changed->display);
-  if(ecoreWlInput)
-  {
-    mKeyMap = ecore_wl2_input_keymap_get(ecoreWlInput);
   }
 }
 
@@ -2192,24 +2130,10 @@ void WindowBaseEcoreWl2::DisplayPolicyBrightnessChangeDone(void* data, struct ti
 void WindowBaseEcoreWl2::GetKeyCodeFromKeymap(std::string keyName, int32_t& keyCode)
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
-  xkb_keysym_t sym = XKB_KEY_NoSymbol;
-  KeyCodeMap   foundKeyCode;
-
-  sym = xkb_keysym_from_name(keyName.c_str(), XKB_KEYSYM_NO_FLAGS);
-  if(sym == XKB_KEY_NoSymbol || !mKeyMap)
+  uint32_t systemKeyCode = 0u;
+  if(WindowSystem::GetKeyCodeFromKeymap(keyName.c_str(), systemKeyCode))
   {
-    DALI_LOG_ERROR("Failed to get keysym or keymap in WindowBaseEcoreWl2\n");
-    return;
-  }
-
-  foundKeyCode.keySym    = sym;
-  foundKeyCode.isKeyCode = false;
-  xkb_keymap_key_for_each(mKeyMap, FindKeyCode, &foundKeyCode);
-
-  // FindKeyCode only fills in keyCode when it matches, so leave the caller's value alone otherwise.
-  if(foundKeyCode.isKeyCode)
-  {
-    keyCode = static_cast<int32_t>(foundKeyCode.keyCode);
+    keyCode = static_cast<int32_t>(systemKeyCode);
   }
 }
 
@@ -4078,17 +4002,26 @@ void WindowBaseEcoreWl2::SetWindowFrontBufferMode(bool enable)
 
 void WindowBaseEcoreWl2::SetModal(bool modal)
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_set, window: [%p], flag [%d]\n", mEcoreWindow, modal);
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_modal_set");
   ecore_wl2_window_modal_set(mEcoreWindow, modal);
+#else
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_set NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
 }
 
 bool WindowBaseEcoreWl2::IsModal()
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_modal_get");
   bool ret = ecore_wl2_window_modal_get(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_get, window: [%p], flag [%d]\n", mEcoreWindow, ret);
   return ret;
+#else
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_get NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+  return false;
+#endif
 }
 
 void WindowBaseEcoreWl2::SetAlwaysOnTop(bool alwaysOnTop)

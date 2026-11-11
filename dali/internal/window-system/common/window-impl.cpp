@@ -1161,7 +1161,7 @@ void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 
 void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
-  mLastKeyEvent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
+  mLastKeyEvent = Dali::Integration::NewKeyEvent(keyEvent);
   mLastKeyEvent.SetWindowId(keyEvent.windowId);
 
   // Keep the handle alive
@@ -1322,7 +1322,7 @@ bool Window::ProcessAccessibilityKeyEvent(Dali::KeyEvent keyEvent)
     return false;
   }
 
-  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool accessibilityConsumed) mutable
+  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent injectedKeyEvent, bool accessibilityConsumed) mutable
   {
     if(accessibilityConsumed)
     {
@@ -1330,8 +1330,8 @@ bool Window::ProcessAccessibilityKeyEvent(Dali::KeyEvent keyEvent)
     }
 
     // Skip accessibility on re-injection, then let core dispatch the application intercept.
-    Dali::DevelKeyEvent::SetInterceptProcessed(keyEvent, true);
-    handle.FeedKeyEvent(keyEvent);
+    Dali::DevelKeyEvent::SetInterceptProcessed(injectedKeyEvent, true);
+    handle.FeedKeyEvent(injectedKeyEvent);
   };
 
   bool emitted = bridge->EmitKeyEvent(keyEvent, callback);

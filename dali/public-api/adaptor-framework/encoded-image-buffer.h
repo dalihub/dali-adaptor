@@ -49,9 +49,9 @@ public:
    */
   enum class ImageType
   {
-    REGULAR_IMAGE, ///< png, jpg, gif, webp and other raster formats.
-    SVG,
-    LOTTIE,
+    REGULAR_IMAGE, ///< png, jpg, gif, webp and other raster formats. @SINCE_2_2.51
+    SVG,           ///< Scalable vector graphics format. @SINCE_2_5.42
+    LOTTIE,        ///< Lottie animation format. @SINCE_2_5.42
 
     DEFAULT = REGULAR_IMAGE,
   };

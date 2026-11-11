@@ -294,12 +294,12 @@ even_odd (const glyphy_arc_endpoint_t *c_endpoints,
                       Point (c.x + dx, p.y) };
 
 #define POINTS_EQ(a,b) (is_zero (a.x - b.x) && is_zero (a.y - b.y))
-      for (unsigned int i = 0; i < ARRAY_LENGTH (pp); i++)
+      for (unsigned int j = 0; j < ARRAY_LENGTH (pp); j++)
       {
         /* Make sure we don't double-count endpoints that fall on the
          * halfline as we already accounted for those above */
-        if (!POINTS_EQ (pp[i], arc.p0) && !POINTS_EQ (pp[i], arc.p1) &&
-            pp[i].x < p.x - GLYPHY_EPSILON && arc.wedge_contains_point (pp[i]))
+        if (!POINTS_EQ (pp[j], arc.p0) && !POINTS_EQ (pp[j], arc.p1) &&
+            pp[j].x < p.x - GLYPHY_EPSILON && arc.wedge_contains_point (pp[j]))
           count++; // Add one for full crossing
       }
 #undef POINTS_EQ

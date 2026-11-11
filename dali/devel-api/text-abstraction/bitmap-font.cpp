@@ -30,11 +30,11 @@ BitmapGlyph::BitmapGlyph()
 {
 }
 
-BitmapGlyph::BitmapGlyph(const std::string& url, GlyphIndex utf32, float ascender, float descender)
-: url{url},
-  utf32{utf32},
-  ascender{ascender},
-  descender{descender}
+BitmapGlyph::BitmapGlyph(const std::string& initUrl, GlyphIndex initUtf32, float initAscender, float initDescender)
+: url{initUrl},
+  utf32{initUtf32},
+  ascender{initAscender},
+  descender{initDescender}
 {
 }
 

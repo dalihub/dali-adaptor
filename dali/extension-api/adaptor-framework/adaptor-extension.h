@@ -33,6 +33,7 @@ namespace Extension
 /**
  * @brief Get the render thread ID of the adaptor.
  *
+ * @SINCE_3_0.0
  * @return The render thread ID. Returns a valid thread ID only if the render thread has started
  *         and the system supports thread ID retrieval. Otherwise, returns 0.
  */
@@ -41,6 +42,7 @@ DALI_ADAPTOR_API int32_t GetRenderThreadId();
 /**
  * @brief Get the list of windows created by the adaptor.
  *
+ * @SINCE_3_0.0
  * @return The list of windows. Returns an empty list if no window has been created yet.
  */
 DALI_ADAPTOR_API Dali::Vector<Window> GetWindows();
@@ -51,6 +53,7 @@ DALI_ADAPTOR_API Dali::Vector<Window> GetWindows();
  * The default is 60 frames per second. The given value is clamped to a supported
  * range; 0 does not mean unlimited.
  *
+ * @SINCE_3_0.0
  * @note Each frame time will be a multiple of one frame interval (1 / maximumRenderFrameRate).
  * For example, if maximumRenderFrameRate = 50.0f, each elapse time could be 20ms, 40ms,
  * 60ms, and so on.
