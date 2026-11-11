@@ -1628,7 +1628,7 @@ void Context::DiscardNonShareableCache()
   mImpl->mCurrentIndexBufferBinding = {};
 }
 
-void Context::PrepareForNativeRendering()
+bool Context::PrepareForNativeRendering()
 {
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
 
@@ -1649,11 +1649,15 @@ void Context::PrepareForNativeRendering()
 
   if(!mImpl->mNativeDrawContext)
   {
-    EGLint configId{0u};
-
+    // The native context is made current with the surface DALi draws into, so it has
+    // to be created from that surface's config.
+    EGLint configId{0};
     {
-      DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglQueryContext(Native)");
-      eglQueryContext(display, mImpl->mController.GetSharedContext(), EGL_CONFIG_ID, &configId);
+      DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglQuerySurface(Native)");
+      if(eglQuerySurface(display, drawSurface, EGL_CONFIG_ID, &configId) != EGL_TRUE)
+      {
+        eglQueryContext(display, context, EGL_CONFIG_ID, &configId);
+      }
     }
 
     EGLint configAttribs[3];
@@ -1662,13 +1666,13 @@ void Context::PrepareForNativeRendering()
     configAttribs[2] = EGL_NONE;
 
     EGLConfig config;
-    EGLint    numConfigs;
+    EGLint    numConfigs{0};
     {
       DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglChooseConfig(Native)");
-      if(eglChooseConfig(display, configAttribs, &config, 1, &numConfigs) != EGL_TRUE)
+      if(eglChooseConfig(display, configAttribs, &config, 1, &numConfigs) != EGL_TRUE || numConfigs < 1)
       {
         DALI_LOG_ERROR("eglChooseConfig failed!\n");
-        return;
+        return false;
       }
     }
 
@@ -1687,14 +1691,19 @@ void Context::PrepareForNativeRendering()
       if(mImpl->mNativeDrawContext == EGL_NO_CONTEXT)
       {
         DALI_LOG_ERROR("eglCreateContext failed!\n");
-        return;
+        return false;
       }
     }
   }
 
-  eglMakeCurrent(display, drawSurface, readSurface, mImpl->mNativeDrawContext);
+  if(eglMakeCurrent(display, drawSurface, readSurface, mImpl->mNativeDrawContext) != EGL_TRUE)
+  {
+    DALI_LOG_ERROR("eglMakeCurrent failed for native rendering (%#x), native draw skipped\n", eglGetError());
+    return false;
+  }
 
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "PrepareForNativeRendering");
+  return true;
 }
 
 void Context::ResetBufferCache()

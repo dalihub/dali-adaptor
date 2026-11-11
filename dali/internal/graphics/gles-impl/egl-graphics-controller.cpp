@@ -406,9 +406,9 @@ void EglGraphicsController::UpdateNativeImageResourceSync(const void* resourceKe
 
   // A fence only covers commands submitted in its own context. Replacing it
   // may discard an older fence from that context, but never another reader's.
-  auto&  syncs = mNativeImageResourceSyncs[resourceKey];
-  auto   iter  = std::find_if(syncs.begin(), syncs.end(), [this](const auto& entry)
-     { return entry.context == mCurrentContext; });
+  auto&                                 syncs = mNativeImageResourceSyncs[resourceKey];
+  auto                                  iter  = std::find_if(syncs.begin(), syncs.end(), [this](const auto& entry)
+                                    { return entry.context == mCurrentContext; });
   Graphics::UniquePtr<GLES::SyncObject> sync;
   if(mGLESVersion >= GLES::GLESVersion::GLES_30)
   {
@@ -489,8 +489,8 @@ void EglGraphicsController::ProcessDeferredNativeImageReleases()
       ++iter;
       continue;
     }
-    bool             completed = true;
-    bool             failed    = false;
+    bool completed = true;
+    bool failed    = false;
     for(auto& sync : iter->syncs)
     {
       if(sync)
@@ -1101,9 +1101,14 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         // ISOLATED execution mode will isolate GL graphics context from
         // DALi renderning pipeline which is the safest way of rendering
         // the 'injected' code.
-        if(info->executionMode == DrawNativeExecutionMode::ISOLATED)
+        const bool isolated = (info->executionMode == DrawNativeExecutionMode::ISOLATED);
+        if(isolated)
         {
-          mCurrentContext->PrepareForNativeRendering();
+          if(!mCurrentContext->PrepareForNativeRendering())
+          {
+            // The callback assumes a context of its own, so skip it rather than run it on DALi's.
+            break;
+          }
         }
         else
         {
@@ -1118,7 +1123,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         }
 
         CallbackBase::ExecuteReturn<bool>(*info->callback, info->userData);
-        if(info->executionMode == DrawNativeExecutionMode::ISOLATED)
+        if(isolated)
         {
           mCurrentContext->RestoreFromNativeRendering();
         }
