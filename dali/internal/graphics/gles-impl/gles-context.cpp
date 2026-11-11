@@ -584,9 +584,9 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     // Should call Prepare only if native texture resource created.
     if(texture->GetGLTexture() && texture->IsNativeTexture())
     {
+      // Nothing to sample from yet, or a failure that PrepareNativeTexture() has logged.
       if(DALI_UNLIKELY(!texture->PrepareNativeTexture(this)))
       {
-        DALI_LOG_ERROR("[ERROR] NativeImage prepare failed! Do not render it\n");
         needDraw = false;
       }
 

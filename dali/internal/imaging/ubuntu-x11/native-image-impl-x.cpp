@@ -341,7 +341,7 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageX::PrepareTexture()
   }
   else
   {
-    result = mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE;
+    result = mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS;
   }
 
   return result;
