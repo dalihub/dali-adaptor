@@ -31,6 +31,7 @@
 #include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 
 // Application / UI Framework adaption
+#include <dali/public-api/adaptor-framework/application.h>
 #include <dali/public-api/adaptor-framework/capture.h>
 #include <dali/public-api/adaptor-framework/clipboard-data.h>
 #include <dali/public-api/adaptor-framework/clipboard.h>
