@@ -508,8 +508,11 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, const IT& end, Program& program, OutputLa
   ss.imbue(std::locale::classic());
   if(l.tokens.size())
   {
-    auto token            = GetToken(l, 0);
-    auto uniformBlockName = GetToken(l, 1);
+    auto token = GetToken(l, 0);
+
+    // Own the block name: GetToken() returns a std::string_view into l.line, but NextBlockLine()
+    // below overwrites l in-place, which can free the underlying buffer and leave the view dangling.
+    const std::string uniformBlockName(GetToken(l, 1));
 
     auto localBinding = binding;
     bool blockReused  = false;
