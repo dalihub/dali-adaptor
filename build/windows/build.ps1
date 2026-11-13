@@ -3,6 +3,9 @@ param(
   [ValidateSet("Debug", "Release")]
   [string]$Configuration = "Debug",
   [string]$VcpkgRoot = "",
+  # Windows applications still load the DALi 2.x names (dali2-adaptor.dll, dali2-adaptor config), so
+  # they are installed by default as copies of the dali3 files.
+  [switch]$NoLegacyAliases,
   # PLATFORM uses Win32 IMM; BRIDGE uses the in-process ImeBridge backend.
   # When omitted, CMake keeps its cached selection or defaults to PLATFORM.
   [ValidateSet("PLATFORM", "BRIDGE")]
@@ -59,6 +62,7 @@ else
 }
 
 $Arguments = (Get-DaliCommonCMakeArguments -Context $Context -Configuration $Configuration) + @(
+  "-DDALI_LEGACY_ALIASES=$(if($NoLegacyAliases) { 'OFF' } else { 'ON' })",
   "-DENABLE_PKG_CONFIGURE=OFF",
   "-DENABLE_LINK_TEST=OFF",
   "-DINSTALL_CMAKE_MODULES=ON",
