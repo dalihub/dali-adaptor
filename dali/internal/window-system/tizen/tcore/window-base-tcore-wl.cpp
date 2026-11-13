@@ -942,15 +942,12 @@ WindowBaseTcoreWl::~WindowBaseTcoreWl()
   // Tizen Core WL keeps a pointer to the keygrab list, so unset it while the list and the window are alive.
   ApplyKeyGrabs(KeyGrabs());
 
-  if(mOwnSurface)
+  // The input region is owned by the display but referenced by the window.
+  // Detach it before destroying either object so tizen-core-wl does not walk
+  // a region while the window is being torn down.
+  if(mTcoreWindow && mTcoreDisplay && mDisplayRegion)
   {
-    if(mTcoreWindow)
-    {
-      DALI_LOG_RELEASE_INFO("tizen_core_wl_window_destroy %p\n",
-                            static_cast<void*>(mTcoreWindow));
-      tizen_core_wl_window_destroy(mTcoreWindow);
-      mTcoreWindow = nullptr;
-    }
+    tizen_core_wl_window_set_input_region(mTcoreWindow, nullptr);
   }
 
   if(mTcoreDisplay && mDisplayRegion)
@@ -959,6 +956,26 @@ WindowBaseTcoreWl::~WindowBaseTcoreWl()
                           static_cast<void*>(mDisplayRegion));
     tizen_core_wl_display_destroy_region(mTcoreDisplay, mDisplayRegion);
     mDisplayRegion = nullptr;
+  }
+
+  if(mOwnSurface)
+  {
+    if(mTcoreWindow)
+    {
+      if(mTcoreDisplay)
+      {
+        DALI_LOG_RELEASE_INFO("tizen_core_wl_window_destroy %p\n",
+                              static_cast<void*>(mTcoreWindow));
+        tizen_core_wl_window_destroy(mTcoreWindow);
+      }
+      else
+      {
+        // A display that has already been released makes the native window
+        // handle unusable. Do not pass the stale handle into tizen-core-wl.
+        DALI_LOG_RELEASE_INFO("skip tizen_core_wl_window_destroy: display is null\n");
+      }
+      mTcoreWindow = nullptr;
+    }
   }
 
   if(mTcoreDisplay)
