@@ -15,12 +15,38 @@
  */
 
 #include <dali-test-suite-utils.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/devel-api/text-abstraction/shaping.h>
 #include <algorithm>
 #include <string>
 #include <vector>
 
 using namespace Dali;
+
+namespace
+{
+struct LocaleRestore
+{
+  LocaleRestore()
+  : locale(TextAbstraction::GetLocaleFull())
+  {
+    // Both getters are prefixes of the input; the longer one restores both.
+    const auto& language = TextAbstraction::GetLocale();
+    if(language.size() > locale.size())
+    {
+      locale = language;
+    }
+  }
+
+  ~LocaleRestore()
+  {
+    TextAbstraction::SetLocale(locale);
+  }
+
+  std::string locale;
+};
+} // unnamed namespace
 
 int UtcDaliTextLanguageRfc5646P(void)
 {
@@ -112,5 +138,53 @@ int UtcDaliTextLanguageInputContractP(void)
     DALI_TEST_CHECK(!TextAbstraction::NormalizeLanguageTag(result, result));
     DALI_TEST_EQUALS(result, tag, TEST_LOCATION);
   }
+  END_TEST;
+}
+
+int UtcDaliTextLanguageSystemLocaleP(void)
+{
+  LocaleRestore restore;
+  namespace Text  = TextAbstraction;
+  auto fontClient = Text::FontClient::New(96u, 96u);
+  auto fontId     = fontClient.GetFontId(std::string(TEST_RESOURCE_DIR) + "/fonts/dejavu/DejaVuSans.ttf", 24u * 64u);
+  DALI_TEST_GREATER(fontId, 0u, TEST_LOCATION);
+
+  // The bundled font supplies a Serbian localized form of Cyrillic small be.
+  const Text::Character text  = 0x0431u;
+  auto                  shape = Text::Shaping::New();
+  auto                  glyph = [&](const char* language)
+  {
+    const auto count = language ? shape.ShapeWithLanguage(fontClient, &text, 1u, fontId, Text::CYRILLIC, language)
+                                : shape.Shape(fontClient, &text, 1u, fontId, Text::CYRILLIC);
+    DALI_TEST_EQUALS(count, 1u, TEST_LOCATION);
+    Text::GlyphInfo      result;
+    Text::CharacterIndex character;
+    shape.GetGlyphs(&result, &character);
+    DALI_TEST_GREATER(result.index, 0u, TEST_LOCATION);
+    return result.index;
+  };
+
+  const auto russian = glyph("ru");
+  const auto serbian = glyph("sr");
+  const auto unknown = glyph("und");
+  DALI_TEST_NOT_EQUALS(russian, serbian, 0.0f, TEST_LOCATION);
+
+  // Reuse the same objects to catch a language cached on the shaping instance.
+  for(const std::string locale : {"ru_RU.UTF-8", "sr_RS.UTF-8", "ru_RU.UTF-8"})
+  {
+    Text::SetLocale(locale);
+    const auto expected = locale == "sr_RS.UTF-8" ? serbian : russian;
+    DALI_TEST_EQUALS(glyph(nullptr), expected, TEST_LOCATION);
+    DALI_TEST_EQUALS(glyph(""), expected, TEST_LOCATION);
+    DALI_TEST_EQUALS(glyph("ru"), russian, TEST_LOCATION);
+    DALI_TEST_EQUALS(glyph("sr"), serbian, TEST_LOCATION);
+    DALI_TEST_EQUALS(glyph("und"), unknown, TEST_LOCATION);
+  }
+
+  Text::EnsureLocale();
+  DALI_TEST_EQUALS(glyph(nullptr), russian, TEST_LOCATION);
+  Text::SetLocale("");
+  DALI_TEST_EQUALS(glyph(nullptr), unknown, TEST_LOCATION);
+  DALI_TEST_EQUALS(glyph(""), unknown, TEST_LOCATION);
   END_TEST;
 }
