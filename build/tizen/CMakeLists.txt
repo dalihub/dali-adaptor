@@ -452,6 +452,14 @@ IF(DEFINED ADAPTOR_GRAPHICS_GLES_SOURCES AND DEFINED ADAPTOR_GRAPHICS_VULKAN_SOU
             ${OPENGLES20_LDFLAGS}
             ${EGL_LDFLAGS}
     )
+    # Bind references to symbols defined within this library to their local
+    # definitions at link time. Without this, the weak factory symbols in the
+    # main adaptor library (e.g. native-image-factory-dynamic.cpp) interpose
+    # the strong per-platform implementations here, causing infinite recursion
+    # (stack-overflow) whenever the backend calls back through the factory
+    # entry points in graphics-library-functions.cpp. This makes the binding
+    # independent of RTLD_DEEPBIND, which cannot be used under sanitizers.
+    SET_TARGET_PROPERTIES(${ADAPTOR_GRAPHICS_GLES_NAME} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     INSTALL(TARGETS ${ADAPTOR_GRAPHICS_GLES_NAME} DESTINATION ${LIB_DIR})
 
     # Linker Test for GLES Graphics
@@ -476,6 +484,13 @@ IF(DEFINED ADAPTOR_GRAPHICS_GLES_SOURCES AND DEFINED ADAPTOR_GRAPHICS_VULKAN_SOU
             ${GLSLANG_LDFLAGS}
             ${SPIRVTOOLS_LDFLAGS}
     )
+    # Bind references to symbols defined within this library to their local
+    # definitions at link time. Without this, the weak factory symbols in the
+    # main adaptor library (e.g. native-image-factory-dynamic.cpp) interpose
+    # the strong per-platform implementations here, causing infinite recursion
+    # (stack-overflow) whenever the backend calls back through the factory
+    # entry points in graphics-library-functions.cpp.
+    SET_TARGET_PROPERTIES(${ADAPTOR_GRAPHICS_VULKAN_NAME} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     INSTALL(TARGETS ${ADAPTOR_GRAPHICS_VULKAN_NAME} DESTINATION ${LIB_DIR})
 
     # Linker Test for Vulkan Graphics
