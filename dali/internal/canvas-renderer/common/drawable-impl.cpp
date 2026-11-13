@@ -39,7 +39,7 @@ Dali::BaseHandle Create()
   return Dali::BaseHandle();
 }
 
-Dali::TypeRegistration type(typeid(Dali::CanvasRenderer::Drawable), typeid(Dali::BaseHandle), Create);
+Dali::TypeRegistration typeRegistration(typeid(Dali::CanvasRenderer::Drawable), typeid(Dali::BaseHandle), Create);
 
 } // unnamed namespace
 

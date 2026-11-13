@@ -76,7 +76,7 @@ NativeImageSurfaceTizen::NativeImageSurfaceTizen(Dali::NativeImageQueuePtr queue
   mEGL(nullptr),
   mEGLSurface(nullptr),
   mEGLContext(nullptr),
-  mColorDepth(COLOR_DEPTH_32),
+  mColorDepth(ColorDepth::COLOR_DEPTH_32_BITS),
   mTbmFormat(0u),
   mTbmQueue(nullptr),
   mDepth(false),
@@ -88,7 +88,7 @@ NativeImageSurfaceTizen::NativeImageSurfaceTizen(Dali::NativeImageQueuePtr queue
   {
     mTbmQueue   = AnyCast<tbm_surface_queue_h>(queue->GetNativeImageQueue());
     mTbmFormat  = tbm_surface_queue_get_format(mTbmQueue);
-    mColorDepth = IsColorDepth32Required(mTbmFormat) ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
+    mColorDepth = IsColorDepth32Required(mTbmFormat) ? ColorDepth::COLOR_DEPTH_32_BITS : ColorDepth::COLOR_DEPTH_24_BITS;
   }
   else
   {
@@ -146,7 +146,7 @@ void NativeImageSurfaceTizen::InitializeGraphics()
     {
       DALI_LOG_ERROR("InitializeGraphics: Fail to choose config. Version:%d, ColorDepth:%d, depth:%d, stencil:%d, MSAA:%d, contextPriority:%d",
                      mGLESVersion,
-                     mColorDepth == COLOR_DEPTH_32 ? 32 : 24,
+                     mColorDepth == ColorDepth::COLOR_DEPTH_32_BITS ? 32 : 24,
                      mDepth ? 24 : 0,
                      mStencil ? 8 : 0,
                      mMSAA,

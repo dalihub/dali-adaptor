@@ -532,7 +532,7 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mPostRenderTrigger(),
   mFrameRenderedTrigger(),
   mGraphics(nullptr),
-  mColorDepth(isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24),
+  mColorDepth(isTransparent ? ColorDepth::COLOR_DEPTH_32_BITS : ColorDepth::COLOR_DEPTH_24_BITS),
   mOutputTransformedSignal(),
   mWindowRotationFinishedSignal(),
   mFrameCallbackInfoContainer(),
@@ -570,7 +570,7 @@ void WindowRenderSurface::Initialize(Any surface)
 
   // Create a window base
   auto windowFactory = Dali::Internal::Adaptor::GetWindowFactory();
-  mWindowBase        = windowFactory->CreateWindowBase(mPositionSize, surface, (mColorDepth == COLOR_DEPTH_32 ? true : false));
+  mWindowBase        = windowFactory->CreateWindowBase(mPositionSize, surface, (mColorDepth == ColorDepth::COLOR_DEPTH_32_BITS ? true : false));
 
   // Connect signals
   mWindowBase->OutputTransformedSignal().Connect(this, &WindowRenderSurface::OutputTransformed);
