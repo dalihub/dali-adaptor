@@ -87,16 +87,6 @@ enum Key
 };
 
 /**
- * @brief The former name of Dali::Key.
- * @SINCE_1_0.0
- * @DEPRECATED_2_5.41 Use Dali::Key instead.
- * @note This keeps existing source compiling only. A binary built against the former name has to
- *   be rebuilt regardless, because the name of the enumeration is part of the signature of IsKey()
- *   and of the key grab functions.
- */
-using KEY = Key;
-
-/**
  * @brief Checks if a key event is for a specific Dali::Key.
  *
  * @SINCE_1_0.0
