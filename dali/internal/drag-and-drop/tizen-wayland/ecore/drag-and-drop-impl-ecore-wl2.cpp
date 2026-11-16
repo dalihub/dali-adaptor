@@ -706,7 +706,6 @@ bool DragAndDropEcoreWl::ProcessDropEventsForTargets(Ecore_Wl2_Event_Dnd_Drop* e
     {
       mTargetIndex        = i;
       mPosition           = position;
-      Dali::Window window = Dali::Window::Get(mDropTargets[i].target);
 
       unsigned int mimeCount = (unsigned int)eina_array_count((Eina_Array*)mimes);
       for(unsigned int j = 0; j < mimeCount; ++j)
