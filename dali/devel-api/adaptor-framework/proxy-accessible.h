@@ -82,7 +82,7 @@ public:
     return static_cast<size_t>(-1);
   }
 
-  std::string GetStringProperty(std::string propertyName) const override
+  std::string GetStringProperty([[maybe_unused]] std::string propertyName) const override
   {
     return {};
   }
@@ -117,7 +117,7 @@ public:
     return mAddress;
   }
 
-  bool DoGesture(const Dali::Devel::Accessibility::GestureInfo& gestureInfo) override
+  bool DoGesture([[maybe_unused]] const Dali::Devel::Accessibility::GestureInfo& gestureInfo) override
   {
     return false;
   }

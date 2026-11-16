@@ -110,7 +110,7 @@ public:
    * The host must not destroy the plugin from inside this callback.
    * Asynchronous implementations must notify when IsDestroyReady becomes true.
    */
-  virtual void SetDestroyReadyCallback(std::function<void()> callback)
+  virtual void SetDestroyReadyCallback([[maybe_unused]] std::function<void()> callback)
   {
   }
 

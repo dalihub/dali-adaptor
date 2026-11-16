@@ -518,7 +518,7 @@ private: // The following methods can be overridden if required
    * @brief Called by the base class to inform deriving classes that the adaptor has been set.
    * @param[in] adaptor The adaptor
    */
-  virtual void OnAdaptorSet(Dali::Adaptor& adaptor)
+  virtual void OnAdaptorSet([[maybe_unused]] Dali::Adaptor& adaptor)
   {
   }
 
@@ -526,7 +526,7 @@ private: // The following methods can be overridden if required
    * @brief Called by the base class to inform deriving classes that a new surface has been set.
    * @param[in] surface The new render surface
    */
-  virtual void OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface)
+  virtual void OnSurfaceSet([[maybe_unused]] Dali::Integration::RenderSurfaceInterface* surface)
   {
   }
 
