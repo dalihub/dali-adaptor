@@ -50,17 +50,6 @@ public:
   static PerformanceLoggerPtr New(const char* name);
 
   /**
-   * Constructor
-   * @param[in] name The name to assing to the logger
-   */
-  PerformanceLogger(const char* name);
-
-  /**
-   * Destructor.
-   */
-  ~PerformanceLogger() override;
-
-  /**
    * Add a performance marker
    *
    * @param markerType Performance marker type
@@ -81,7 +70,20 @@ public:
    */
   void EnableLogging(bool enable);
 
-private: // Implementation
+protected:
+  /**
+   * Constructor
+   * @param[in] name The name to assing to the logger
+   */
+  PerformanceLogger(const char* name);
+
+  /**
+   * Destructor.
+   */
+  ~PerformanceLogger() override;
+
+private:
+  // Implementation
   // not implemented
   PerformanceLogger(const PerformanceLogger&);
   PerformanceLogger& operator=(const PerformanceLogger&);

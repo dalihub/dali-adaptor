@@ -108,19 +108,13 @@ public:
     {
     }
   };
-
-public:
   /**
-   * Constructor.
-   * @param[in]  windowBase               The window base to be handled
-   * @param[in]  damageObserver           The damage observer (to pass damage events to).
+   * @brief Creates a reference-counted implementation.
    */
-  EventHandler(WindowBase* windowBase, DamageObserver& damageObserver);
-
-  /**
-   * Destructor.
-   */
-  ~EventHandler() override;
+  static Dali::IntrusivePtr<EventHandler> New(WindowBase* windowBase, DamageObserver& damageObserver)
+  {
+    return Dali::IntrusivePtr<EventHandler>(new EventHandler(windowBase, damageObserver));
+  }
 
   /**
    * Called when the adaptor is paused.
@@ -144,6 +138,19 @@ public:
    * @note Observers should remove themselves when they are destroyed.
    */
   void RemoveObserver(Observer& observer);
+
+protected:
+  /**
+   * Constructor.
+   * @param[in]  windowBase               The window base to be handled
+   * @param[in]  damageObserver           The damage observer (to pass damage events to).
+   */
+  EventHandler(WindowBase* windowBase, DamageObserver& damageObserver);
+
+  /**
+   * Destructor.
+   */
+  ~EventHandler() override;
 
 private:
   /**
@@ -208,13 +215,10 @@ private:
    * Called when the style is changed.
    */
   void OnStyleChanged(StyleChange::Type styleChange);
-
-private:
   // Undefined
-  EventHandler(const EventHandler& eventHandler);
-
+  EventHandler(const EventHandler& eventHandler) = delete;
   // Undefined
-  EventHandler& operator=(const EventHandler& eventHandler);
+  EventHandler& operator=(const EventHandler& eventHandler) = delete;
 
 private:
   Dali::StyleMonitor mStyleMonitor;   ///< Handle to the style monitor, set on construction, to send font size and font change events to.

@@ -40,18 +40,8 @@ public:
   static TimerEcorePtr New(uint32_t milliSec);
 
   /**
-   * Constructor
-   * @param[in]  milliSec  Interval in milliseconds.
-   */
-  TimerEcore(uint32_t milliSec);
-
-  /**
-   * Destructor.
-   */
-  virtual ~TimerEcore();
 
 public:
-  /**
    * @copydoc Dali::Timer::Start()
    */
   void Start() override;
@@ -91,7 +81,20 @@ public:
    */
   bool Tick();
 
-private: // Implementation
+protected:
+  /**
+   * Constructor
+   * @param[in]  milliSec  Interval in milliseconds.
+   */
+  TimerEcore(uint32_t milliSec);
+
+  /**
+   * Destructor.
+   */
+  virtual ~TimerEcore();
+
+private:
+  // Implementation
   // not implemented
   TimerEcore(const TimerEcore&)            = delete;
   TimerEcore& operator=(const TimerEcore&) = delete;

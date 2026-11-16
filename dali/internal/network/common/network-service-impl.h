@@ -42,12 +42,18 @@ using NetworkServicePtr = IntrusivePtr<NetworkService>;
 class NetworkService : public Dali::BaseObject
 {
 public:
-  NetworkService()                            = default; ///< Constructor
-  ~NetworkService() override                  = default; ///< Default Destructor
-  NetworkService(const NetworkService&)       = delete;  ///< Deleted copy constructor
-  NetworkService(NetworkService&&)            = delete;  ///< Deleted move constructor
-  NetworkService& operator=(NetworkService&)  = delete;  ///< Deleted copy assignment operator
-  NetworkService& operator=(NetworkService&&) = delete;  ///< Deleted move assignment operator
+  NetworkService(const NetworkService&)       = delete; ///< Deleted copy constructor
+  NetworkService(NetworkService&&)            = delete; ///< Deleted move constructor
+  NetworkService& operator=(NetworkService&)  = delete; ///< Deleted copy assignment operator
+  NetworkService& operator=(NetworkService&&) = delete; ///< Deleted move assignment operator
+
+  /**
+   * @brief Creates a reference-counted implementation.
+   */
+  static Dali::IntrusivePtr<NetworkService> New()
+  {
+    return Dali::IntrusivePtr<NetworkService>(new NetworkService());
+  }
 
   /**
    * @brief Retrieve the NetworkService Singleton.
@@ -68,6 +74,10 @@ public:
    * @brief Emit the Custom Command Received Signal
    */
   void EmitCustomCommandReceivedSignal(const std::string& message);
+
+protected:
+  NetworkService()           = default; ///< Constructor
+  ~NetworkService() override = default; ///< Default Destructor
 
 private:
   DevelApplication::CustomCommandReceivedSignalType mCustomCommandReceivedSignal;

@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/ref-object.h>
 
@@ -39,12 +40,24 @@ namespace Adaptor
 class LifecycleController : public BaseObject, public ConnectionTracker
 {
 public:
-  // Creation & Destruction
+  /**
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
+   */
+  static DALI_INTERNAL LifecycleController* NewForBaseHandle()
+  {
+    return new LifecycleController();
+  }
 
   /**
-   * Constructor.
+   * @brief Creates a reference-counted implementation.
    */
-  LifecycleController();
+  static Dali::IntrusivePtr<LifecycleController> New()
+  {
+    return Dali::IntrusivePtr<LifecycleController>(new LifecycleController());
+  }
 
   /**
    * Retrieve the initialized instance of the LifecycleController.
@@ -126,6 +139,13 @@ public:
   void OnLanguageChanged();
 
 protected:
+  // Creation & Destruction
+
+  /**
+   * Constructor.
+   */
+  LifecycleController();
+
   /**
    * Virtual Destructor.
    */

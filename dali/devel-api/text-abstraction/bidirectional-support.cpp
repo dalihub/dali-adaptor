@@ -45,9 +45,9 @@ BidirectionalSupport BidirectionalSupport::Get()
 
 BidirectionalSupport BidirectionalSupport::New()
 {
-  auto bidirectionalSupportImpl = new Internal::BidirectionalSupport();
+  auto bidirectionalSupportImpl = Internal::BidirectionalSupport::New();
 
-  return BidirectionalSupport(bidirectionalSupportImpl);
+  return BidirectionalSupport(bidirectionalSupportImpl.Get());
 }
 
 BidiInfoIndex BidirectionalSupport::CreateInfo(const Character* const paragraph,

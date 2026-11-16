@@ -48,10 +48,10 @@ Window New(const Dali::String& name, const Dali::String& className, const Window
 
   if(isNewWindowAllowed)
   {
-    Any                        surface;
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, ToStdString(name), ToStdString(className), windowData, false, isShowOnAdaptorSet);
+    Any  surface;
+    auto window = Internal::Adaptor::Window::New(surface, ToStdString(name), ToStdString(className), windowData, false, isShowOnAdaptorSet);
 
-    Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
+    Integration::SceneHolder sceneHolder = Integration::SceneHolder(window.Get());
 
     if(isAdaptorAvailable)
     {
@@ -60,7 +60,7 @@ Window New(const Dali::String& name, const Dali::String& className, const Window
       // That is where isShowOnAdaptorSet is honoured.
       Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder);
     }
-    newWindow = Window(window);
+    newWindow = Window(window.Get());
   }
   else
   {

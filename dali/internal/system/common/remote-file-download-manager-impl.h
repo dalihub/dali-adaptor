@@ -42,16 +42,6 @@ namespace Adaptor
 class RemoteFileDownloadManager : public Dali::BaseObject
 {
 public:
-  /**
-   * Constructor.
-   */
-  RemoteFileDownloadManager() = default;
-
-  /**
-   * Destructor.
-   */
-  ~RemoteFileDownloadManager() override;
-
   RemoteFileDownloadManager(const RemoteFileDownloadManager&)            = delete;
   RemoteFileDownloadManager& operator=(const RemoteFileDownloadManager&) = delete;
 
@@ -78,10 +68,38 @@ public:
   void CancelDownload(Dali::RemoteFileDownloadManager::RequestId requestId);
 
   using RequestId = Dali::RemoteFileDownloadManager::RequestId;
+  /**
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
+   */
+  static DALI_INTERNAL RemoteFileDownloadManager* NewForBaseHandle()
+  {
+    return new RemoteFileDownloadManager();
+  }
 
+  /**
+   * @brief Creates a reference-counted implementation.
+   */
+  static Dali::IntrusivePtr<RemoteFileDownloadManager> New()
+  {
+    return Dali::IntrusivePtr<RemoteFileDownloadManager>(new RemoteFileDownloadManager());
+  }
   void RequestProviderDownload(RequestId          requestId,
                                const std::string& url,
                                size_t             maxSize);
+
+protected:
+  /**
+   * Constructor.
+   */
+  RemoteFileDownloadManager() = default;
+
+  /**
+   * Destructor.
+   */
+  ~RemoteFileDownloadManager() override;
 
 private:
   struct RequestInfo

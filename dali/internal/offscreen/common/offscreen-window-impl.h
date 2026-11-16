@@ -47,14 +47,6 @@ public:
    */
   static OffscreenWindow* New();
 
-  OffscreenWindow() = default;
-
-public:
-  /**
-   * Destructor
-   */
-  ~OffscreenWindow();
-
   /**
    * @copydoc Dali::OffscreenWindow::SetNativeImage
    */
@@ -106,6 +98,14 @@ public: // Dali::Internal::Adaptor::SceneHolder
    * @brief Initialize the OffscreenWindow
    */
   void Initialize();
+
+protected:
+  OffscreenWindow() = default;
+
+  /**
+   * Destructor
+   */
+  ~OffscreenWindow();
 
 private:
   // Undefined

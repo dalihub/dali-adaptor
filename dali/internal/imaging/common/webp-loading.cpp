@@ -346,6 +346,14 @@ AnimatedImageLoadingPtr WebPLoading::New(const std::string& url, bool isLocalRes
   return AnimatedImageLoadingPtr(new WebPLoading(url, isLocalResource));
 }
 
+WebPLoading* WebPLoading::NewForBaseHandle(FILE* const fp)
+{
+#ifndef DALI_ANIMATED_WEBP_ENABLED
+  DALI_LOG_ERROR("The system does not support Animated WebP format.\n");
+#endif
+  return new WebPLoading(fp);
+}
+
 AnimatedImageLoadingPtr WebPLoading::New(FILE* const fp)
 {
 #ifndef DALI_ANIMATED_WEBP_ENABLED

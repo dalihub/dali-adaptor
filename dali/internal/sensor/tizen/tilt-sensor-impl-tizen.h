@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #ifdef CAPI_SYSTEM_SENSOR_SUPPORT
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <sensor/sensor.h>
 #define SENSOR_ENABLED
 #endif
@@ -51,7 +52,7 @@ public:
    * Public constructor
    * @return New instance of TiltSensorTizen
    */
-  static TiltSensorTizen* New();
+  static Dali::IntrusivePtr<TiltSensorTizen> New();
 
   /**
    * @copydoc Dali::TiltSensor::Start()

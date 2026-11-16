@@ -1648,13 +1648,13 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     }
 #endif
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
-    keyEvent.rawKeyCode  = rawKeyCode;
-    keyEvent.isRepeat    = isRepeat;
-    keyEvent.windowId    = GetNativeWindowId();
-    keyEvent.receiveTime = TimeService::GetMilliSeconds();
+    Integration::KeyEvent integrationEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
+    integrationEvent.rawKeyCode  = rawKeyCode;
+    integrationEvent.isRepeat    = isRepeat;
+    integrationEvent.windowId    = GetNativeWindowId();
+    integrationEvent.receiveTime = TimeService::GetMilliSeconds();
 
-    mKeyEventSignal.Emit(keyEvent);
+    mKeyEventSignal.Emit(integrationEvent);
   }
 }
 
@@ -1743,12 +1743,12 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     GetDeviceClass(ecore_device_class_get(keyEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
-    keyEvent.rawKeyCode  = rawKeyCode;
-    keyEvent.windowId    = GetNativeWindowId();
-    keyEvent.receiveTime = TimeService::GetMilliSeconds();
+    Integration::KeyEvent integrationEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
+    integrationEvent.rawKeyCode  = rawKeyCode;
+    integrationEvent.windowId    = GetNativeWindowId();
+    integrationEvent.receiveTime = TimeService::GetMilliSeconds();
 
-    mKeyEventSignal.Emit(keyEvent);
+    mKeyEventSignal.Emit(integrationEvent);
   }
 }
 
@@ -2549,6 +2549,7 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
                         totalAngle);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_layout_set");
+  ecore_wl2_window_resize_request_unset(mEcoreWindow);
   ecore_wl2_window_layout_set(mEcoreWindow, transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan);
 #endif
 }
@@ -4001,17 +4002,26 @@ void WindowBaseEcoreWl2::SetWindowFrontBufferMode(bool enable)
 
 void WindowBaseEcoreWl2::SetModal(bool modal)
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_set, window: [%p], flag [%d]\n", mEcoreWindow, modal);
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_modal_set");
   ecore_wl2_window_modal_set(mEcoreWindow, modal);
+#else
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_set NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
 }
 
 bool WindowBaseEcoreWl2::IsModal()
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_modal_get");
   bool ret = ecore_wl2_window_modal_get(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_get, window: [%p], flag [%d]\n", mEcoreWindow, ret);
   return ret;
+#else
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_get NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+  return false;
+#endif
 }
 
 void WindowBaseEcoreWl2::SetAlwaysOnTop(bool alwaysOnTop)

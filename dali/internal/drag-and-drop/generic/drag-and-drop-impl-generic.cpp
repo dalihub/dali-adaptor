@@ -51,7 +51,7 @@ Dali::DragAndDrop GetDragAndDrop()
     else
     {
       // Create a singleon instance
-      dnd = Dali::DragAndDrop(new DragAndDropGeneric());
+      dnd = Dali::DragAndDrop(DragAndDropGeneric::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, dnd);
     }
   }

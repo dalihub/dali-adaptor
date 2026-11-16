@@ -60,7 +60,7 @@ TextAbstraction::TextRenderer TextRenderer::Get()
     }
     else // create and register the object
     {
-      shapingHandle = TextAbstraction::TextRenderer(new TextRenderer);
+      shapingHandle = TextAbstraction::TextRenderer(TextRenderer::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, shapingHandle);
     }
   }

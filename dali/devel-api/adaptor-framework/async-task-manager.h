@@ -79,15 +79,6 @@ public:
   };
 
   /**
-   * Constructor
-   * @SINCE_2_2.3
-   * @param[in] callback The callback to invoke on task completion, either on the main thread on the worker thread. The ownership of callback is taken by this class.
-   * @param[in] priority The proirity type of this task.
-   * @param[in] threadType The thread type of invocation callback.
-   */
-  AsyncTask(CallbackBase* callback, PriorityType priority = PriorityType::DEFAULT, ThreadType threadType = AsyncTask::ThreadType::MAIN_THREAD);
-
-  /**
    * Get the complated callback
    * @SINCE_2_2.3
    */
@@ -115,12 +106,6 @@ public:
   void NotifyToReady();
 
   /**
-   * Destructor.
-   * @SINCE_2_2.3
-   */
-  virtual ~AsyncTask() = default;
-
-  /**
    * Process the task
    * @SINCE_2_2.3
    */
@@ -146,6 +131,22 @@ public:
     Dali::DaliPrintBackTrace();
     return "";
   }
+
+protected:
+  /**
+   * Constructor
+   * @SINCE_2_2.3
+   * @param[in] callback The callback to invoke on task completion, either on the main thread on the worker thread. The ownership of callback is taken by this class.
+   * @param[in] priority The proirity type of this task.
+   * @param[in] threadType The thread type of invocation callback.
+   */
+  AsyncTask(CallbackBase* callback, PriorityType priority = PriorityType::DEFAULT, ThreadType threadType = AsyncTask::ThreadType::MAIN_THREAD);
+
+  /**
+   * Destructor.
+   * @SINCE_2_2.3
+   */
+  virtual ~AsyncTask() = default;
 
 private:
   UniquePtr<CallbackBase> mCompletedCallback;

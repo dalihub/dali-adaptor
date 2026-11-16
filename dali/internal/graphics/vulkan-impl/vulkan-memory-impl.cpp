@@ -49,7 +49,7 @@ void* MemoryImpl::Map()
   return Map(0u, 0u);
 }
 
-void* MemoryImpl::Map(uint32_t offset, uint32_t requestedMappedSize)
+void* MemoryImpl::Map(uint32_t mapOffset, uint32_t requestedMappedSize)
 {
   if(!deviceMemory)
   {
@@ -69,7 +69,7 @@ void* MemoryImpl::Map(uint32_t offset, uint32_t requestedMappedSize)
     {
       VkAssert(vmaAllocator->mapMemory(*mVmaAllocation, &mappedPtr));
 
-      mappedPtr = static_cast<uint8_t*>(mappedPtr) + offset;
+      mappedPtr = static_cast<uint8_t*>(mappedPtr) + mapOffset;
     }
   }
 

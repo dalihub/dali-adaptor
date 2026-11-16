@@ -1283,7 +1283,7 @@ Dali::DragAndDrop GetDragAndDrop()
     return Dali::DragAndDrop(static_cast<DragAndDrop*>(handle.GetObjectPtr()));
   }
 
-  Dali::DragAndDrop dragAndDrop(new DragAndDropWin());
+  Dali::DragAndDrop dragAndDrop(DragAndDropWin::NewForBaseHandle());
   singletonService.Register(gSingletonTypeInfoId, dragAndDrop);
   return dragAndDrop;
 }

@@ -44,12 +44,6 @@ public:
    */
   static InputMethodContextPtr New(Dali::Actor actor);
 
-  /**
-   * Constructor
-   * @param[in] actor The actor that uses the new InputMethodContext instance.
-   */
-  explicit InputMethodContextGeneric(Dali::Actor actor);
-
 public:
   /**
    * @brief Initializes member data.
@@ -294,7 +288,13 @@ public:
    */
   void GetPreeditStyle(Dali::Integration::InputMethodContext::PreEditAttributeDataContainer& attrs) const override;
 
-public:
+protected:
+  /**
+   * Constructor
+   * @param[in] actor The actor that uses the new InputMethodContext instance.
+   */
+  explicit InputMethodContextGeneric(Dali::Actor actor);
+
   /**
    * Destructor.
    */

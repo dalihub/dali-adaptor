@@ -69,8 +69,8 @@ Dali::Devel::TextureUploadManager TextureUploadManager::Get()
     if(!manager)
     {
       // If not, create the texture upload manager and register it as a singleton
-      Internal::Adaptor::TextureUploadManager* internalTextureUploadManager = new Internal::Adaptor::TextureUploadManager();
-      manager                                                               = Dali::Devel::TextureUploadManager(internalTextureUploadManager);
+      Dali::IntrusivePtr<Internal::Adaptor::TextureUploadManager> internalTextureUploadManager = Internal::Adaptor::TextureUploadManager::New();
+      manager                                                                                  = Dali::Devel::TextureUploadManager(internalTextureUploadManager.Get());
       singletonService.Register(gSingletonTypeInfoId, manager);
     }
   }

@@ -629,8 +629,8 @@ Dali::AsyncTaskManager AsyncTaskManager::Get()
     if(!manager)
     {
       // If not, create the async task manager and register it as a singleton
-      Internal::Adaptor::AsyncTaskManager* internalAsyncTaskManager = new Internal::Adaptor::AsyncTaskManager();
-      manager                                                       = Dali::AsyncTaskManager(internalAsyncTaskManager);
+      Dali::IntrusivePtr<Internal::Adaptor::AsyncTaskManager> internalAsyncTaskManager = Internal::Adaptor::AsyncTaskManager::New();
+      manager                                                                          = Dali::AsyncTaskManager(internalAsyncTaskManager.Get());
       singletonService.Register(gSingletonTypeInfoId, manager);
     }
   }

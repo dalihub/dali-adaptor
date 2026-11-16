@@ -27,6 +27,7 @@
 #include <dali/integration-api/adaptor-framework/round-robin-container-view.h>
 #include <dali/integration-api/adaptor-framework/trace-factory-interface.h>
 #include <dali/integration-api/processor-interface.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 #include <memory>
 
@@ -93,6 +94,14 @@ class AsyncTaskManager : public Dali::BaseObject, public Integration::Processor
 {
 public:
   /**
+   * @brief Creates a reference-counted implementation.
+   */
+  static Dali::IntrusivePtr<AsyncTaskManager> New()
+  {
+    return Dali::IntrusivePtr<AsyncTaskManager>(new AsyncTaskManager());
+  }
+
+  /**
    * Singleton access
    *
    * @return The AsyncTaskManager object
@@ -105,16 +114,6 @@ public:
    * @param[in] task The task pointer.
    */
   static void NotifyManagerToTaskReady(AsyncTaskPtr task);
-
-  /**
-   * Constructor.
-   */
-  AsyncTaskManager();
-
-  /**
-   * Destructor.
-   */
-  ~AsyncTaskManager() override;
 
   /**
    * @copydoc Dali::AsyncTaskManager::AddTask()
@@ -178,6 +177,17 @@ public: // Worker thread called method
    * @param[in] task The task added to the queue.
    */
   void CompleteTask(AsyncTaskPtr&& task);
+
+protected:
+  /**
+   * Constructor.
+   */
+  AsyncTaskManager();
+
+  /**
+   * Destructor.
+   */
+  ~AsyncTaskManager() override;
 
 protected: // Implementation of Processor
   /**
@@ -248,8 +258,6 @@ private:
     REQUIRE_CALLBACK = 0, ///< Need to execute callback when completed task process.
     SKIP_CALLBACK    = 1, ///< Do not execute callback
   };
-
-private:
   // Undefined
   AsyncTaskManager(const AsyncTaskManager& manager);
 
@@ -274,11 +282,11 @@ private:
   RoundRobinContainerView<TaskHelper> mTasks;
 
   uint32_t mAvaliableLowPriorityTaskCounts; ///< The number of tasks that can be processed for priority type LOW.
-                                            ///< Be used to select next wating task determining algorithm.
-                                            ///< Note : For thread safety, Please set/get this value under mRunningTasksMutex scope.
-  uint32_t mWaitingHighProirityTaskCounts;  ///< The number of tasks that waiting now for priority type HIGH.
-                                            ///< Be used to select next wating task determining algorithm.
-                                            ///< Note : For thread safety, Please set/get this value under mWaitingTasksMutex scope.
+  ///< Be used to select next wating task determining algorithm.
+  ///< Note : For thread safety, Please set/get this value under mRunningTasksMutex scope.
+  uint32_t mWaitingHighProirityTaskCounts; ///< The number of tasks that waiting now for priority type HIGH.
+  ///< Be used to select next wating task determining algorithm.
+  ///< Note : For thread safety, Please set/get this value under mWaitingTasksMutex scope.
 
   Dali::Mutex mWaitingTasksMutex;   ///< Mutex for mWaitingTasks. We can lock mRunningTasksMutex and mCompletedTasksMutex under this scope.
   Dali::Mutex mRunningTasksMutex;   ///< Mutex for mRunningTasks. We can lock mCompletedTasksMutex under this scope.

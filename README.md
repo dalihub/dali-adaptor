@@ -41,6 +41,10 @@ Then run the following command to set up the build:
 
 If a Debug build is required, then add -DCMAKE_BUILD_TYPE=Debug
 
+To also install the DALi 2.x names as links to the dali3 files, add
+-DDALI_LEGACY_ALIASES=ON (see "Install layout and the DALi 2.x names" in the
+dali-core README).
+
 To build run:
 
          $ make install -j8
@@ -85,6 +89,9 @@ configuration, building, and installation automatically:
 cd <workspace>\dali-adaptor
 .\build\windows\build.ps1
 ```
+
+The DALi 2.x names (dali2-adaptor.dll, the dali2-adaptor package) are installed
+by default as copies of the dali3 files; `-NoLegacyAliases` turns that off.
 
 See the [windows-dependencies README](https://github.com/dalihub/windows-dependencies/blob/master/README.md)
 for complete Windows build and runtime instructions.

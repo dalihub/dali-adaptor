@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -38,14 +39,23 @@ class BidirectionalSupport : public BaseObject
 {
 public:
   /**
-   * Constructor
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
    */
-  BidirectionalSupport();
+  static DALI_INTERNAL BidirectionalSupport* NewForBaseHandle()
+  {
+    return new BidirectionalSupport();
+  }
 
   /**
-   * Destructor
+   * @brief Creates a reference-counted implementation.
    */
-  ~BidirectionalSupport();
+  static Dali::IntrusivePtr<BidirectionalSupport> New()
+  {
+    return Dali::IntrusivePtr<BidirectionalSupport>(new BidirectionalSupport());
+  }
 
   /**
    * @copydoc Dali::BidirectionalSupport::Get()
@@ -92,13 +102,22 @@ public:
                               CharacterDirection* directions,
                               Length              numberOfCharacters);
 
+protected:
+  /**
+   * Constructor
+   */
+  BidirectionalSupport();
+
+  /**
+   * Destructor
+   */
+  ~BidirectionalSupport();
+
 private:
   /**
    * Helper for lazy initialization.
    */
   void CreatePlugin();
-
-private:
   // Undefined copy constructor.
   BidirectionalSupport(const BidirectionalSupport&);
 

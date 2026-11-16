@@ -26,10 +26,10 @@ namespace DALI_NAMESPACE::Internal::Adaptor::GraphicsLibrary
 {
 int GetLibraryOpenMode()
 {
-#ifdef ASAN_ENABLED
+  // The correct binding of the backend's internal calls to its own symbols
+  // (rather than the weak factory symbols exported by the main adaptor
+  // library) is guaranteed at link time by -Wl,-Bsymbolic, so no
+  // RTLD_DEEPBIND is needed here.
   return RTLD_NOW | RTLD_GLOBAL;
-#else
-  return RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND;
-#endif
 }
 } //namespace DALI_NAMESPACE::Internal::Adaptor::GraphicsLibrary

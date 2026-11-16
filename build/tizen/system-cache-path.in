@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@
 std::string GetSystemCachePath()
 {
 #if ANDROID
-  return Dali::Integration::AndroidFramework::Get().GetInternalDataPath() + "/dali_common_caches/";
+  return Dali::Integration::AndroidFramework::Get().GetInternalDataPath() + "/@DALI_CACHE_DIR_NAME@/";
 #else
-  return std::string( "@cachePath@/.cache/dali_common_caches/" );
+  return std::string( "@cachePath@/.cache/@DALI_CACHE_DIR_NAME@/" );
 #endif
 }
 

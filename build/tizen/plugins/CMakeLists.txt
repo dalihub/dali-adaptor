@@ -17,6 +17,8 @@ IF( ENABLE_FEEDBACK AND (NOT UBUNTU_PROFILE) )
     ${DLOG_LDFLAGS}
     ${MMFSOUND_LDFLAGS})
 
+  SET( dalisounddir ${dataReadOnlyDir}/plugins/sounds/ )
+
   TARGET_COMPILE_DEFINITIONS( ${PLUGIN_TARGET} PUBLIC
     -DDALI_SOUND_DIR=\"${dalisounddir}\")
 
@@ -31,11 +33,9 @@ IF( ENABLE_FEEDBACK AND (NOT UBUNTU_PROFILE) )
     -Wall
   )
   # Install plugin resources
-  #SET( dalisounddir ${dataReadOnlyDir}/plugins/sounds/ )
-  SET( dalisounddir ${CMAKE_INSTALL_PREFIX}/../plugins/sounds/ )
-    #EXIT(${dalisounddir})
   INSTALL( FILES ${feedback_plugin_dali_sound_files} DESTINATION ${dalisounddir} )
   INSTALL( TARGETS ${PLUGIN_TARGET} DESTINATION ${LIB_DIR} )
+  dali_legacy_library_alias(${PLUGIN_TARGET} dali2-feedback-plugin)
 ENDIF()
 
 # File Download curl plugin
@@ -137,6 +137,7 @@ IF( CURL_FOUND)
     ARCHIVE DESTINATION ${LIB_DIR}
     RUNTIME DESTINATION ${BIN_DIR}
   )
+  dali_legacy_library_alias(${FILE_DOWNLOAD_PLUGIN_TARGET} dali2-file-download-plugin-curl)
 
   IF(ENABLE_LINK_TEST)
     # Linker Test for curl
@@ -197,6 +198,7 @@ IF( NOT APPLE AND NOT WINDOWS_PROFILE )
     )
 
     INSTALL( TARGETS ${FILE_DOWNLOAD_API_PLUGIN_TARGET} DESTINATION ${LIB_DIR} )
+    dali_legacy_library_alias(${FILE_DOWNLOAD_API_PLUGIN_TARGET} dali2-file-download-plugin-download-api)
   ELSE()
     MESSAGE( STATUS "capi-web-url-download not found, dali${DALI_API_MAJOR}-file-download-plugin-download-api will not be built" )
   ENDIF()

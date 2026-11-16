@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <condition_variable>
-#include <locale>
 #include <mutex>
 #include <thread>
 #if defined(VCONF_ENABLED)
@@ -72,9 +71,6 @@ public:
   }
   std::thread mThread{};
 };
-
-static std::string gLocale;     // The current language. (e.g., "en")
-static std::string gLocaleFull; // The current locale identifier. (e.g., "en_US")
 
 std::mutex gPreCreatedFontClientMutex; ///< Mutex for FontThread and gPreCreatedFontClient.
 
@@ -151,7 +147,7 @@ Dali::TextAbstraction::FontClient FontClient::Get()
       else
       {
         FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "Create standard FontClient\n");
-        fontClientHandle = Dali::TextAbstraction::FontClient(new FontClient);
+        fontClientHandle = Dali::TextAbstraction::FontClient(FontClient::NewForBaseHandle());
       }
 
       fontClientHandle.InitDefaultFontDescription();
@@ -181,7 +177,7 @@ Dali::TextAbstraction::FontClient FontClient::PreInitialize()
   if(!gPreCreatedFontClient)
   {
     FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "Create new FontClient\n");
-    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(FontClient::NewForBaseHandle());
   }
 
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreInitialize InitDefaultFontDescription\n");
@@ -243,7 +239,7 @@ void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFa
   if(!gPreCreatedFontClient)
   {
     FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "Create new FontClient\n");
-    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(FontClient::NewForBaseHandle());
   }
 
   gFontPreCacheAvailable  = false;
@@ -301,7 +297,7 @@ void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& m
   if(!gPreCreatedFontClient)
   {
     FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "Create new FontClient\n");
-    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(FontClient::NewForBaseHandle());
   }
 
   gFontPreLoadAvailable   = false;
@@ -367,43 +363,6 @@ void FontClient::JoinFontThreads()
     FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreLoad thread join\n");
   }
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient JoinFontThreads request done\n");
-}
-
-void FontClient::EnsureLocale()
-{
-  if(gLocale.empty() || gLocaleFull.empty())
-  {
-    const char* locale;
-    locale = setlocale(LC_MESSAGES, NULL);
-    if(locale)
-    {
-      SetLocale(locale);
-    }
-  }
-}
-
-const std::string& FontClient::GetLocale()
-{
-  return gLocale;
-}
-
-const std::string& FontClient::GetLocaleFull()
-{
-  return gLocaleFull;
-}
-
-void FontClient::SetLocale(const std::string& locale)
-{
-  std::scoped_lock lock(gMutex);
-
-  // To unify the tizen system locale and format, remove the string after the dot.
-  std::istringstream stringStreamFull(locale);
-  stringStreamFull.imbue(std::locale::classic());
-  std::getline(stringStreamFull, gLocaleFull, '.');
-
-  std::istringstream stringStream(locale);
-  stringStream.imbue(std::locale::classic());
-  std::getline(stringStream, gLocale, '_');
 }
 
 bool FontClient::DesignCompatibilityEnabled()

@@ -16,6 +16,7 @@
  */
 
 #include <dali/internal/sensor/tizen/tilt-sensor-impl-tizen.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 
 namespace DALI_NAMESPACE
 {
@@ -25,7 +26,7 @@ namespace Adaptor
 {
 namespace TiltSensorFactory
 {
-Dali::Internal::Adaptor::TiltSensor* Create()
+Dali::IntrusivePtr<Dali::Internal::Adaptor::TiltSensor> Create()
 {
   return Dali::Internal::Adaptor::TiltSensorTizen::New();
 }

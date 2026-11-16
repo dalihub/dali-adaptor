@@ -369,7 +369,7 @@ void Capture::OnRenderFinished(Dali::RenderTask task)
 
       DALI_LOG_DEBUG_INFO("Request to save Capture Path[%s]\n", mPath.c_str());
       Dali::PixelBuffer renderResult = mRenderTask.GetRenderResultBuffer();
-      mCaptureFileSaveTask           = new Capture::CaptureFileSaveTask(mRenderTask, renderResult, mPath, mQuality, MakeCallback(this, &Capture::OnFileSaveCompleted));
+      mCaptureFileSaveTask           = Capture::CaptureFileSaveTask::New(mRenderTask, renderResult, mPath, mQuality, MakeCallback(this, &Capture::OnFileSaveCompleted));
       Dali::AsyncTaskManager::Get().AddTask(mCaptureFileSaveTask);
     }
     else

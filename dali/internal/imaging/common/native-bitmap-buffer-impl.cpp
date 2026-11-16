@@ -83,7 +83,7 @@ Dali::NativeImageInterface::PrepareTextureResult NativeBitmapBuffer::PrepareText
   }
   else
   {
-    return mGlAbstraction ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE;
+    return mGlAbstraction ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS;
   }
 }
 

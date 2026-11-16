@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <tizen_core_wl.h>
 #include <limits>
 #include <map>
@@ -61,8 +62,24 @@ class DragAndDropTcoreWl : public Dali::Internal::Adaptor::DragAndDrop,
                            public Dali::ConnectionTracker
 {
 public:
-  DragAndDropTcoreWl();
-  ~DragAndDropTcoreWl() override;
+  /**
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
+   */
+  static DALI_INTERNAL DragAndDropTcoreWl* NewForBaseHandle()
+  {
+    return new DragAndDropTcoreWl();
+  }
+
+  /**
+   * @brief Creates a reference-counted implementation.
+   */
+  static Dali::IntrusivePtr<DragAndDropTcoreWl> New()
+  {
+    return Dali::IntrusivePtr<DragAndDropTcoreWl>(new DragAndDropTcoreWl());
+  }
 
   bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, SourceCallback callback) override;
   bool AddListener(Dali::Actor target, const Dali::String& mimeType, DragCallback callback) override;
@@ -84,6 +101,10 @@ public:
 
   void CallSourceEvent(Dali::DragAndDrop::SourceEventType type);
   void ResetDropTargets();
+
+protected:
+  DragAndDropTcoreWl();
+  ~DragAndDropTcoreWl() override;
 
 private:
   void    DropTargetSceneOn(Dali::Actor target);

@@ -56,12 +56,12 @@ Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "L
 
 } // unnamed namespace
 
-GlWindow* GlWindow::New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent)
+Dali::IntrusivePtr<GlWindow> GlWindow::New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent)
 {
-  std::unique_ptr<GlWindow> window = std::unique_ptr<GlWindow>(new GlWindow());
-  window->mIsTransparent           = isTransparent;
+  Dali::IntrusivePtr<GlWindow> window(new GlWindow());
+  window->mIsTransparent = isTransparent;
   window->Initialize(positionSize, name, className);
-  return window.release();
+  return window;
 }
 
 GlWindow::GlWindow()
@@ -183,7 +183,7 @@ void GlWindow::Initialize(const PositionSize& positionSize, const std::string& n
 
 void GlWindow::SetEventHandler()
 {
-  mEventHandler = EventHandlerPtr(new EventHandler(mWindowBase.get(), *this));
+  mEventHandler = EventHandlerPtr(EventHandler::New(mWindowBase.get(), *this));
   mEventHandler->AddObserver(*this);
 }
 

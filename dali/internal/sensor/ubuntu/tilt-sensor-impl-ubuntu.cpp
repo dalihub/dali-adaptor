@@ -18,6 +18,7 @@
 // CLASS HEADER
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
 #include <dali/internal/sensor/ubuntu/tilt-sensor-impl-ubuntu.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
@@ -48,9 +49,9 @@ namespace Internal
 {
 namespace Adaptor
 {
-TiltSensorUbuntu* TiltSensorUbuntu::New()
+Dali::IntrusivePtr<TiltSensorUbuntu> TiltSensorUbuntu::New()
 {
-  return new TiltSensorUbuntu();
+  return Dali::IntrusivePtr<TiltSensorUbuntu>(new TiltSensorUbuntu());
 }
 
 TiltSensorUbuntu::~TiltSensorUbuntu()

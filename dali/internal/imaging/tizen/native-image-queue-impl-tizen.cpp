@@ -607,7 +607,7 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageQueueTizen::PrepareT
   }
   else
   {
-    return mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE;
+    return mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS;
   }
 }
 

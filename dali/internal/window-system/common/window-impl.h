@@ -88,14 +88,14 @@ public:
    *            It is only honoured when isUsePreLoader is false.
    * @return A newly allocated Window
    */
-  static Window* New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader, const bool isShowOnAdaptorSet = false);
+  static Dali::IntrusivePtr<Window> New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader, const bool isShowOnAdaptorSet = false);
 
   /**
    * @brief Create a new Window.
    *
    * @return A newly allocated Window
    */
-  static Window* New(PositionSize positionSize);
+  static Dali::IntrusivePtr<Window> New(PositionSize positionSize);
 
   /**
    * @copydoc Dali::Window::SetClass()
@@ -715,11 +715,6 @@ public: // It is only for window-impl. Need not public for the others.
    */
   void InitializeImeInfo();
 
-  /**
-   * Destructor. Need to be public for unique_ptr destructor.
-   */
-  ~Window() override;
-
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -1206,6 +1201,12 @@ public: // Signals
   {
     return mPointerConstraintsSignal;
   }
+
+protected:
+  /**
+   * Destructor. Need to be public for unique_ptr destructor.
+   */
+  ~Window() override;
 
 private:
   WindowRenderSurface* mWindowSurface; ///< The window rendering surface

@@ -580,17 +580,6 @@ public: // Signals
    */
   LegacyContentReceivedSignalType& LegacyContentReceivedSignal();
 
-public:
-  /**
-   * Constructor
-   */
-  InputMethodContext();
-
-  /**
-   * Destructor
-   */
-  ~InputMethodContext() override = default;
-
 private:
   InputMethodContext(const InputMethodContext&)      = delete;
   InputMethodContext& operator=(InputMethodContext&) = delete;
@@ -693,6 +682,17 @@ public:
 
     return static_cast<const Internal::Adaptor::InputMethodContext&>(handle);
   }
+
+protected:
+  /**
+   * Constructor
+   */
+  InputMethodContext();
+
+  /**
+   * Destructor
+   */
+  ~InputMethodContext() override = default;
 };
 
 } // namespace Adaptor

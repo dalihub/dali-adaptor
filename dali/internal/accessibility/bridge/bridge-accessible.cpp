@@ -34,6 +34,7 @@
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/accessibility/bridge/navigation-sorting.h>
 #include <dali/internal/window-system/common/window-impl.h>
+#include <dali/internal/system/common/locale-context.h>
 
 //comment out 2 lines below to get more logs
 #undef LOG
@@ -53,6 +54,19 @@ constexpr const char* VALUE_FORMAT_TEXT_VAL     = "text";
 constexpr const char* FORCE_CHILD_SEARCH_ATTR   = "forceChildSearch";
 constexpr const char* COLLECTION_INDEX_ATTR     = "collection_index";
 constexpr const char* COLLECTION_CONTAINER_ATTR = "collection_container";
+
+void AddLocaleAttribute(std::unordered_map<std::string, std::string>& attributes)
+{
+  std::string locale = Dali::Internal::Adaptor::Locale::GetLocaleName();
+  if(locale.empty())
+  {
+    attributes.erase("dali.a11y.locale");
+  }
+  else
+  {
+    attributes["dali.a11y.locale"] = std::move(locale);
+  }
+}
 
 // Comparison function for sorting by collection_index.
 // Items with collection_index come before those without.
@@ -613,6 +627,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   {
     attributes.insert({"suppress-screen-reader", "true"});
   }
+  AddLocaleAttribute(attributes);
 
   double      currentValue = 0.0;
   std::string currentValueText;
@@ -1170,6 +1185,10 @@ DBus::ValueOrError<std::unordered_map<std::string, std::string>> BridgeAccessibl
     attributes.insert({VALUE_FORMAT_KEY, VALUE_FORMAT_TEXT_VAL});
   }
 
+  if(window && self->GetInternalActor() == window.GetRootLayer())
+  {
+    AddLocaleAttribute(attributes);
+  }
   return attributes;
 }
 

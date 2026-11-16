@@ -307,10 +307,10 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(const RenderPass* render
     // Test renderpass first
     if(element.renderPass != nullptr)
     {
-      auto& attachments = element.renderPass->GetCreateInfo().attachments;
-      if(attachments && !attachments->empty())
+      auto& existingAttachments = element.renderPass->GetCreateInfo().attachments;
+      if(existingAttachments && !existingAttachments->empty())
       {
-        auto firstAttachment = attachments->front();
+        auto firstAttachment = existingAttachments->front();
         if(firstAttachment.loadOp == matchLoadOp &&
            firstAttachment.storeOp == matchStoreOp)
         {

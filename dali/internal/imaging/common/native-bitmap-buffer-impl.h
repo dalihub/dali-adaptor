@@ -45,20 +45,6 @@ class NativeBitmapBuffer : public NativeImageInterface
 {
 public:
   /**
-   * Constructor.
-   * @param adaptor Adaptor used
-   * @param width width of image
-   * @param height height of image
-   * @param pixelFormat pixel format for image
-   */
-  NativeBitmapBuffer(Adaptor* adaptor, uint32_t width, uint32_t height, Pixel::Format pixelFormat);
-
-  /**
-   * virtual destructor
-   */
-  virtual ~NativeBitmapBuffer();
-
-  /**
    * Write to buffer. Does not block.
    * @param[in] src  data source
    * @param[in] size size of data in bytes
@@ -139,6 +125,21 @@ public:
   {
     return Rect<uint32_t>{0, 0, mWidth, mHeight};
   }
+
+protected:
+  /**
+   * Constructor.
+   * @param adaptor Adaptor used
+   * @param width width of image
+   * @param height height of image
+   * @param pixelFormat pixel format for image
+   */
+  NativeBitmapBuffer(Adaptor* adaptor, uint32_t width, uint32_t height, Pixel::Format pixelFormat);
+
+  /**
+   * virtual destructor
+   */
+  virtual ~NativeBitmapBuffer();
 
 private:
   NativeBitmapBuffer(const NativeBitmapBuffer&);            ///< not defined

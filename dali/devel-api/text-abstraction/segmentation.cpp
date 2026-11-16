@@ -45,9 +45,9 @@ Segmentation Segmentation::Get()
 
 Segmentation Segmentation::New()
 {
-  auto segmentationImpl = new Internal::Segmentation();
+  auto segmentationImpl = Internal::Segmentation::New();
 
-  return Segmentation(segmentationImpl);
+  return Segmentation(segmentationImpl.Get());
 }
 
 void Segmentation::GetLineBreakPositions(const Character* const text,

@@ -63,26 +63,12 @@ public:
   static AnimatedImageLoadingPtr New(FILE* const fp);
 
   /**
-   * @brief Constructor
-   *
-   * Construct a Loader with the given URL
-   * @param[in] url The url of the webp image to load
-   * @param[in] isLocalResource The true or false whether this is a local resource.
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The returned reference count is zero; the constructor must acquire its first reference.
+   * Use New() when an IntrusivePtr owner is required.
    */
-  WebPLoading(const std::string& url, bool isLocalResource);
-
-  /**
-   * @brief Constructor
-   *
-   * Construct a Loader with the given URL
-   * @param[in] fp The file pointer to be load.
-   */
-  WebPLoading(FILE* const fp);
-
-  /**
-   * @brief Destructor
-   */
-  ~WebPLoading() override;
+  static DALI_INTERNAL WebPLoading* NewForBaseHandle(FILE* const fp);
 
   /**
    * @brief Load the next Frame of the animated image.
@@ -139,6 +125,29 @@ public:
    * @return True when the animated image loading is succeeded.
    */
   bool HasLoadingSucceeded() const override;
+
+protected:
+  /**
+   * @brief Constructor
+   *
+   * Construct a Loader with the given URL
+   * @param[in] url The url of the webp image to load
+   * @param[in] isLocalResource The true or false whether this is a local resource.
+   */
+  WebPLoading(const std::string& url, bool isLocalResource);
+
+  /**
+   * @brief Constructor
+   *
+   * Construct a Loader with the given URL
+   * @param[in] fp The file pointer to be load.
+   */
+  WebPLoading(FILE* const fp);
+
+  /**
+   * @brief Destructor
+   */
+  ~WebPLoading() override;
 
 private:
   /**

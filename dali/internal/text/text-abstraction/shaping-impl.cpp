@@ -139,9 +139,10 @@ struct Shaping::Plugin
                const Character* const       text,
                Length                       numberOfCharacters,
                FontId                       fontId,
-               Script                       script)
+               Script                       script,
+               const std::string*           language = nullptr)
   {
-    // Clear previoursly shaped texts.
+    // Clear previously shaped text.
     mIndices.Clear();
     mAdvance.Clear();
     mCharacterMap.Clear();
@@ -186,8 +187,17 @@ struct Shaping::Plugin
         hb_buffer_set_script(harfBuzzBuffer,
                              SCRIPT_TO_HARFBUZZ[script]); /* see hb-unicode.h */
 
-        const std::string& localeString = TextAbstraction::GetLocale();
-        hb_buffer_set_language(harfBuzzBuffer, hb_language_from_string(localeString.c_str(), static_cast<int32_t>(localeString.size())));
+        if(language && !language->empty())
+        {
+          // Use the NUL-terminated tag to avoid truncation in the explicit-length path.
+          hb_buffer_set_language(harfBuzzBuffer, hb_language_from_string(language->c_str(), -1));
+        }
+        else
+        {
+          // Preserve the existing system-locale path, including its parsing.
+          const std::string& localeString = TextAbstraction::GetLocale();
+          hb_buffer_set_language(harfBuzzBuffer, hb_language_from_string(localeString.c_str(), static_cast<int32_t>(localeString.size())));
+        }
 
         /* Layout the text */
         hb_buffer_add_utf32(harfBuzzBuffer, text, numberOfCharacters, 0u, numberOfCharacters);
@@ -347,7 +357,7 @@ TextAbstraction::Shaping Shaping::Get()
     }
     else // create and register the object
     {
-      shapingHandle = TextAbstraction::Shaping(new Shaping);
+      shapingHandle = TextAbstraction::Shaping(Shaping::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, shapingHandle);
     }
   }
@@ -368,6 +378,17 @@ Length Shaping::Shape(TextAbstraction::FontClient& fontClient,
                         numberOfCharacters,
                         fontId,
                         script);
+}
+
+Length Shaping::ShapeWithLanguage(TextAbstraction::FontClient& fontClient,
+                                  const Character*             text,
+                                  Length                       numberOfCharacters,
+                                  FontId                       fontId,
+                                  Script                       script,
+                                  const std::string&           language)
+{
+  CreatePlugin();
+  return mPlugin->Shape(fontClient, text, numberOfCharacters, fontId, script, &language);
 }
 
 void Shaping::GetGlyphs(GlyphInfo*      glyphInfo,
