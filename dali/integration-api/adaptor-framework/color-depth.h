@@ -25,8 +25,8 @@ namespace DALI_NAMESPACE
 /** Bit depth used when choosing a native graphics surface. */
 enum ColorDepth
 {
-  COLOR_DEPTH_24 = 24,
-  COLOR_DEPTH_32 = 32
+  COLOR_DEPTH_24_BITS = 24,
+  COLOR_DEPTH_32_BITS = 32
 };
 } //namespace DALI_NAMESPACE
 

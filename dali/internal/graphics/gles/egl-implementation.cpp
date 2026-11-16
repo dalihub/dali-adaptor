@@ -102,7 +102,7 @@ EglImplementation::EglImplementation(int                                 multiSa
   mCurrentEglContext(EGL_NO_CONTEXT),
   mMultiSamplingLevel(multiSamplingLevel),
   mGlesVersion(30),
-  mColorDepth(COLOR_DEPTH_24),
+  mColorDepth(ColorDepth::COLOR_DEPTH_24_BITS),
   mContextPriority(contextPriority),
   mGlesInitialized(false),
   mIsOwnSurface(true),
@@ -702,7 +702,7 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth,
                                      bool depthBufferRequired, bool stencilBufferRequired,
                                      int multiSamplingLevel, bool surfaceAlphaRequired)
 {
-  DALI_LOG_INFO(gEglLogFilter, Debug::General, "EglImplementation::ChooseConfig(isWindowType:%s, colorDepth:%s, depthBuffer:%s, stencilBuffer:%s, msaa:%d, surfaceAlpha:%s\n", isWindowType ? "true" : "false", depth == COLOR_DEPTH_24 ? "24" : "32", depthBufferRequired ? "true" : "false", stencilBufferRequired ? "true" : "false", multiSamplingLevel, surfaceAlphaRequired ? "true" : "false");
+  DALI_LOG_INFO(gEglLogFilter, Debug::General, "EglImplementation::ChooseConfig(isWindowType:%s, colorDepth:%s, depthBuffer:%s, stencilBuffer:%s, msaa:%d, surfaceAlpha:%s\n", isWindowType ? "true" : "false", depth == ColorDepth::COLOR_DEPTH_24_BITS ? "24" : "32", depthBufferRequired ? "true" : "false", stencilBufferRequired ? "true" : "false", multiSamplingLevel, surfaceAlphaRequired ? "true" : "false");
   mColorDepth = depth;
   mIsWindow   = isWindowType;
 
@@ -751,7 +751,7 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth,
   // when it is actually needed.
   // TODO: When the tbm queue of GlView is 24bit, do we have to set the alpha size??
   configAttribs.PushBack(EGL_ALPHA_SIZE);
-  configAttribs.PushBack((surfaceAlphaRequired || depth == COLOR_DEPTH_32) ? 8 : 0);
+  configAttribs.PushBack((surfaceAlphaRequired || depth == ColorDepth::COLOR_DEPTH_32_BITS) ? 8 : 0);
 
   configAttribs.PushBack(EGL_DEPTH_SIZE);
   configAttribs.PushBack(depthBufferRequired ? 24 : 0);

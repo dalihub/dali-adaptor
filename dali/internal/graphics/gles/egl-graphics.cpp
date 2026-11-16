@@ -289,7 +289,7 @@ bool EglGraphics::ReconfigureSurface(Graphics::SurfaceId surfaceId, bool depthBu
   // Choose new config with updated depth/stencil/MSAA settings.
   // This has to happen before anything is torn down: a level the driver cannot
   // satisfy must leave the surface usable rather than destroyed.
-  if(!mEglImplementation->ChooseConfig(true, COLOR_DEPTH_32, depthBufferRequired, stencilBufferRequired, multiSamplingLevel))
+  if(!mEglImplementation->ChooseConfig(true, ColorDepth::COLOR_DEPTH_32_BITS, depthBufferRequired, stencilBufferRequired, multiSamplingLevel))
   {
     DALI_LOG_ERROR("Failed to choose EGL config for reconfigured surface\n");
     return false;
@@ -314,7 +314,7 @@ bool EglGraphics::ReconfigureSurface(Graphics::SurfaceId surfaceId, bool depthBu
   // may allocate new resources (e.g. a wl_egl_window on Wayland). The
   // existing native window handle is still valid and can be reused with
   // a new EGL surface and context.
-  auto newSurface = mEglImplementation->CreateSurfaceWindow(entry.nativeWindow, COLOR_DEPTH_32, newConfig, entry.requiresDirectComposition);
+  auto newSurface = mEglImplementation->CreateSurfaceWindow(entry.nativeWindow, ColorDepth::COLOR_DEPTH_32_BITS, newConfig, entry.requiresDirectComposition);
 
   // Update map entry
   entry.surface       = newSurface;
@@ -394,7 +394,7 @@ void EglGraphics::ConfigureSurface(Dali::Integration::RenderSurfaceInterface* su
   // Try to use OpenGL es 3.0
   // ChooseConfig returns false here when the device only support gles 2.0.
   // Because eglChooseConfig with gles 3.0 setting fails when the device only support gles 2.0 and Our default setting is gles 3.0.
-  if(!mEglImplementation->ChooseConfig(true, COLOR_DEPTH_32))
+  if(!mEglImplementation->ChooseConfig(true, ColorDepth::COLOR_DEPTH_32_BITS))
   {
     // Retry to use OpenGL es 2.0
     mEglImplementation->SetGlesVersion(20);
@@ -403,7 +403,7 @@ void EglGraphics::ConfigureSurface(Dali::Integration::RenderSurfaceInterface* su
     // After this call, we will not change mGLES version anymore.
     mGLES->SetGlesVersion(20);
 
-    mEglImplementation->ChooseConfig(true, COLOR_DEPTH_32);
+    mEglImplementation->ChooseConfig(true, ColorDepth::COLOR_DEPTH_32_BITS);
   }
 
   // Check whether surfaceless context is supported

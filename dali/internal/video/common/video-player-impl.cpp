@@ -42,7 +42,7 @@ Dali::BaseHandle Create()
   return Dali::VideoPlayer::New();
 }
 
-Dali::TypeRegistration type(typeid(Dali::VideoPlayer), typeid(Dali::BaseHandle), Create);
+Dali::TypeRegistration typeRegistration(typeid(Dali::VideoPlayer), typeid(Dali::BaseHandle), Create);
 
 } // unnamed namespace
 

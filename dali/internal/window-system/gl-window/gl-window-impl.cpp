@@ -83,7 +83,7 @@ GlWindow::GlWindow()
   mStencil(false),
   mPositionSize(),
   mAvailableAngles(),
-  mColorDepth(COLOR_DEPTH_24),
+  mColorDepth(ColorDepth::COLOR_DEPTH_24_BITS),
   mRenderingMode(Dali::GlWindow::RenderingMode::CONTINUOUS),
   mPreferredAngle(0),
   mTotalRotationAngle(0),
@@ -168,11 +168,11 @@ void GlWindow::Initialize(const PositionSize& positionSize, const std::string& n
 
   if(mIsTransparent)
   {
-    mColorDepth = COLOR_DEPTH_32;
+    mColorDepth = ColorDepth::COLOR_DEPTH_32_BITS;
   }
   else
   {
-    mColorDepth = COLOR_DEPTH_24;
+    mColorDepth = ColorDepth::COLOR_DEPTH_24_BITS;
   }
 
   SetClass(name, className);

@@ -56,7 +56,7 @@ PixmapRenderSurfaceEcoreX::PixmapRenderSurfaceEcoreX(Dali::PositionSize position
   mDisplayConnection(nullptr),
   mPosition(positionSize),
   mRenderNotification(NULL),
-  mColorDepth(isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24),
+  mColorDepth(isTransparent ? ColorDepth::COLOR_DEPTH_32_BITS : ColorDepth::COLOR_DEPTH_24_BITS),
   mOwnSurface(false),
   mProduceBufferIndex(INITIAL_PRODUCE_BUFFER_INDEX),
   mConsumeBufferIndex(INITIAL_CONSUME_BUFFER_INDEX),
@@ -333,7 +333,7 @@ void PixmapRenderSurfaceEcoreX::CreateRenderable()
   for(int i = 0; i < BUFFER_COUNT; ++i)
   {
     // create the pixmap
-    mX11Pixmaps[i] = ecore_x_pixmap_new(0, mPosition.width, mPosition.height, mColorDepth);
+    mX11Pixmaps[i] = ecore_x_pixmap_new(0, mPosition.width, mPosition.height, static_cast<int>(mColorDepth));
 
     // clear the pixmap
     unsigned int foreground;
