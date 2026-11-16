@@ -43,7 +43,6 @@ SET( public_api_text_abstraction_header_files
 )
 
 SET( public_api_adaptor_framework_header_files
-  ${adaptor_public_api_dir}/adaptor-framework/application.h
   ${adaptor_public_api_dir}/adaptor-framework/capture.h
   ${adaptor_public_api_dir}/adaptor-framework/clipboard-data.h
   ${adaptor_public_api_dir}/adaptor-framework/clipboard.h
