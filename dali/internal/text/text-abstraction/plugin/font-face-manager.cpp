@@ -22,6 +22,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/any.h>
+#include <memory>
 
 // COLRv1 renderer gating macros - needed for renderability check
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
@@ -191,23 +192,29 @@ void FontFaceManager::BuildVariations(FT_Face ftFace, const Property::Map* varia
 {
   if(variationsMapPtr)
   {
-    FT_MM_Var* mm_var;
-    FT_Error   error = FT_Get_MM_Var(ftFace, &mm_var);
+    FT_MM_Var* mmVar;
+    FT_Error   error = FT_Get_MM_Var(ftFace, &mmVar);
     if(DALI_UNLIKELY(error != FT_Err_Ok))
     {
       DALI_LOG_ERROR("FT_Get_MM_Var fail, error code:0x%02X\n", error);
       return;
     }
 
+    auto releaseMmVar = [library = ftFace->glyph->library](FT_MM_Var* variations)
+    {
+      FT_Done_MM_Var(library, variations);
+    };
+    std::unique_ptr<FT_MM_Var, decltype(releaseMmVar)> mmVarGuard(mmVar, releaseMmVar);
+
     const Property::Map& variationsMap = *variationsMapPtr;
 
-    freeTypeCoords.resize(mm_var->num_axis);
-    harfBuzzVariations.resize(mm_var->num_axis);
+    freeTypeCoords.resize(mmVar->num_axis);
+    harfBuzzVariations.resize(mmVar->num_axis);
 
-    for(uint32_t axisIndex = 0; axisIndex < mm_var->num_axis; axisIndex++)
+    for(uint32_t axisIndex = 0; axisIndex < mmVar->num_axis; axisIndex++)
     {
       char stringTag[FONT_AXIS_NAME_LEN + 1];
-      ConvertTagToString(mm_var->axis[axisIndex].tag, stringTag);
+      ConvertTagToString(mmVar->axis[axisIndex].tag, stringTag);
       auto  valuePtr = variationsMap.Find(stringTag);
       float value    = 0.0f;
 
@@ -217,12 +224,12 @@ void FontFaceManager::BuildVariations(FT_Face ftFace, const Property::Map* varia
       }
       else
       {
-        freeTypeCoords[axisIndex] = mm_var->axis[axisIndex].def;
+        freeTypeCoords[axisIndex] = mmVar->axis[axisIndex].def;
         value                     = static_cast<float>(freeTypeCoords[axisIndex]) / static_cast<float>(FROM_16DOT16);
       }
 
       hb_variation_t harfBuzzVariation;
-      harfBuzzVariation.tag         = mm_var->axis[axisIndex].tag;
+      harfBuzzVariation.tag         = mmVar->axis[axisIndex].tag;
       harfBuzzVariation.value       = value;
       harfBuzzVariations[axisIndex] = harfBuzzVariation;
     }
