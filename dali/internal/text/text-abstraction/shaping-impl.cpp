@@ -21,12 +21,14 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/system/common/locale-context.h>
 #include "font-client-impl.h"
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 #include <harfbuzz/hb-ft.h>
 #include <harfbuzz/hb.h>
+#include <atomic>
 
 namespace
 {
@@ -37,6 +39,10 @@ Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New
 #endif
 
 static constexpr float FROM_266 = 1.0f / 64.0f;
+
+// HarfBuzz owns immutable interned handles for its library lifetime.
+// The initial invalid handle preserves shaping before locale initialization.
+std::atomic<hb_language_t> gSystemShapingLanguage{HB_LANGUAGE_INVALID};
 } // namespace
 
 namespace DALI_NAMESPACE
@@ -45,6 +51,13 @@ namespace TextAbstraction
 {
 namespace Internal
 {
+
+void UpdateShapingLanguage()
+{
+  const auto& languageCode = Dali::Internal::Adaptor::Locale::GetLanguageCode();
+  const auto  language     = hb_language_from_string(languageCode.c_str(), static_cast<int32_t>(languageCode.size()));
+  gSystemShapingLanguage.store(language, std::memory_order_release);
+}
 
 const hb_script_t SCRIPT_TO_HARFBUZZ[] =
   {
@@ -139,9 +152,10 @@ struct Shaping::Plugin
                const Character* const       text,
                Length                       numberOfCharacters,
                FontId                       fontId,
-               Script                       script)
+               Script                       script,
+               const std::string*           language = nullptr)
   {
-    // Clear previoursly shaped texts.
+    // Clear previously shaped text.
     mIndices.Clear();
     mAdvance.Clear();
     mCharacterMap.Clear();
@@ -186,8 +200,16 @@ struct Shaping::Plugin
         hb_buffer_set_script(harfBuzzBuffer,
                              SCRIPT_TO_HARFBUZZ[script]); /* see hb-unicode.h */
 
-        const std::string& localeString = TextAbstraction::GetLocale();
-        hb_buffer_set_language(harfBuzzBuffer, hb_language_from_string(localeString.c_str(), static_cast<int32_t>(localeString.size())));
+        if(language && !language->empty())
+        {
+          // Use the NUL-terminated tag to avoid truncation in the explicit-length path.
+          hb_buffer_set_language(harfBuzzBuffer, hb_language_from_string(language->c_str(), -1));
+        }
+        else
+        {
+          // Workers never read the mutable Common locale strings.
+          hb_buffer_set_language(harfBuzzBuffer, gSystemShapingLanguage.load(std::memory_order_acquire));
+        }
 
         /* Layout the text */
         hb_buffer_add_utf32(harfBuzzBuffer, text, numberOfCharacters, 0u, numberOfCharacters);
@@ -347,7 +369,7 @@ TextAbstraction::Shaping Shaping::Get()
     }
     else // create and register the object
     {
-      shapingHandle = TextAbstraction::Shaping(new Shaping);
+      shapingHandle = TextAbstraction::Shaping(Shaping::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, shapingHandle);
     }
   }
@@ -368,6 +390,17 @@ Length Shaping::Shape(TextAbstraction::FontClient& fontClient,
                         numberOfCharacters,
                         fontId,
                         script);
+}
+
+Length Shaping::ShapeWithLanguage(TextAbstraction::FontClient& fontClient,
+                                  const Character*             text,
+                                  Length                       numberOfCharacters,
+                                  FontId                       fontId,
+                                  Script                       script,
+                                  const std::string&           language)
+{
+  CreatePlugin();
+  return mPlugin->Shape(fontClient, text, numberOfCharacters, fontId, script, &language);
 }
 
 void Shaping::GetGlyphs(GlyphInfo*      glyphInfo,

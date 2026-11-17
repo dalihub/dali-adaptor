@@ -121,7 +121,7 @@ TextAbstraction::FontFileManager FontFileManager::Get()
       }
       else
       {
-        fontFileManagerHandle = TextAbstraction::FontFileManager(new FontFileManager);
+        fontFileManagerHandle = TextAbstraction::FontFileManager(FontFileManager::NewForBaseHandle());
       }
       service.Register(gSingletonTypeInfoId, fontFileManagerHandle);
     }
@@ -131,7 +131,7 @@ TextAbstraction::FontFileManager FontFileManager::Get()
     if(!gFontFileManager)
     {
       // For Font Pre-load, global font client will use this.
-      gFontFileManager = Dali::TextAbstraction::FontFileManager(new FontFileManager);
+      gFontFileManager = Dali::TextAbstraction::FontFileManager(FontFileManager::NewForBaseHandle());
     }
     return gFontFileManager;
   }

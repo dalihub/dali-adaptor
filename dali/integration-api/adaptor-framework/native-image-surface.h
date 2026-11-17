@@ -114,20 +114,21 @@ private:
   DALI_INTERNAL ~NativeImageSurface() override;
 
   /**
-   * @brief Undefined copy constructor.
+   * @brief Deleted copy constructor.
    *
    * This avoids accidental calls to a default copy constructor.
    * @param[in] nativeImageSurface A reference to the object to copy
    */
-  DALI_INTERNAL NativeImageSurface(const NativeImageSurface& nativeImageSurface);
+  DALI_INTERNAL NativeImageSurface(const NativeImageSurface& nativeImageSurface) = delete;
 
   /**
-   * @brief Undefined assignment operator.
+   * @brief Deleted assignment operator.
    *
    * This avoids accidental calls to a default assignment operator.
    * @param[in] rhs A reference to the object to copy
    */
-  DALI_INTERNAL NativeImageSurface& operator=(const NativeImageSurface& rhs);
+  DALI_INTERNAL NativeImageSurface& operator=(const NativeImageSurface& rhs) = delete;
+
   /// @endcond
 
 private:

@@ -29,6 +29,7 @@ SET(TC_SOURCES
     utc-Dali-Keyboard.cpp
     utc-Dali-NativeImage.cpp
     utc-Dali-PixelBufferOperations.cpp
+    utc-Dali-TextLanguage.cpp
     utc-Dali-TextScript.cpp
     utc-Dali-Timer.cpp
     utc-Dali-TtsPlayer.cpp

@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/ref-object.h>
 
@@ -39,12 +40,24 @@ namespace Adaptor
 class StyleMonitor : public BaseObject, public ConnectionTracker
 {
 public:
-  // Creation & Destruction
+  /**
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
+   */
+  static DALI_INTERNAL StyleMonitor* NewForBaseHandle()
+  {
+    return new StyleMonitor();
+  }
 
   /**
-   * Constructor.
+   * @brief Creates a reference-counted implementation.
    */
-  StyleMonitor();
+  static Dali::IntrusivePtr<StyleMonitor> New()
+  {
+    return Dali::IntrusivePtr<StyleMonitor>(new StyleMonitor());
+  }
 
   /**
    * Retrieve the initialized instance of the StyleMonitor.
@@ -108,6 +121,14 @@ public:
    * @copydoc Dali::StyleMonitor::StyleChangeSignal()
    */
   Dali::StyleMonitor::StyleChangeSignalType& StyleChangeSignal();
+
+protected:
+  // Creation & Destruction
+
+  /**
+   * Constructor.
+   */
+  StyleMonitor();
 
 private:
   /**

@@ -19,7 +19,9 @@
 #include <dali/devel-api/text-abstraction/font-client.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/system/common/locale-context.h>
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
+#include <dali/internal/text/text-abstraction/shaping-impl.h>
 
 namespace DALI_NAMESPACE
 {
@@ -59,20 +61,20 @@ FontClient FontClient::Get()
 
 FontClient FontClient::New()
 {
-  auto fontClientImpl = new Internal::FontClient();
+  auto fontClientImpl = Internal::FontClient::New();
 
   fontClientImpl->SetDpiFromWindowSystem();
 
-  return FontClient(fontClientImpl);
+  return FontClient(fontClientImpl.Get());
 }
 
 FontClient FontClient::New(uint32_t horizontalDpi, uint32_t verticalDpi)
 {
-  auto fontClientImpl = new Internal::FontClient();
+  auto fontClientImpl = Internal::FontClient::New();
 
   fontClientImpl->SetDpi(horizontalDpi, verticalDpi);
 
-  return FontClient(fontClientImpl);
+  return FontClient(fontClientImpl.Get());
 }
 
 FontClient::FontClient()
@@ -367,22 +369,24 @@ void FontClientJoinFontThreads()
 
 void EnsureLocale()
 {
-  Internal::FontClient::EnsureLocale();
+  Dali::Internal::Adaptor::Locale::EnsureLocale();
+  Internal::UpdateShapingLanguage();
 }
 
 const std::string& GetLocale()
 {
-  return Internal::FontClient::GetLocale();
+  return Dali::Internal::Adaptor::Locale::GetLanguageCode();
 }
 
 const std::string& GetLocaleFull()
 {
-  return Internal::FontClient::GetLocaleFull();
+  return Dali::Internal::Adaptor::Locale::GetLocaleName();
 }
 
 void SetLocale(const std::string& locale)
 {
-  Internal::FontClient::SetLocale(locale);
+  Dali::Internal::Adaptor::Locale::SetLocale(locale);
+  Internal::UpdateShapingLanguage();
 }
 
 void EnableDesignCompatibility()

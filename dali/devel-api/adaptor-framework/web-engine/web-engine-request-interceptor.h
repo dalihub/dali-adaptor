@@ -35,16 +35,6 @@ class WebEngineRequestInterceptor : public RefObject
 {
 public:
   /**
-   * @brief Constructor.
-   */
-  WebEngineRequestInterceptor() = default;
-
-  /**
-   * @brief Destructor.
-   */
-  virtual ~WebEngineRequestInterceptor() = default;
-
-  /**
    * @brief Gets web engine in which http request is intercepted.
    *
    * @return web engine if succeeded or null otherwise
@@ -145,6 +135,21 @@ public:
    * @return true if succeeded or false otherwise
    */
   virtual bool WriteResponseChunk(const int8_t* chunk, uint32_t length) = 0;
+
+protected:
+  /**
+   * @brief Constructor.
+   */
+  WebEngineRequestInterceptor() = default;
+
+  /**
+   * @brief Destructor.
+   */
+  virtual ~WebEngineRequestInterceptor() = default;
+
+private:
+  WebEngineRequestInterceptor(const WebEngineRequestInterceptor&)            = delete;
+  WebEngineRequestInterceptor& operator=(const WebEngineRequestInterceptor&) = delete;
 };
 
 using WebEngineRequestInterceptorPtr = Dali::IntrusivePtr<WebEngineRequestInterceptor>;

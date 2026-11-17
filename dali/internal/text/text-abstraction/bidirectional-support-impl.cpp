@@ -352,7 +352,7 @@ TextAbstraction::BidirectionalSupport BidirectionalSupport::Get()
     }
     else // create and register the object
     {
-      bidirectionalSupportHandle = TextAbstraction::BidirectionalSupport(new BidirectionalSupport);
+      bidirectionalSupportHandle = TextAbstraction::BidirectionalSupport(BidirectionalSupport::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, bidirectionalSupportHandle);
     }
   }

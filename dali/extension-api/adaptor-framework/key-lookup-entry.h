@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <cstdint>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-namespace.h>
 
@@ -27,14 +30,24 @@ namespace Extension
 {
 /**
  * @brief A single entry describing how a platform key name maps to a Dali key code.
+ *
+ * Leave the reserved members at zero. Aggregate initialization that lists only the
+ * first three members does this.
  * @SINCE_3_0.0
  */
 struct KeyLookupEntry
 {
-  const char* keyName;      ///< XF86 key name
-  int         daliKeyCode;  ///< Dali key code
-  bool        deviceButton; ///< Whether the key is from a button on the device
+  const char* keyName;       ///< XF86 key name
+  int         daliKeyCode;   ///< Dali key code
+  bool        deviceButton;  ///< Whether the key is from a button on the device
+  uint8_t     reserved1{0u}; ///< Reserved for future use. Must be zero.
+  uint16_t    reserved2{0u}; ///< Reserved for future use. Must be zero.
 };
+
+// Tables of entries cross the library boundary as arrays, so the entry size is
+// compiled into every table. The reserved members fill what would otherwise be
+// padding; give them a meaning instead of adding members.
+static_assert(sizeof(KeyLookupEntry) == sizeof(const char*) + sizeof(int) + 4u, "KeyLookupEntry size is part of the ABI");
 
 } // namespace Extension
 } //namespace DALI_NAMESPACE

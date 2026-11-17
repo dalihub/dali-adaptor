@@ -356,9 +356,9 @@ void ApplicationController::CreateWindow(bool isPreInitialize)
 
   WindowSystem::Initialize();
 
-  Dali::Any                        surface;
-  Dali::Internal::Adaptor::Window* window = Dali::Internal::Adaptor::Window::New(surface, finalWindowName, windowClassName, activeWindowData, isPreInitialize, false);
-  mMainWindow                             = Dali::Window(window);
+  Dali::Any surface;
+  auto      window = Dali::Internal::Adaptor::Window::New(surface, finalWindowName, windowClassName, activeWindowData, isPreInitialize, false);
+  mMainWindow      = Dali::Window(window.Get());
 }
 
 void ApplicationController::CreateAdaptor()

@@ -74,7 +74,7 @@ Dali::BaseHandle Create()
   return Dali::WebEngine::New();
 }
 
-Dali::TypeRegistration type(typeid(Dali::WebEngine), typeid(Dali::BaseHandle), Create);
+Dali::TypeRegistration typeRegistration(typeid(Dali::WebEngine), typeid(Dali::BaseHandle), Create);
 
 /**
  * @brief Control the WebEnginePlugin library lifecycle.

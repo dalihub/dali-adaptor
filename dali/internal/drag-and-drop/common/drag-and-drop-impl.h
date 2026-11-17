@@ -43,16 +43,6 @@ public:
   using SourceCallback = std::function<void(Dali::DragAndDrop::SourceEventType)>;
   using DragCallback   = std::function<void(const Dali::DragAndDrop::DragEvent&)>;
   /**
-   * Constructor
-   */
-  DragAndDrop() = default;
-
-  /**
-   * Destructor
-   */
-  ~DragAndDrop() override = default;
-
-  /**
    * @copydoc Dali::DragAndDrop::StartDragAndDrop()
    */
   virtual bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, SourceCallback callback) = 0;
@@ -111,6 +101,17 @@ public:
    * @copydoc Dali::DragAndDrop::CalculateViewRegion()
    */
   virtual bool CalculateViewRegion(void* event) = 0;
+
+protected:
+  /**
+   * Constructor
+   */
+  DragAndDrop() = default;
+
+  /**
+   * Destructor
+   */
+  ~DragAndDrop() override = default;
 
 private:
   Dali::DragAndDrop::SourceEventSignalType     mSourceEventSignal;

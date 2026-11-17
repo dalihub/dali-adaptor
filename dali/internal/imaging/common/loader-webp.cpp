@@ -36,7 +36,7 @@ constexpr uint32_t FIRST_FRAME_INDEX = 0u;
 bool LoadWebpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height)
 {
   FILE* const                fp          = input.file;
-  Dali::AnimatedImageLoading webPLoading = Dali::AnimatedImageLoading(Dali::Internal::Adaptor::WebPLoading::New(fp).Get());
+  Dali::AnimatedImageLoading webPLoading = Dali::AnimatedImageLoading(Dali::Internal::Adaptor::WebPLoading::NewForBaseHandle(fp));
   if(webPLoading)
   {
     ImageDimensions imageSize = webPLoading.GetImageSize();
@@ -53,7 +53,7 @@ bool LoadWebpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
 bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 {
   FILE* const                fp          = input.file;
-  Dali::AnimatedImageLoading webPLoading = Dali::AnimatedImageLoading(Dali::Internal::Adaptor::WebPLoading::New(fp).Get());
+  Dali::AnimatedImageLoading webPLoading = Dali::AnimatedImageLoading(Dali::Internal::Adaptor::WebPLoading::NewForBaseHandle(fp));
   if(webPLoading)
   {
     Dali::PixelBuffer pixelBuffer = webPLoading.LoadFrame(FIRST_FRAME_INDEX);
@@ -69,7 +69,7 @@ bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::PixelBuffer
 bool LoadPlanesFromWebp(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers)
 {
   FILE* const                fp          = input.file;
-  Dali::AnimatedImageLoading webPLoading = Dali::AnimatedImageLoading(Dali::Internal::Adaptor::WebPLoading::New(fp).Get());
+  Dali::AnimatedImageLoading webPLoading = Dali::AnimatedImageLoading(Dali::Internal::Adaptor::WebPLoading::NewForBaseHandle(fp));
   if(webPLoading)
   {
     if(webPLoading.LoadFramePlanes(FIRST_FRAME_INDEX, pixelBuffers))

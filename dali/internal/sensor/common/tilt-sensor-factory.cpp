@@ -19,6 +19,7 @@
 #include <dali/internal/adaptor/common/weak-symbol.h>
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 
 namespace
 {
@@ -33,10 +34,10 @@ namespace Adaptor
 {
 namespace TiltSensorFactory
 {
-DALI_ADAPTOR_WEAK_SYMBOL Dali::Internal::Adaptor::TiltSensor* Create()
+DALI_ADAPTOR_WEAK_SYMBOL Dali::IntrusivePtr<Dali::Internal::Adaptor::TiltSensor> Create()
 {
   // default implementation returns 'dummy' sensor
-  return new Internal::Adaptor::TiltSensor();
+  return Internal::Adaptor::TiltSensor::New();
 }
 
 Dali::TiltSensor Get()
@@ -57,7 +58,7 @@ Dali::TiltSensor Get()
     else
     {
       // Create a singleton instance
-      sensor = Dali::TiltSensor(TiltSensorFactory::Create());
+      sensor = Dali::TiltSensor(TiltSensorFactory::Create().Get());
       service.Register(gSingletonTypeInfoId, sensor);
       handle = sensor;
     }

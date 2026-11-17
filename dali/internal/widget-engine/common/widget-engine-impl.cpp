@@ -212,10 +212,10 @@ private:
 
   struct Plugin
   {
-    Plugin(WidgetPlugin& widgetPlugin, Dali::WidgetEnginePlugin* plugin, Adaptor* adaptor)
-    : widgetPlugin(widgetPlugin),
-      plugin(plugin),
-      adaptor(adaptor)
+    Plugin(WidgetPlugin& inputWidgetPlugin, Dali::WidgetEnginePlugin* inputPlugin, Adaptor* inputAdaptor)
+    : widgetPlugin(inputWidgetPlugin),
+      plugin(inputPlugin),
+      adaptor(inputAdaptor)
     {
     }
 

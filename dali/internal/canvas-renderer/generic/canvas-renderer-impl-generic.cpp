@@ -45,7 +45,7 @@ CanvasRendererGeneric::CanvasRendererGeneric(const Vector2& viewBox)
 : CanvasRenderer(viewBox)
 #ifdef THORVG_SUPPORT
   ,
-  mPixelBuffer(nullptr)
+  mPixelBuffer()
 #endif
 {
 }

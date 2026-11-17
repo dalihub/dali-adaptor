@@ -240,7 +240,7 @@ TextAbstraction::Hyphenation Hyphenation::Get()
     }
     else // create and register the object
     {
-      hyphenationHandle = TextAbstraction::Hyphenation(new Hyphenation);
+      hyphenationHandle = TextAbstraction::Hyphenation(Hyphenation::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, hyphenationHandle);
     }
   }

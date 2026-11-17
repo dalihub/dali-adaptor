@@ -212,7 +212,9 @@ public:
     mExtensionKeyLookupStorage.reserve(count);
     for(uint32_t i = 0; i < count; ++i)
     {
-      Dali::KeyLookupEntry entry{mExtensionKeyNames[i].c_str(), table[i].daliKeyCode, table[i].deviceButton};
+      // Copy the whole entry so that reserved members carry over once they are given a meaning.
+      Dali::KeyLookupEntry entry = table[i];
+      entry.keyName              = mExtensionKeyNames[i].c_str();
       mExtensionKeyLookupStorage.push_back(entry);
     }
 

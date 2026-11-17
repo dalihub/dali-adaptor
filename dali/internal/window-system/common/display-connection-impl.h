@@ -20,7 +20,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection.h>
-#include <dali/public-api/object/base-object.h>
 
 namespace DALI_NAMESPACE
 {
@@ -31,7 +30,7 @@ namespace Internal::Adaptor
 /**
  * DisplayConnection implementation
  */
-class DisplayConnection : public Dali::BaseObject
+class DisplayConnection
 {
 public:
   /**
@@ -67,7 +66,7 @@ public:
   /**
    * Destructor
    */
-  ~DisplayConnection() override = default;
+  virtual ~DisplayConnection() = default;
 
   // Undefined
   DisplayConnection(const DisplayConnection&) = delete;

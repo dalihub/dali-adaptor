@@ -53,5 +53,6 @@ IF( (NOT UBUNTU_PROFILE) )
   )
 
   INSTALL( TARGETS ${APPLICATION_NORMAL_TARGET} DESTINATION ${LIB_DIR} )
+  dali_legacy_library_alias(${APPLICATION_NORMAL_TARGET} dali2-adaptor-application-normal)
 ENDIF()
 

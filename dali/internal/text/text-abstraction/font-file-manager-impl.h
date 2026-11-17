@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 #include <memory>
 
@@ -38,14 +39,23 @@ class FontFileManager : public BaseObject
 {
 public:
   /**
-   * Constructor
+   * @brief Creates an unreferenced implementation only for BaseHandle construction.
+   * @warning Pass the result directly to a BaseHandle-derived handle constructor.
+   * The constructor must acquire its first reference (the returned reference count is zero).
+   * Use New() when an IntrusivePtr owner is required.
    */
-  FontFileManager();
+  static DALI_INTERNAL FontFileManager* NewForBaseHandle()
+  {
+    return new FontFileManager();
+  }
 
   /**
-   * Destructor
+   * @brief Creates a reference-counted implementation.
    */
-  ~FontFileManager();
+  static Dali::IntrusivePtr<FontFileManager> New()
+  {
+    return Dali::IntrusivePtr<FontFileManager>(new FontFileManager());
+  }
 
   /**
    * @copydoc Dali::FontFileManager::Get()
@@ -71,6 +81,17 @@ public:
    * @copydoc Dali::FontFileManager::ClearCache()
    */
   void ClearCache();
+
+protected:
+  /**
+   * Constructor
+   */
+  FontFileManager();
+
+  /**
+   * Destructor
+   */
+  ~FontFileManager();
 
 private:
   // Undefined copy constructor.

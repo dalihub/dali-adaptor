@@ -75,4 +75,6 @@ IF( (NOT UBUNTU_PROFILE) )
 
   INSTALL( TARGETS ${APPLICATION_WIDGET_TARGET} DESTINATION ${LIB_DIR} )
   INSTALL( TARGETS ${APPLICATION_COMPONENT_BASED_TARGET} DESTINATION ${LIB_DIR} )
+  dali_legacy_library_alias(${APPLICATION_WIDGET_TARGET} dali2-adaptor-application-widget)
+  dali_legacy_library_alias(${APPLICATION_COMPONENT_BASED_TARGET} dali2-adaptor-application-component-based)
 ENDIF()

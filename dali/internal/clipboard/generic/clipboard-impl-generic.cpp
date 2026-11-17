@@ -72,7 +72,7 @@ public:
       else
       {
         Clipboard::Impl* impl(new Clipboard::Impl());
-        clipboard = Dali::Clipboard(new Clipboard(impl));
+        clipboard = Dali::Clipboard(Clipboard::NewForBaseHandle(impl));
         service.Register(gSingletonTypeInfoId, clipboard);
       }
     }

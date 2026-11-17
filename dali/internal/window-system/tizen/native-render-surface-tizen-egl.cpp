@@ -96,7 +96,7 @@ NativeRenderSurfaceTizen::NativeRenderSurfaceTizen(SurfaceSize surfaceSize, Any 
   if(surface.Empty())
   {
     mSurfaceSize = surfaceSize;
-    mColorDepth  = isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
+    mColorDepth  = isTransparent ? ColorDepth::COLOR_DEPTH_32_BITS : ColorDepth::COLOR_DEPTH_24_BITS;
     mTbmFormat   = isTransparent ? TBM_FORMAT_ARGB8888 : TBM_FORMAT_RGB888;
     CreateNativeRenderable();
   }
@@ -110,7 +110,7 @@ NativeRenderSurfaceTizen::NativeRenderSurfaceTizen(SurfaceSize surfaceSize, Any 
 
     mTbmFormat = tbm_surface_queue_get_format(mTbmQueue);
 
-    mColorDepth = IsColorDepth32Required(mTbmFormat) ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
+    mColorDepth = IsColorDepth32Required(mTbmFormat) ? ColorDepth::COLOR_DEPTH_32_BITS : ColorDepth::COLOR_DEPTH_24_BITS;
   }
 }
 

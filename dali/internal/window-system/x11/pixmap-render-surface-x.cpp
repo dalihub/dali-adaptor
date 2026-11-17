@@ -57,7 +57,7 @@ PixmapRenderSurfaceX::PixmapRenderSurfaceX(Dali::PositionSize positionSize, Any 
   mDisplayConnection(nullptr),
   mPosition(positionSize),
   mRenderNotification(NULL),
-  mColorDepth(isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24),
+  mColorDepth(isTransparent ? ColorDepth::COLOR_DEPTH_32_BITS : ColorDepth::COLOR_DEPTH_24_BITS),
   mOwnSurface(false),
   mProduceBufferIndex(INITIAL_PRODUCE_BUFFER_INDEX),
   mConsumeBufferIndex(INITIAL_CONSUME_BUFFER_INDEX),

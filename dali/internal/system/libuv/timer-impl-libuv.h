@@ -40,18 +40,8 @@ public:
   static TimerLibuvPtr New(uint32_t milliSec);
 
   /**
-   * Constructor
-   * @param[in]  milliSec  Interval in milliseconds.
-   */
-  TimerLibuv(uint32_t milliSec);
-
-  /**
-   * Destructor.
-   */
-  virtual ~TimerLibuv();
 
 public:
-  /**
    * @copydoc Dali::Timer::Start()
    */
   void Start() override;
@@ -91,7 +81,20 @@ public:
    */
   bool Tick();
 
-private: // Implementation
+protected:
+  /**
+   * Constructor
+   * @param[in]  milliSec  Interval in milliseconds.
+   */
+  TimerLibuv(uint32_t milliSec);
+
+  /**
+   * Destructor.
+   */
+  virtual ~TimerLibuv();
+
+private:
+  // Implementation
   // not implemented
   TimerLibuv(const TimerLibuv&)            = delete;
   TimerLibuv& operator=(const TimerLibuv&) = delete;

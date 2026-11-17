@@ -4,18 +4,32 @@ IF(POLICY CMP0177)
   CMAKE_POLICY(SET CMP0177 NEW) # install() DESTINATION paths are normalized.
 ENDIF()
 
-# API major version (Not DALi release version). It also names the libraries,
-# the pkg-config files and the CMake package (dali<major>-adaptor), and selects
-# dali<major>-core.
-IF(NOT DALI_API_MAJOR)
-  SET(DALI_API_MAJOR 3)
-ENDIF()
+# API major version (Not DALi release version). It names the libraries, the
+# pkg-config files and the CMake package (dali<major>-adaptor), selects
+# dali<major>-core, and fixes the install layout (same rule as dali-core):
+# include/dali<major>, share/dali<major>, dali<major>-<tool>,
+# .cache/dali<major>_common_caches. Everything this line installs or writes
+# carries the major, so it can sit beside a DALi 2.x installed from its own
+# source. The 2.x names themselves are available as links through
+# DALI_LEGACY_ALIASES (see dali-legacy-aliases.cmake).
+SET(DALI_API_MAJOR 3)
 SET(name "dali${DALI_API_MAJOR}-adaptor")
 SET(core_name "dali${DALI_API_MAJOR}-core")
+SET(DALI_INCLUDE_SUBDIR "dali${DALI_API_MAJOR}")
+SET(DALI_EXPORT_INCLUDE_DIR "include/${DALI_INCLUDE_SUBDIR}")
+SET(DALI_TOOL_PREFIX "dali${DALI_API_MAJOR}-")
+SET(DALI_DATA_DIR_NAME "dali${DALI_API_MAJOR}")
+SET(DALI_CACHE_DIR_NAME "dali${DALI_API_MAJOR}_common_caches")
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/dali-legacy-aliases.cmake)
 
 SET(CMAKE_C_STANDARD 99)
 SET(CMAKE_CXX_STANDARD 17)
 PROJECT(${name} CXX C)
+# Enable shadow errors for GNU builds; validate other compilers separately.
+IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  ADD_COMPILE_OPTIONS(-Werror=shadow)
+ENDIF()
+
 SET(PKG_NAME ${name})
 
 SET(GCC_COMPILER_VERSION_REQUIRED "6")
@@ -74,16 +88,22 @@ IF(WIN32)
   # deps-check.cmake normally initializes these deployment paths.  Windows
   # does not load that Unix-only file, so provide equivalent values here and
   # never allow an empty cachePath to turn into an absolute /.cache path.
-  IF(DEFINED ENV{DALI_DATA_RW_DIR})
-    FILE(TO_CMAKE_PATH "$ENV{DALI_DATA_RW_DIR}" dataReadWriteDir)
+  IF(NOT DALI_DATA_RW_DIR AND DEFINED ENV{DALI_DATA_RW_DIR})
+    SET(DALI_DATA_RW_DIR "$ENV{DALI_DATA_RW_DIR}")
+  ENDIF()
+  IF(DALI_DATA_RW_DIR)
+    FILE(TO_CMAKE_PATH "${DALI_DATA_RW_DIR}" dataReadWriteDir)
   ELSE()
-    SET(dataReadWriteDir "${CMAKE_INSTALL_PREFIX}/share/dali")
+    SET(dataReadWriteDir "${CMAKE_INSTALL_PREFIX}/share/${DALI_DATA_DIR_NAME}")
   ENDIF()
 
-  IF(DEFINED ENV{DALI_DATA_RO_DIR})
-    FILE(TO_CMAKE_PATH "$ENV{DALI_DATA_RO_DIR}" dataReadOnlyDir)
+  IF(NOT DALI_DATA_RO_DIR AND DEFINED ENV{DALI_DATA_RO_DIR})
+    SET(DALI_DATA_RO_DIR "$ENV{DALI_DATA_RO_DIR}")
+  ENDIF()
+  IF(DALI_DATA_RO_DIR)
+    FILE(TO_CMAKE_PATH "${DALI_DATA_RO_DIR}" dataReadOnlyDir)
   ELSE()
-    SET(dataReadOnlyDir "${CMAKE_INSTALL_PREFIX}/share/dali")
+    SET(dataReadOnlyDir "${CMAKE_INSTALL_PREFIX}/share/${DALI_DATA_DIR_NAME}")
   ENDIF()
 
   IF(DEFINED ENV{LOCALAPPDATA})
@@ -213,6 +233,7 @@ ENDIF()
 IF( NOT INCLUDE_DIR )
   SET( INCLUDE_DIR ${PREFIX}/include )
 ENDIF()
+SET( INCLUDE_DIR ${INCLUDE_DIR}/${DALI_INCLUDE_SUBDIR} )
 
 # Set up the lib dir
 SET( LIB_DIR $ENV{libdir} )
@@ -348,8 +369,12 @@ IF( ENABLE_PKG_CONFIGURE )
   CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/dali-adaptor-integration.pc.in ${ADAPTOR_INTEGRATION_PKG_CFG_FILE} @ONLY )
 ENDIF()
 
-CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/system-cache-path.in ${ADAPTOR_ROOT}/dali/internal/adaptor/common/system-cache-path.cpp @ONLY)
-CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/shader-cache-path.in ${ADAPTOR_ROOT}/dali/internal/graphics/common/shader-cache-path.cpp @ONLY)
+# Generated into the build directory, not the source tree: the content
+# depends on DALI_API_MAJOR, and two builds of different majors share one
+# source tree.
+SET( CACHE_PATH_GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated/cache-path )
+CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/system-cache-path.in ${CACHE_PATH_GENERATED_DIR}/system-cache-path.cpp @ONLY)
+CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/shader-cache-path.in ${CACHE_PATH_GENERATED_DIR}/shader-cache-path.cpp @ONLY)
 
 SET( THIRD_PARTY_WINDOWS_PLATFORM "" )
 IF( WIN32 )
@@ -379,13 +404,29 @@ OPTION(ENABLE_INVOKE_METHOD_WRAPPERS "Generate InvokeMethod wrappers for exporte
 
 IF(ENABLE_INVOKE_METHOD_WRAPPERS)
   FIND_PACKAGE(Python3 COMPONENTS Interpreter REQUIRED)
-  FIND_PROGRAM(INVOKE_METHOD_GENERATOR
-               NAMES dali-invoke-method-generator dali-invoke-method-generator.py
-               PATHS ${BIN_DIR} $ENV{DESKTOP_PREFIX}/bin ${ROOT_SRC_DIR}/../dali-core/scripts)
+  # The installed dali-core publishes where its generator is (the name carries
+  # the API major): the CMake package sets <core>_INVOKE_METHOD_GENERATOR and
+  # the pkg-config file has an invoke_method_generator variable. Only a
+  # sibling dali-core source tree is accepted as a fallback.
+  SET(INVOKE_METHOD_GENERATOR_INSTALLED "")
+  IF(DEFINED ${core_name}_INVOKE_METHOD_GENERATOR)
+    SET(INVOKE_METHOD_GENERATOR_INSTALLED ${${core_name}_INVOKE_METHOD_GENERATOR})
+  ELSEIF(PKG_CONFIG_FOUND)
+    PKG_GET_VARIABLE(INVOKE_METHOD_GENERATOR_INSTALLED ${core_name} invoke_method_generator)
+  ENDIF()
+  IF(INVOKE_METHOD_GENERATOR_INSTALLED AND EXISTS ${INVOKE_METHOD_GENERATOR_INSTALLED})
+    SET(INVOKE_METHOD_GENERATOR ${INVOKE_METHOD_GENERATOR_INSTALLED})
+  ELSE()
+    FIND_PROGRAM(INVOKE_METHOD_GENERATOR
+                 NAMES dali-invoke-method-generator.py
+                 PATHS ${ROOT_SRC_DIR}/../dali-core/scripts
+                 NO_DEFAULT_PATH)
+  ENDIF()
 
   IF(NOT INVOKE_METHOD_GENERATOR)
-    MESSAGE(FATAL_ERROR "dali-invoke-method-generator not found. Build and install dali-core first.")
+    MESSAGE(FATAL_ERROR "${DALI_TOOL_PREFIX}invoke-method-generator not found. Build and install ${core_name} first.")
   ENDIF()
+  MESSAGE(STATUS "Invoke-method generator: ${INVOKE_METHOD_GENERATOR}")
 
   SET(INVOKE_METHOD_GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated/invoke-method)
   SET(INVOKE_METHOD_PUBLIC_API_CPP ${INVOKE_METHOD_GENERATED_DIR}/public-api-invoke-methods.cpp)
@@ -436,6 +477,17 @@ IF(ENABLE_INVOKE_METHOD_WRAPPERS)
   LIST(APPEND SOURCES ${INVOKE_METHOD_PUBLIC_API_CPP})
 ENDIF()
 
+# The generated cache-path sources: system-cache-path.cpp belongs to the
+# adaptor, shader-cache-path.cpp to each graphics backend (a separate library
+# in the DYNAMIC configuration, part of the adaptor otherwise).
+LIST(APPEND SOURCES ${CACHE_PATH_GENERATED_DIR}/system-cache-path.cpp)
+IF(DEFINED ADAPTOR_GRAPHICS_GLES_SOURCES AND DEFINED ADAPTOR_GRAPHICS_VULKAN_SOURCES)
+  LIST(APPEND ADAPTOR_GRAPHICS_GLES_SOURCES ${CACHE_PATH_GENERATED_DIR}/shader-cache-path.cpp)
+  LIST(APPEND ADAPTOR_GRAPHICS_VULKAN_SOURCES ${CACHE_PATH_GENERATED_DIR}/shader-cache-path.cpp)
+ELSE()
+  LIST(APPEND SOURCES ${CACHE_PATH_GENERATED_DIR}/shader-cache-path.cpp)
+ENDIF()
+
 IF(DEFINED ADAPTOR_GRAPHICS_GLES_SOURCES AND DEFINED ADAPTOR_GRAPHICS_VULKAN_SOURCES)
   IF(enable_graphics_backend MATCHES DYNAMIC)
     MESSAGE(STATUS "Separating GLES and Vulkan graphics into their own libraries")
@@ -452,6 +504,14 @@ IF(DEFINED ADAPTOR_GRAPHICS_GLES_SOURCES AND DEFINED ADAPTOR_GRAPHICS_VULKAN_SOU
             ${OPENGLES20_LDFLAGS}
             ${EGL_LDFLAGS}
     )
+    # Bind references to symbols defined within this library to their local
+    # definitions at link time. Without this, the weak factory symbols in the
+    # main adaptor library (e.g. native-image-factory-dynamic.cpp) interpose
+    # the strong per-platform implementations here, causing infinite recursion
+    # (stack-overflow) whenever the backend calls back through the factory
+    # entry points in graphics-library-functions.cpp. This makes the binding
+    # independent of RTLD_DEEPBIND, which cannot be used under sanitizers.
+    SET_TARGET_PROPERTIES(${ADAPTOR_GRAPHICS_GLES_NAME} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     INSTALL(TARGETS ${ADAPTOR_GRAPHICS_GLES_NAME} DESTINATION ${LIB_DIR})
 
     # Linker Test for GLES Graphics
@@ -476,6 +536,13 @@ IF(DEFINED ADAPTOR_GRAPHICS_GLES_SOURCES AND DEFINED ADAPTOR_GRAPHICS_VULKAN_SOU
             ${GLSLANG_LDFLAGS}
             ${SPIRVTOOLS_LDFLAGS}
     )
+    # Bind references to symbols defined within this library to their local
+    # definitions at link time. Without this, the weak factory symbols in the
+    # main adaptor library (e.g. native-image-factory-dynamic.cpp) interpose
+    # the strong per-platform implementations here, causing infinite recursion
+    # (stack-overflow) whenever the backend calls back through the factory
+    # entry points in graphics-library-functions.cpp.
+    SET_TARGET_PROPERTIES(${ADAPTOR_GRAPHICS_VULKAN_NAME} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     INSTALL(TARGETS ${ADAPTOR_GRAPHICS_VULKAN_NAME} DESTINATION ${LIB_DIR})
 
     # Linker Test for Vulkan Graphics
@@ -517,7 +584,7 @@ ADD_LIBRARY( ${name} ${LIBTYPE} ${SOURCES} )
 TARGET_INCLUDE_DIRECTORIES(${name}
   PUBLIC
     $<BUILD_INTERFACE:${ROOT_SRC_DIR}>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${DALI_EXPORT_INCLUDE_DIR}>
 )
 
 IF(WIN32 AND NOT STATIC)
@@ -716,20 +783,52 @@ ENDIF()
 IF(NOT WINDOWS_PROFILE)
   # Existing Unix profiles create these deployment directories at install
   # time.  Windows creates its per-user cache lazily at runtime instead.
-  SET( daliSystemCachedDir ${cachePath}/.cache/dali_common_caches/ )
+  SET( daliSystemCachedDir ${cachePath}/.cache/${DALI_CACHE_DIR_NAME}/ )
   INSTALL( DIRECTORY DESTINATION ${daliSystemCachedDir} )
 
-  SET( daliShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/ )
+  SET( daliShaderCachedDir ${cachePath}/.cache/${DALI_CACHE_DIR_NAME}/shader/ )
   INSTALL( DIRECTORY DESTINATION ${daliShaderCachedDir} )
 
-  SET( daliInternalShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/internal/ )
+  SET( daliInternalShaderCachedDir ${cachePath}/.cache/${DALI_CACHE_DIR_NAME}/shader/internal/ )
   INSTALL( DIRECTORY DESTINATION ${daliInternalShaderCachedDir} )
 
-  SET( daliCustomShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/custom/ )
+  SET( daliCustomShaderCachedDir ${cachePath}/.cache/${DALI_CACHE_DIR_NAME}/shader/custom/ )
   INSTALL( DIRECTORY DESTINATION ${daliCustomShaderCachedDir} )
 ENDIF()
 
-INSTALL( FILES ${ADAPTOR_ROOT}/adaptors/scripts/dalireslog.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
+SET(DALI_RESLOG_NAME ${DALI_TOOL_PREFIX}reslog.sh)
+INSTALL( FILES ${ADAPTOR_ROOT}/adaptors/scripts/dalireslog.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/bin RENAME ${DALI_RESLOG_NAME} )
+
+# DALi 2.x names as links to the files above (DALI_LEGACY_ALIASES=ON only).
+# include/dali itself is dali-core's alias; this adds what 2.x's adaptor
+# installed on top of it.
+dali_legacy_library_alias(${name} dali2-adaptor 2)
+IF(DEFINED ADAPTOR_GRAPHICS_GLES_NAME)
+  dali_legacy_library_alias(${ADAPTOR_GRAPHICS_GLES_NAME} dali2-adaptor-gles)
+  dali_legacy_library_alias(${ADAPTOR_GRAPHICS_VULKAN_NAME} dali2-adaptor-vulkan)
+ENDIF()
+IF(DEFINED ADAPTOR_GL_WINDOW_ADDON_NAME)
+  dali_legacy_library_alias(${ADAPTOR_GL_WINDOW_ADDON_NAME} dali2-adaptor-gl-window-addon)
+ENDIF()
+dali_legacy_alias(${CMAKE_INSTALL_PREFIX}/bin/dalireslog.sh ${DALI_RESLOG_NAME})
+IF( ENABLE_PKG_CONFIGURE )
+  dali_legacy_pkgconfig_alias(${ADAPTOR_PKG_CFG_FILE} dali2-adaptor)
+  dali_legacy_pkgconfig_alias(${ADAPTOR_INTEGRATION_PKG_CFG_FILE} dali2-adaptor-integration)
+ENDIF()
+# 2.x shipped integration-api/adaptors as a link to adaptor-framework.
+dali_legacy_alias(${INCLUDE_DIR}/dali/integration-api/adaptors adaptor-framework)
+# The data directory under its 2.x name: share/dali -> share/dali<major>.
+IF( UNIX AND NOT ANDROID_PROFILE )
+  STRING(REGEX REPLACE "/+$" "" DALI_DATA_DIR_PATH "${dataReadOnlyDir}")
+  GET_FILENAME_COMPONENT(DALI_DATA_DIR_PARENT "${DALI_DATA_DIR_PATH}" DIRECTORY)
+  GET_FILENAME_COMPONENT(DALI_DATA_DIR_LEAF "${DALI_DATA_DIR_PATH}" NAME)
+  IF(NOT DALI_DATA_DIR_LEAF STREQUAL "dali")
+    dali_legacy_alias(${DALI_DATA_DIR_PARENT}/dali ${DALI_DATA_DIR_LEAF})
+  ENDIF()
+ENDIF()
+IF( INSTALL_CMAKE_MODULES )
+  dali_legacy_cmake_package_alias(${name} dali2-adaptor)
+ENDIF()
 
 ########################################################################################
 
@@ -824,6 +923,7 @@ MESSAGE( STATUS "Lib Dir:                          ${LIB_DIR}" )
 MESSAGE( STATUS "Include Dir:                      ${INCLUDE_DIR}" )
 MESSAGE( STATUS "Coverage:                         ${ENABLE_COVERAGE}" )
 MESSAGE( STATUS "Debug Build:                      ${ENABLE_DEBUG}")
+MESSAGE( STATUS "Legacy (dali2) aliases:           ${DALI_LEGACY_ALIASES}")
 MESSAGE( STATUS "Freetype bitmap support (Emoji):  ${freetype_bitmap_support_ENABLED}")
 MESSAGE( STATUS "Profile:                          ${ENABLE_PROFILE}")
 MESSAGE( STATUS "Graphics Backend:                 ${GRAPHICS_BACKEND_TYPE}")

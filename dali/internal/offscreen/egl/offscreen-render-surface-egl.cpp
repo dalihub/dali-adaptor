@@ -146,7 +146,7 @@ void OffscreenRenderSurfaceEgl::CreateSurface()
 {
   EglImplementation& eglImpl = mEglGraphics->GetEglImplementation();
 
-  eglImpl.ChooseConfig(true, Dali::COLOR_DEPTH_32);
+  eglImpl.ChooseConfig(true, Dali::ColorDepth::COLOR_DEPTH_32_BITS);
 
   // Create surfaceless context
   eglImpl.CreateOffscreenContext(mEGLContext);

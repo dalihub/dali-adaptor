@@ -92,7 +92,7 @@ TextAbstraction::Segmentation Segmentation::Get()
     }
     else // create and register the object
     {
-      segmentationHandle = TextAbstraction::Segmentation(new Segmentation);
+      segmentationHandle = TextAbstraction::Segmentation(Segmentation::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, segmentationHandle);
     }
   }

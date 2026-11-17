@@ -40,18 +40,8 @@ public:
   static TimerAndroidPtr New(uint32_t milliSec);
 
   /**
-   * Constructor
-   * @param[in]  milliSec  Interval in milliseconds.
-   */
-  TimerAndroid(uint32_t milliSec);
-
-  /**
-   * Destructor.
-   */
-  virtual ~TimerAndroid();
 
 public:
-  /**
    * @copydoc Dali::Timer::Start()
    */
   void Start() override;
@@ -91,7 +81,20 @@ public:
    */
   bool Tick();
 
-private: // Implementation
+protected:
+  /**
+   * Constructor
+   * @param[in]  milliSec  Interval in milliseconds.
+   */
+  TimerAndroid(uint32_t milliSec);
+
+  /**
+   * Destructor.
+   */
+  virtual ~TimerAndroid();
+
+private:
+  // Implementation
   // not implemented
   TimerAndroid(const TimerAndroid&)            = delete;
   TimerAndroid& operator=(const TimerAndroid&) = delete;

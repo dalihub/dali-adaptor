@@ -9,6 +9,7 @@ SET( adaptor_system_common_src_files
     ${adaptor_system_dir}/common/frame-time-stamp.cpp
     ${adaptor_system_dir}/common/frame-time-stats.cpp
     ${adaptor_system_dir}/common/kernel-trace.cpp
+    ${adaptor_system_dir}/common/locale-context.cpp
     ${adaptor_system_dir}/common/locale-utils.cpp
     ${adaptor_system_dir}/common/object-profiler.cpp
     ${adaptor_system_dir}/common/performance-interface-factory.cpp

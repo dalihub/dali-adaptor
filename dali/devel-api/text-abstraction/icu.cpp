@@ -40,9 +40,9 @@ ICU::ICU(Internal::ICU* impl)
 
 ICU ICU::New()
 {
-  auto icuImpl = new Internal::ICU();
+  auto icuImpl = Internal::ICU::New();
 
-  return ICU(icuImpl);
+  return ICU(icuImpl.Get());
 }
 
 void ICU::UpdateLineBreakInfoByLocale(const std::string& text,

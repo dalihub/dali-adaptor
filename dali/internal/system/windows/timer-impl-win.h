@@ -40,18 +40,8 @@ public:
   static TimerWinPtr New(uint32_t milliSec);
 
   /**
-   * Constructor
-   * @param[in]  milliSec  Interval in milliseconds.
-   */
-  TimerWin(uint32_t milliSec);
-
-  /**
-   * Destructor.
-   */
-  virtual ~TimerWin();
 
 public:
-  /**
    * @copydoc Dali::Timer::Start()
    */
   void Start() override;
@@ -91,7 +81,20 @@ public:
    */
   bool Tick();
 
-private: // Implementation
+protected:
+  /**
+   * Constructor
+   * @param[in]  milliSec  Interval in milliseconds.
+   */
+  TimerWin(uint32_t milliSec);
+
+  /**
+   * Destructor.
+   */
+  virtual ~TimerWin();
+
+private:
+  // Implementation
   // not implemented
   TimerWin(const TimerWin&)            = delete;
   TimerWin& operator=(const TimerWin&) = delete;

@@ -17,6 +17,7 @@
 
 // CLASS HEADER
 #include <dali/internal/system/common/remote-file-download-manager-impl.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/async-task-manager.h>
@@ -53,16 +54,12 @@ CallbackBase* CreateRemoteFileDownloadStartTaskCompleteCallback()
 class RemoteFileDownloadStartTask : public Dali::AsyncTask
 {
 public:
-  RemoteFileDownloadStartTask(Dali::IntrusivePtr<RemoteFileDownloadManager> manager,
-                              RemoteFileDownloadManager::RequestId          requestId,
-                              std::string                                   url,
-                              size_t                                        maxSize)
-  : Dali::AsyncTask(CreateRemoteFileDownloadStartTaskCompleteCallback(), Dali::AsyncTask::PriorityType::LOW, Dali::AsyncTask::ThreadType::WORKER_THREAD),
-    mManager(std::move(manager)),
-    mRequestId(requestId),
-    mUrl(std::move(url)),
-    mMaxSize(maxSize)
+  /**
+   * @brief Creates a reference-counted implementation.
+   */
+  static Dali::IntrusivePtr<RemoteFileDownloadStartTask> New(Dali::IntrusivePtr<RemoteFileDownloadManager> manager, RemoteFileDownloadManager::RequestId requestId, std::string url, size_t maxSize)
   {
+    return Dali::IntrusivePtr<RemoteFileDownloadStartTask>(new RemoteFileDownloadStartTask(std::move(manager), requestId, std::move(url), maxSize));
   }
 
   void Process() override
@@ -77,6 +74,21 @@ public:
   {
     return "RemoteFileDownloadStartTask";
   }
+
+protected:
+  RemoteFileDownloadStartTask(Dali::IntrusivePtr<RemoteFileDownloadManager> manager,
+                              RemoteFileDownloadManager::RequestId          requestId,
+                              std::string                                   url,
+                              size_t                                        maxSize)
+  : Dali::AsyncTask(CreateRemoteFileDownloadStartTaskCompleteCallback(), Dali::AsyncTask::PriorityType::LOW, Dali::AsyncTask::ThreadType::WORKER_THREAD),
+    mManager(std::move(manager)),
+    mRequestId(requestId),
+    mUrl(std::move(url)),
+    mMaxSize(maxSize)
+  {
+  }
+
+  ~RemoteFileDownloadStartTask() override = default;
 
 private:
   Dali::IntrusivePtr<RemoteFileDownloadManager> mManager;
@@ -99,7 +111,7 @@ Dali::RemoteFileDownloadManager RemoteFileDownloadManager::Get()
     }
     else
     {
-      manager = Dali::RemoteFileDownloadManager(new RemoteFileDownloadManager());
+      manager = Dali::RemoteFileDownloadManager(RemoteFileDownloadManager::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, manager);
     }
   }
@@ -146,7 +158,7 @@ Dali::RemoteFileDownloadManager::RequestId RemoteFileDownloadManager::StartDownl
     mRequestInfos[requestId] = {Dali::FileDownloadPluginProxy::INVALID_DOWNLOAD_ID, std::move(callback)};
   }
 
-  Dali::AsyncTaskManager::Get().AddTask(new RemoteFileDownloadStartTask(selfPtr, requestId, url, maxSize));
+  Dali::AsyncTaskManager::Get().AddTask(RemoteFileDownloadStartTask::New(selfPtr, requestId, url, maxSize));
   return requestId;
 }
 

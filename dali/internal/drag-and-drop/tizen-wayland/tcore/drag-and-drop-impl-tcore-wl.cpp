@@ -138,8 +138,7 @@ Dali::DragAndDrop GetDragAndDrop()
     }
     else
     {
-      auto* dndImpl = new DragAndDropTcoreWl();
-      dnd           = Dali::DragAndDrop(dndImpl);
+      dnd = Dali::DragAndDrop(DragAndDropTcoreWl::NewForBaseHandle());
       service.Register(gSingletonTypeInfoId, dnd);
     }
   }
