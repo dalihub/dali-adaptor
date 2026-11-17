@@ -3304,7 +3304,7 @@ Dali::WindowOperationResult ConvertTcoreResult(int ret)
       return Dali::WindowOperationResult::INVALID_PARAMETER;
     case TIZEN_CORE_WL_ERROR_OUT_OF_MEMORY:
       return Dali::WindowOperationResult::OUT_OF_MEMORY;
-    case TIZEN_CORE_WL_ERROR_PROTOCOL_NOT_SUPPORTED:
+    case TIZEN_CORE_WL_ERROR_NOT_SUPPORTED:
       return Dali::WindowOperationResult::NOT_SUPPORTED;
     case TIZEN_CORE_WL_ERROR_PERMISSION_DENIED:
       return Dali::WindowOperationResult::PERMISSION_DENIED;
