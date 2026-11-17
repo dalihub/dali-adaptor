@@ -224,11 +224,6 @@ bool TimerTcore::Tick()
   // Guard against destruction during signal emission
   Dali::Timer handle(this);
 
-  // Keep the source that invoked this callback. A tick callback may call
-  // SetInterval()/Start(), which removes the old source and installs a new
-  // one before Emit() returns.
-  tizen_core_source_h oldSource = mImpl->mSource;
-
   bool retVal(false);
 
   if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
@@ -249,16 +244,8 @@ bool TimerTcore::Tick()
       // Timer stops if return value is false
       if(retVal == false)
       {
-        // tizen_core removes the source that invoked this callback when false
-        // is returned. If the callback replaced it, however, that new source
-        // is not covered by tizen_core's return-value handling and would keep
-        // a dangling TimerTcore callback in the event loop.
-        if(mImpl->mSource != NULL && mImpl->mSource != oldSource)
-        {
-          ResetTimerData();
-        }
-
-        // The old source is removed by tizen_core after this callback returns.
+        // Don't call Stop() - tizen_core will remove source when we return false.
+        // Just clear mSource so IsRunning() and destructor behave correctly.
         mImpl->mSource = NULL;
       }
       else
