@@ -843,9 +843,9 @@ void InputMethodContextTcoreWl::PreEditChanged(void* data, ImfContext* imfContex
         continue;
       }
 
-      Dali::Integration::InputMethodContext::PreeditAttributeData data;
-      data.startIndex = 0;
-      data.endIndex   = 0;
+      Dali::Integration::InputMethodContext::PreeditAttributeData attributeData;
+      attributeData.startIndex = 0;
+      attributeData.endIndex   = 0;
 
       uint32_t visualCharacterIndex = 0;
       size_t   byteIndex            = 0;
@@ -861,11 +861,11 @@ void InputMethodContextTcoreWl::PreEditChanged(void* data, ImfContext* imfContex
         const size_t currentSequenceLength = Utf8SequenceLength(leadByte); // returns number of bytes used to represent character.
         if(byteIndex <= start_index)
         {
-          data.startIndex = visualCharacterIndex;
+          attributeData.startIndex = visualCharacterIndex;
         }
         if(byteIndex >= end_index)
         {
-          data.endIndex = visualCharacterIndex;
+          attributeData.endIndex = visualCharacterIndex;
           break;
           // end loop as found cursor position that matches byte position
         }
@@ -880,31 +880,31 @@ void InputMethodContextTcoreWl::PreEditChanged(void* data, ImfContext* imfContex
       {
         case TIZEN_CORE_IMF_PREEDIT_TYPE_NONE:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
           break;
         }
         case TIZEN_CORE_IMF_PREEDIT_TYPE_UNDERLINE:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::UNDERLINE;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::UNDERLINE;
           break;
         }
         case TIZEN_CORE_IMF_PREEDIT_TYPE_REVERSE:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::REVERSE;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::REVERSE;
           break;
         }
         case TIZEN_CORE_IMF_PREEDIT_TYPE_HIGHLIGHT:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::HIGHLIGHT;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::HIGHLIGHT;
           break;
         }
         default:
         {
-          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
+          attributeData.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
           break;
         }
       }
-      mPreeditAttrs.PushBack(data);
+      mPreeditAttrs.PushBack(attributeData);
     }
   }
 
