@@ -1042,10 +1042,10 @@ void WindowBaseTcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
   if(mTcoreWindow)
   {
     DALI_LOG_RELEASE_INFO("[2] window valid, get wl_surface winId next\n");
-    struct wl_surface* surface = nullptr;
-    if(tizen_core_wl_window_private_get_wl_surface(mTcoreWindow, &surface) == TIZEN_CORE_WL_ERROR_NONE)
+    struct wl_surface* wlSurface = nullptr;
+    if(tizen_core_wl_window_private_get_wl_surface(mTcoreWindow, &wlSurface) == TIZEN_CORE_WL_ERROR_NONE)
     {
-      mWlSurface = surface;
+      mWlSurface = wlSurface;
       DALI_LOG_RELEASE_INFO("[2] wl_surface=%p\n", static_cast<void*>(mWlSurface));
     }
     else
@@ -1833,7 +1833,7 @@ void WindowBaseTcoreWl::OnMouseInOut(void* data, int type, void* event)
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_IN_OUT");
 
-    tizen_core_wl_event_type_e      type;
+    tizen_core_wl_event_type_e      eventType;
     int                             x = 0, y = 0;
     unsigned int                    timestamp = 0, modifiers = 0;
     char*                           dev  = nullptr;
@@ -1843,14 +1843,14 @@ void WindowBaseTcoreWl::OnMouseInOut(void* data, int type, void* event)
     Device::Class::Type             deviceClass;
     Device::Subclass::Type          deviceSubclass;
 
-    GetBaseData(ev, &type, &timestamp, &dev);
+    GetBaseData(ev, &eventType, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, &name, &tizenClass, &tizenSubclass);
     GetMouseData(ev, &x, &y, nullptr, nullptr, &modifiers, false);
     GetDeviceClass(tizenClass, deviceClass);
     GetDeviceSubclass(tizenSubclass, deviceSubclass);
     Dali::String deviceName(name);
 
-    Dali::MouseInOutEvent::Type action = (type == TIZEN_CORE_WL_EVENT_MOUSE_IN ? Dali::MouseInOutEvent::Type::IN : Dali::MouseInOutEvent::Type::OUT);
+    Dali::MouseInOutEvent::Type action = (eventType == TIZEN_CORE_WL_EVENT_MOUSE_IN ? Dali::MouseInOutEvent::Type::IN : Dali::MouseInOutEvent::Type::OUT);
 
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseTcoreWl::OnMouseInOut: timestamp: %d, modifiers: %d, x: %d, y: %d\n", timestamp, modifiers, x, y);
 
