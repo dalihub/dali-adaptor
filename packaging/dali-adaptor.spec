@@ -18,6 +18,17 @@
 %{error:Tizen <= 10.0 ships the real DALi 2.x; dali2 aliases must not be built there}
 %endif
 
+# Temporary, for the Tizen Studio rootstrap. Its generator copies only the
+# files that the packages it names list themselves, and reaches a directory
+# link as an empty directory, so while the public rootstrap still names the
+# DALi 2.x packages and include paths the alias devel packages install real
+# copies of the headers under include/dali, beside those of dali2-devel,
+# which installs the directory in place of its link. Remove this once the
+# rootstrap names the dali3 packages and include/dali3.
+%if %{with dali2_aliases}
+%bcond_without dali2_include_copy
+%endif
+
 # rpm derives no Provides from a symbolic link, so the alias packages declare
 # the ELF ones themselves. 64-bit ELF provides carry a suffix.
 %if "%{__isa_bits}" == "64"
@@ -460,6 +471,13 @@ rm -rf %{buildroot}
 cd build/tizen
 %make_install
 
+%if %{with dali2_include_copy}
+# include/dali: copies of this package's dali3 headers beside those of
+# dali2-devel (see dali2_include_copy above)
+mkdir -p %{buildroot}%{_includedir}/dali
+cp -a %{buildroot}%{_includedir}/dali3/dali/. %{buildroot}%{_includedir}/dali
+%endif
+
 ##############################
 # Upgrade order:
 # 1 - Pre Install new package
@@ -616,9 +634,21 @@ end
 %defattr(-,root,root,-)
 %{_libdir}/libdali2-adaptor.so
 %{_libdir}/pkgconfig/dali2-adaptor.pc
+%if %{with dali2_include_copy}
+%{_includedir}/dali/dali.h
+%{_includedir}/dali/public-api/*
+%{_includedir}/dali/extension-api/*
+%{_includedir}/dali/doc/*
+%endif
 
 %files -n dali2-adaptor-integration-devel
 %defattr(-,root,root,-)
 %{_includedir}/dali3/dali/integration-api/adaptors
 %{_libdir}/pkgconfig/dali2-adaptor-integration.pc
+%if %{with dali2_include_copy}
+%{_includedir}/dali/devel-api/*
+%{_includedir}/dali/integration-api/adaptor-framework/*
+%{_includedir}/dali/integration-api/system/*
+%{_includedir}/dali/integration-api/adaptors
+%endif
 %endif
