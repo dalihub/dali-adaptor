@@ -165,5 +165,9 @@ int UtcDaliKeyExtensionKeyLookupEntryP(void)
   DALI_TEST_EQUALS(entry.daliKeyCode, 2300, TEST_LOCATION);
   DALI_TEST_CHECK(entry.deviceButton);
 
+  // Members left out of the aggregate initializer are reserved and come out zero.
+  DALI_TEST_EQUALS(static_cast<uint32_t>(entry.reserved1), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(entry.reserved2), 0u, TEST_LOCATION);
+
   END_TEST;
 }
