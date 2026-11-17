@@ -21,12 +21,14 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/system/common/locale-context.h>
 #include "font-client-impl.h"
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 #include <harfbuzz/hb-ft.h>
 #include <harfbuzz/hb.h>
+#include <atomic>
 
 namespace
 {
@@ -37,6 +39,10 @@ Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New
 #endif
 
 static constexpr float FROM_266 = 1.0f / 64.0f;
+
+// HarfBuzz owns immutable interned handles for its library lifetime.
+// The initial invalid handle preserves shaping before locale initialization.
+std::atomic<hb_language_t> gSystemShapingLanguage{HB_LANGUAGE_INVALID};
 } // namespace
 
 namespace DALI_NAMESPACE
@@ -45,6 +51,13 @@ namespace TextAbstraction
 {
 namespace Internal
 {
+
+void UpdateShapingLanguage()
+{
+  const auto& languageCode = Dali::Internal::Adaptor::Locale::GetLanguageCode();
+  const auto  language     = hb_language_from_string(languageCode.c_str(), static_cast<int32_t>(languageCode.size()));
+  gSystemShapingLanguage.store(language, std::memory_order_release);
+}
 
 const hb_script_t SCRIPT_TO_HARFBUZZ[] =
   {
@@ -194,9 +207,8 @@ struct Shaping::Plugin
         }
         else
         {
-          // Preserve the existing system-locale path, including its parsing.
-          const std::string& localeString = TextAbstraction::GetLocale();
-          hb_buffer_set_language(harfBuzzBuffer, hb_language_from_string(localeString.c_str(), static_cast<int32_t>(localeString.size())));
+          // Workers never read the mutable Common locale strings.
+          hb_buffer_set_language(harfBuzzBuffer, gSystemShapingLanguage.load(std::memory_order_acquire));
         }
 
         /* Layout the text */

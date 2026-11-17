@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/shaping.h>
@@ -32,6 +33,16 @@ namespace TextAbstraction
 {
 namespace Internal
 {
+/**
+ * @brief Publishes the default shaping language after a Common locale update.
+ *
+ * Call on the event thread, or serialize calls before Adaptor startup.
+ * Reads the parsed language code from the current Common locale.
+ * An invalid HarfBuzz language is published as-is, including on allocation
+ * failure; the next locale update or EnsureLocale() retries the conversion.
+ */
+DALI_INTERNAL void UpdateShapingLanguage();
+
 /**
  * Implementation of the Shaping
  */
