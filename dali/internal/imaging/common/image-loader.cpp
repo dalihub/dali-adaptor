@@ -97,7 +97,7 @@ const Dali::ImageLoader::BitmapLoader BITMAP_LOADER_LOOKUP_TABLE[FORMAT_TOTAL_CO
     {Astc::MAGIC_BYTE_1, Astc::MAGIC_BYTE_2, LoadBitmapFromAstc, nullptr, LoadAstcHeader},
     {Pkm::MAGIC_BYTE_1,  Pkm::MAGIC_BYTE_2,  LoadBitmapFromPkm,  nullptr, LoadPkmHeader},
     {Ico::MAGIC_BYTE_1,  Ico::MAGIC_BYTE_2,  LoadBitmapFromIco,  nullptr, LoadIcoHeader},
-    {0x0,                0x0,                LoadBitmapFromHeic, nullptr, LoadHeicHeader},
+    {0x0,                0x0,                LoadBitmapFromHeic, LoadPlanesFromHeic, LoadHeicHeader},
     {0x0,                0x0,                LoadBitmapFromWbmp, nullptr, LoadWbmpHeader},
   };
 // clang-format on

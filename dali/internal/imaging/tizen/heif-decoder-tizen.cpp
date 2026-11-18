@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <cstring> ///< for memcmp
 #include <sstream>
+#include <utility>
 
 extern "C" {
 #include <heif.h>
@@ -310,7 +311,7 @@ bool Decode(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 
   const uint32_t bitmapBufferSize = bitmap.GetBufferSize();
 
-  if(bitmapBufferSize != rawDataSize)
+  if(DALI_UNLIKELY(bitmapBufferSize != rawDataSize))
   {
     DALI_LOG_ERROR("[HEIF] raw buffer is not matched with pixel buffer size. %u vs %zu\n", bitmapBufferSize, rawDataSize);
     rawDataSize = std::min(rawDataSize, static_cast<size_t>(bitmapBufferSize));
@@ -319,6 +320,102 @@ bool Decode(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
   std::memcpy(pixels, rawDataPtr, rawDataSize);
   heif_image_free(heifImage);
   return ApplyTransformations(bitmap, orientation, mirrorMode);
+}
+
+bool DecodePlanes(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers)
+{
+  Dali::Vector<uint8_t> buffer;
+  uint32_t              fileSize;
+  uint32_t              width, height;
+  unsigned int          orientation = 0u;
+  heif_mirror_mode_e    mirrorMode  = HEIF_MIRROR_NONE;
+  if(DALI_UNLIKELY(!LoadHeicHeaderHelper(input.file, width, height, orientation, mirrorMode, buffer, fileSize)))
+  {
+    DALI_LOG_ERROR("[HEIF] Failed to read the HEIC header for YUV decoding.\n");
+    return false;
+  }
+  if(DALI_UNLIKELY((width & 1u) || (height & 1u)))
+  {
+    DALI_LOG_ERROR("[HEIF] YUV420 plane decoding requires even dimensions: %u x %u.\n", width, height);
+    return false;
+  }
+
+  if(DALI_UNLIKELY(!input.reorientationRequested))
+  {
+    orientation = 0u;
+    mirrorMode  = HEIF_MIRROR_NONE;
+  }
+
+  heif_image_h image        = nullptr;
+  const int    decodeResult = heif_decode_image_from_buffer(buffer.Begin(), fileSize, HEIF_COLOR_FORMAT_YUV420P, &image);
+  if(DALI_UNLIKELY(decodeResult != LIBHEIF_ERROR_NONE || !image))
+  {
+    DALI_LOG_ERROR("[HEIF] Failed to decode YUV420 image: %d, image: %p.\n", decodeResult, image);
+    return false;
+  }
+
+  uint32_t            decodedWidth = 0u, decodedHeight = 0u;
+  heif_color_format_e decodedFormat = HEIF_COLOR_FORMAT_NONE;
+  uint8_t*            pixels        = nullptr;
+  size_t              dataSize      = 0u;
+  const int           result        = heif_image_get_image(image, &decodedWidth, &decodedHeight, &decodedFormat, &pixels, &dataSize);
+  const size_t        ySize         = static_cast<size_t>(width) * height;
+  const size_t        chromaSize    = ySize / 4u;
+  if(DALI_UNLIKELY(result != LIBHEIF_ERROR_NONE || decodedWidth != width || decodedHeight != height || decodedFormat != HEIF_COLOR_FORMAT_YUV420P ||
+                   !pixels || dataSize != ySize + 2u * chromaSize))
+  {
+    DALI_LOG_ERROR("[HEIF] Invalid YUV image: result %d, expected %u x %u YUV420P (%zu bytes), decoded %u x %u format %d (%zu bytes), data %p.\n",
+                   result, width, height, ySize + 2u * chromaSize, decodedWidth, decodedHeight, decodedFormat, dataSize, pixels);
+    heif_image_free(image);
+    return false;
+  }
+
+  const uint32_t                 widths[]  = {width, width / 2u, width / 2u};
+  const uint32_t                 heights[] = {height, height / 2u, height / 2u};
+  const Pixel::Format            formats[] = {Pixel::L8, Pixel::CHROMINANCE_U, Pixel::CHROMINANCE_V};
+  std::vector<Dali::PixelBuffer> planes;
+  planes.reserve(3u);
+
+  size_t offset = 0u;
+  for(unsigned int index = 0u; index < 3u; ++index)
+  {
+    auto plane = Dali::PixelBuffer::New(widths[index], heights[index], formats[index]);
+    if(DALI_UNLIKELY(!plane))
+    {
+      DALI_LOG_ERROR("[HEIF] Failed to allocate YUV plane %u: %u x %u.\n", index, widths[index], heights[index]);
+      heif_image_free(image);
+      return false;
+    }
+    uint8_t* const planePixels = plane.GetBuffer();
+    if(DALI_UNLIKELY(planePixels == nullptr))
+    {
+      DALI_LOG_ERROR("[HEIF] Allocated YUV plane %u has no data.\n", index);
+      heif_image_free(image);
+      return false;
+    }
+    const size_t planeSize = static_cast<size_t>(widths[index]) * heights[index];
+    std::memcpy(planePixels, pixels + offset, planeSize);
+
+    // FFmpeg's YUV420P output uses video range; the image visual expects full range.
+    const uint32_t range = (index == 0u) ? 219u : 224u;
+    for(size_t pixel = 0u; pixel < planeSize; ++pixel)
+    {
+      const uint32_t limited = std::min(planePixels[pixel], static_cast<uint8_t>(index == 0u ? 235u : 240u));
+      planePixels[pixel]     = static_cast<uint8_t>((std::max(limited, 16u) - 16u) * 255u / range);
+    }
+    if(DALI_UNLIKELY(!ApplyTransformations(plane, orientation, mirrorMode)))
+    {
+      DALI_LOG_ERROR("[HEIF] Failed to transform YUV plane %u.\n", index);
+      heif_image_free(image);
+      return false;
+    }
+    offset += planeSize;
+    planes.push_back(plane);
+  }
+
+  heif_image_free(image);
+  pixelBuffers = std::move(planes);
+  return true;
 }
 
 } // namespace HeifDecoder

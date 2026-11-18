@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/loader-heic.h>
+#include <vector>
 
 namespace DALI_NAMESPACE
 {
@@ -32,6 +33,9 @@ bool ReadHeader(const Dali::ImageLoader::Input& input, unsigned int& width, unsi
 
 /** Decode the primary image using the selected HEIF backend. */
 bool Decode(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap);
+
+/** Decode the primary image into Y, U and V pixel buffers when supported. */
+bool DecodePlanes(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers);
 } // namespace HeifDecoder
 } // namespace TizenPlatform
 } // namespace DALI_NAMESPACE
