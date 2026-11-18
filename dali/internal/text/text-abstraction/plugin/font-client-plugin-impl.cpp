@@ -979,12 +979,14 @@ PixelData FontClient::Plugin::CreateBitmap(FontId fontId, GlyphIndex glyphIndex,
     data.compressionType = TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
   }
 
-  return PixelData::New(data.buffer,
-                        data.width * data.height * Pixel::GetBytesPerPixel(data.format),
-                        data.width,
-                        data.height,
-                        data.format,
-                        PixelData::FREE);
+  PixelData pixelData = PixelData::New(data.buffer,
+                                       data.width * data.height * Pixel::GetBytesPerPixel(data.format),
+                                       data.width,
+                                       data.height,
+                                       data.format,
+                                       PixelData::FREE);
+  data.isBufferOwned  = false;
+  return pixelData;
 }
 
 void FontClient::Plugin::CreateVectorBlob(FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight) const

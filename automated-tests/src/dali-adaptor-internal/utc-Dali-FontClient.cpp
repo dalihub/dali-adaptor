@@ -23,12 +23,16 @@
 #include <dali/devel-api/text-abstraction/bitmap-font.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/devel-api/text-abstraction/font-file-manager.h>
+#include <dali/integration-api/pixel-data-integ.h>
 #include <dali/internal/text/text-abstraction/font-client-log.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <cstring>
 #include <iostream>
+#include <utility>
+#include <vector>
 
 using namespace Dali;
 
@@ -1024,6 +1028,63 @@ int UtcDaliFontClientTestBitmapFont(void)
 
   DALI_TEST_EQUALS(fontClient.IsCharacterSupportedByFont(bitmapFontId, '3'), true, TEST_LOCATION);
   DALI_TEST_EQUALS(fontClient.IsCharacterSupportedByFont(bitmapFontId, 'a'), false, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliFontClientCreateBitmapPixelData(void)
+{
+  TestApplication application;
+  auto            fontClient       = TextAbstraction::FontClient::New(96u, 96u);
+  auto            bitmapFontClient = TextAbstraction::FontClient::Get();
+  const auto      fontId           = fontClient.GetFontId(std::string(TEST_RESOURCE_DIR) + "/fonts/dejavu/DejaVuSans.ttf", 18 * 64);
+  const auto      bitmapId         = SetupBitmapFont();
+  DALI_TEST_CHECK(fontId != 0u && bitmapId != 0u);
+
+  struct BitmapRequest
+  {
+    TextAbstraction::FontClient fontClient;
+    TextAbstraction::FontId     fontId;
+    TextAbstraction::GlyphIndex glyphIndex;
+    int                         outline;
+  };
+  const BitmapRequest requests[] = {
+    {fontClient, fontId, fontClient.GetGlyphIndex(fontId, 'A'), 0},
+    {fontClient, fontId, fontClient.GetGlyphIndex(fontId, 'A'), 2},
+    {bitmapFontClient, bitmapId, '2', 0}};
+
+  for(auto request : requests)
+  {
+    for(unsigned int repeat = 0u; repeat < 3u; ++repeat)
+    {
+      PixelData            pixelData;
+      std::vector<uint8_t> expected;
+      {
+        TextAbstraction::GlyphBufferData data;
+        request.fontClient.CreateBitmap(request.fontId, request.glyphIndex, false, false, data, request.outline);
+        DALI_TEST_CHECK(data.buffer && data.width && data.height);
+        expected.resize(data.width * data.height * Pixel::GetBytesPerPixel(data.format));
+        TextAbstraction::GlyphBufferData::Decompress(data, expected.data());
+
+        pixelData = request.fontClient.CreateBitmap(request.fontId, request.glyphIndex, request.outline);
+        DALI_TEST_CHECK(pixelData);
+        DALI_TEST_EQUALS(pixelData.GetWidth(), data.width, TEST_LOCATION);
+        DALI_TEST_EQUALS(pixelData.GetHeight(), data.height, TEST_LOCATION);
+        DALI_TEST_EQUALS(pixelData.GetPixelFormat(), data.format, TEST_LOCATION);
+        DALI_TEST_EQUALS(pixelData.GetStrideBytes(), 0u, TEST_LOCATION);
+      }
+
+      PixelData copy = pixelData;
+      pixelData.Reset();
+      PixelData retained = std::move(copy);
+      DALI_TEST_CHECK(!copy && retained);
+      const auto buffer = Integration::GetPixelDataBuffer(retained);
+      DALI_TEST_CHECK(buffer.buffer);
+      DALI_TEST_EQUALS(buffer.bufferSize, expected.size(), TEST_LOCATION);
+      DALI_TEST_EQUALS(std::memcmp(buffer.buffer, expected.data(), expected.size()), 0, TEST_LOCATION);
+      retained.Reset();
+    }
+  }
 
   END_TEST;
 }
