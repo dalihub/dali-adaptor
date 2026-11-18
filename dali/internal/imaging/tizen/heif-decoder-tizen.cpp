@@ -31,6 +31,7 @@ extern "C" {
 }
 
 // INTERNAL INCLUDES
+#include <dali/internal/imaging/common/pixel-buffer-operations.h>
 #include <dali/internal/system/common/system-error-print.h>
 
 namespace DALI_NAMESPACE
@@ -74,11 +75,13 @@ static constexpr Dali::Pixel::Format GetPixelFormat(heif_color_format_e colorFor
  * @param[in]  filePointer The file pointer to the HEIC file to read
  * @param[out] width       The width is output to this value
  * @param[out] height      The height is output to this value
+ * @param[out] orientation The number of 90-degree counterclockwise turns
+ * @param[out] mirrorMode  The mirror operation to apply after rotation
  * @param[out] buffer      The raw buffer of file
  * @param[out] fileSize    The byte of file
  * @return                 True if the file is valid, false otherwise
  */
-bool LoadHeicHeaderHelper(FILE* const filePointer, unsigned int& width, unsigned int& height, Dali::Vector<uint8_t>& buffer, uint32_t& fileSize)
+bool LoadHeicHeaderHelper(FILE* const filePointer, unsigned int& width, unsigned int& height, unsigned int& orientation, heif_mirror_mode_e& mirrorMode, Dali::Vector<uint8_t>& buffer, uint32_t& fileSize)
 {
   if(DALI_UNLIKELY(filePointer == nullptr))
   {
@@ -136,13 +139,17 @@ bool LoadHeicHeaderHelper(FILE* const filePointer, unsigned int& width, unsigned
     return false;
   }
 
-  int signedWidth  = 0;
-  int signedHeight = 0;
+  int signedWidth       = 0;
+  int signedHeight      = 0;
+  int signedOrientation = 0;
+  int signedMirrorMode  = 0;
 
   /* get basic information */
   ret = heif_image_info_get_attrs(imageInfo,
                                   HEIF_IMAGE_WIDTH, &signedWidth,
                                   HEIF_IMAGE_HEIGHT, &signedHeight,
+                                  HEIF_IMAGE_ORIENTATION, &signedOrientation,
+                                  HEIF_IMAGE_MIRROR, &signedMirrorMode,
                                   nullptr);
 
   if(DALI_UNLIKELY(ret != LIBHEIF_ERROR_NONE))
@@ -153,9 +160,38 @@ bool LoadHeicHeaderHelper(FILE* const filePointer, unsigned int& width, unsigned
     return false;
   }
 
-  width  = static_cast<uint32_t>(signedWidth);
-  height = static_cast<uint32_t>(signedHeight);
+  if(DALI_UNLIKELY(signedWidth <= 0 || signedHeight <= 0 || signedOrientation < 0 || signedOrientation > 3 || signedMirrorMode < HEIF_MIRROR_NONE || signedMirrorMode > HEIF_MIRROR_HORIZONTAL))
+  {
+    DALI_LOG_ERROR("[HEIF] Invalid image dimensions or transform: %d x %d, orientation %d, mirror %d.\n", signedWidth, signedHeight, signedOrientation, signedMirrorMode);
+    heif_image_info_free(imageInfo);
+    return false;
+  }
+
+  width       = static_cast<uint32_t>(signedWidth);
+  height      = static_cast<uint32_t>(signedHeight);
+  orientation = static_cast<unsigned int>(signedOrientation);
+  mirrorMode  = static_cast<heif_mirror_mode_e>(signedMirrorMode);
   heif_image_info_free(imageInfo);
+  return true;
+}
+
+bool ApplyTransformations(Dali::PixelBuffer& bitmap, unsigned int orientation, heif_mirror_mode_e mirrorMode)
+{
+  if(orientation != 0u && !Dali::Internal::Adaptor::PixelBufferOperations::Rotate(bitmap, Degree(static_cast<float>(orientation * 90u))))
+  {
+    DALI_LOG_ERROR("[HEIF] Failed to rotate decoded image.\n");
+    return false;
+  }
+  if(mirrorMode == HEIF_MIRROR_VERTICAL && !Dali::Internal::Adaptor::PixelBufferOperations::FlipVertical(bitmap))
+  {
+    DALI_LOG_ERROR("[HEIF] Failed to flip decoded image vertically.\n");
+    return false;
+  }
+  if(mirrorMode == HEIF_MIRROR_HORIZONTAL && !Dali::Internal::Adaptor::PixelBufferOperations::FlipHorizontal(bitmap))
+  {
+    DALI_LOG_ERROR("[HEIF] Failed to flip decoded image horizontally.\n");
+    return false;
+  }
   return true;
 }
 
@@ -166,13 +202,20 @@ bool ReadHeader(const Dali::ImageLoader::Input& input, unsigned int& width, unsi
 {
   Dali::Vector<uint8_t> buffer;
   uint32_t              fileSize;
+  unsigned int          orientation = 0u;
+  heif_mirror_mode_e    mirrorMode  = HEIF_MIRROR_NONE;
 
   FILE* const filePointer = input.file;
 
-  if(DALI_UNLIKELY(!LoadHeicHeaderHelper(filePointer, width, height, buffer, fileSize)))
+  if(DALI_UNLIKELY(!LoadHeicHeaderHelper(filePointer, width, height, orientation, mirrorMode, buffer, fileSize)))
   {
     DALI_LOG_ERROR("Error loading heic header! Maybe this image is not heic/heif format.\n");
     return false;
+  }
+  if(DALI_LIKELY(input.reorientationRequested) && (orientation & 1u))
+  {
+    // Swap width and height for 90 or 270 degree rotations
+    std::swap(width, height);
   }
   return true;
 }
@@ -184,13 +227,21 @@ bool Decode(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
   Dali::Vector<uint8_t> buffer;
   uint32_t              fileSize;
   uint32_t              width, height;
+  unsigned int          orientation = 0u;
+  heif_mirror_mode_e    mirrorMode  = HEIF_MIRROR_NONE;
 
   FILE* const filePointer = input.file;
 
-  if(DALI_UNLIKELY(!LoadHeicHeaderHelper(filePointer, width, height, buffer, fileSize)))
+  if(DALI_UNLIKELY(!LoadHeicHeaderHelper(filePointer, width, height, orientation, mirrorMode, buffer, fileSize)))
   {
     DALI_LOG_ERROR("Could not load HEIC Header from file.\n");
     return false;
+  }
+
+  if(DALI_UNLIKELY(!input.reorientationRequested))
+  {
+    orientation = 0u;
+    mirrorMode  = HEIF_MIRROR_NONE;
   }
 
   const uint8_t* const inputBufferPtr = &buffer[0];
@@ -233,15 +284,29 @@ bool Decode(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 
   // Allocate the decoded pixel buffer:
   Pixel::Format pixelFormat = GetPixelFormat(colorFormat);
-  if(pixelFormat == Pixel::Format::INVALID)
+  if(DALI_UNLIKELY(pixelFormat == Pixel::Format::INVALID))
   {
-    DALI_LOG_ERROR("[HEIF] Not supported color format.\n");
+    DALI_LOG_ERROR("[HEIF] Not supported color format. : %d\n", static_cast<int>(colorFormat));
     heif_image_free(heifImage);
     return false;
   }
 
   // decode the whole image into bitmap buffer
-  auto pixels = (bitmap = Dali::PixelBuffer::New(width, height, pixelFormat)).GetBuffer();
+  bitmap = Dali::PixelBuffer::New(width, height, pixelFormat);
+  if(DALI_UNLIKELY(!bitmap))
+  {
+    DALI_LOG_ERROR("[HEIF] Failed to allocate pixel buffer: %u x %u.\n", width, height);
+    heif_image_free(heifImage);
+    return false;
+  }
+
+  auto* pixels = bitmap.GetBuffer();
+  if(DALI_UNLIKELY(pixels == nullptr))
+  {
+    DALI_LOG_ERROR("[HEIF] Allocated pixel buffer has no data: %u x %u.\n", width, height);
+    heif_image_free(heifImage);
+    return false;
+  }
 
   const uint32_t bitmapBufferSize = bitmap.GetBufferSize();
 
@@ -251,9 +316,9 @@ bool Decode(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
     rawDataSize = std::min(rawDataSize, static_cast<size_t>(bitmapBufferSize));
   }
 
-  memcpy(pixels, rawDataPtr, rawDataSize);
+  std::memcpy(pixels, rawDataPtr, rawDataSize);
   heif_image_free(heifImage);
-  return true;
+  return ApplyTransformations(bitmap, orientation, mirrorMode);
 }
 
 } // namespace HeifDecoder

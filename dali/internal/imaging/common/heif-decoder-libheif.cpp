@@ -23,14 +23,18 @@
 #include <dali/integration-api/pixel-buffer-integ.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/pixel-buffer.h>
+#include <dali/public-api/math/degree.h>
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <limits>
 #include <memory>
 
 #include <libheif/heif.h>
+#include <libheif/heif_properties.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/imaging/common/pixel-buffer-operations.h>
 #include <dali/internal/system/common/system-error-print.h>
 
 namespace DALI_NAMESPACE
@@ -44,6 +48,63 @@ namespace
 using HeifContext = std::unique_ptr<heif_context, decltype(&heif_context_free)>;
 using HeifHandle  = std::unique_ptr<heif_image_handle, decltype(&heif_image_handle_release)>;
 using HeifImage   = std::unique_ptr<heif_image, decltype(&heif_image_release)>;
+
+bool GetTransformations(const heif_context* context, const heif_image_handle* handle, Dali::Vector<heif_property_id>& properties)
+{
+  const heif_item_id itemId = heif_image_handle_get_item_id(handle);
+  const int          count  = heif_item_get_transformation_properties(context, itemId, nullptr, 0);
+  if(DALI_UNLIKELY(count < 0))
+  {
+    DALI_LOG_ERROR("[HEIF] Failed to query image transformations.\n");
+    return false;
+  }
+  properties.ResizeUninitialized(static_cast<size_t>(count));
+  if(count > 0 && heif_item_get_transformation_properties(context, itemId, properties.Begin(), count) != count)
+  {
+    DALI_LOG_ERROR("[HEIF] Failed to read image transformations.\n");
+    return false;
+  }
+  return true;
+}
+
+bool UndoOrientation(const heif_context* context, const heif_image_handle* handle, const Dali::Vector<heif_property_id>& properties, Dali::PixelBuffer& bitmap)
+{
+  const heif_item_id itemId = heif_image_handle_get_item_id(handle);
+  for(size_t index = properties.Count(); index > 0u; --index)
+  {
+    const heif_property_id property = properties[index - 1u];
+    switch(heif_item_get_property_type(context, itemId, property))
+    {
+      case heif_item_property_type_transform_rotation:
+      {
+        const int angle = heif_item_get_property_transform_rotation_ccw(context, itemId, property);
+        if(DALI_UNLIKELY(angle < 0 || (angle != 0 && !Dali::Internal::Adaptor::PixelBufferOperations::Rotate(bitmap, Degree(static_cast<float>(360 - angle))))))
+        {
+          DALI_LOG_ERROR("[HEIF] Failed to undo image rotation: %d.\n", angle);
+          return false;
+        }
+        break;
+      }
+      case heif_item_property_type_transform_mirror:
+      {
+        const auto direction = heif_item_get_property_transform_mirror(context, itemId, property);
+        if(DALI_UNLIKELY((direction == heif_transform_mirror_direction_vertical && !Dali::Internal::Adaptor::PixelBufferOperations::FlipVertical(bitmap)) ||
+                         (direction == heif_transform_mirror_direction_horizontal && !Dali::Internal::Adaptor::PixelBufferOperations::FlipHorizontal(bitmap)) ||
+                         direction == heif_transform_mirror_direction_invalid))
+        {
+          DALI_LOG_ERROR("[HEIF] Failed to undo image mirroring: %d.\n", direction);
+          return false;
+        }
+        break;
+      }
+      default:
+      {
+        break;
+      }
+    }
+  }
+  return true;
+}
 
 /**
  * @brief Read the encoded file and obtain its primary HEIF image handle.
@@ -134,9 +195,35 @@ bool ReadHeader(const Dali::ImageLoader::Input& input, unsigned int& width, unsi
     return false;
   }
 
-  // Read dimensions without decoding the image pixels.
-  const int imageWidth  = heif_image_handle_get_width(handle.get());
-  const int imageHeight = heif_image_handle_get_height(handle.get());
+  // The display dimensions include clap. Undo only the orientation's dimension swaps.
+  int imageWidth  = heif_image_handle_get_width(handle.get());
+  int imageHeight = heif_image_handle_get_height(handle.get());
+  if(!input.reorientationRequested)
+  {
+    Dali::Vector<heif_property_id> properties;
+    if(!GetTransformations(context.get(), handle.get(), properties))
+    {
+      return false;
+    }
+    const heif_item_id itemId = heif_image_handle_get_item_id(handle.get());
+    for(size_t index = properties.Count(); index > 0u; --index)
+    {
+      const heif_property_id property = properties[index - 1u];
+      if(heif_item_get_property_type(context.get(), itemId, property) == heif_item_property_type_transform_rotation)
+      {
+        const int angle = heif_item_get_property_transform_rotation_ccw(context.get(), itemId, property);
+        if(DALI_UNLIKELY(angle < 0))
+        {
+          DALI_LOG_ERROR("[HEIF] Invalid image rotation: %d.\n", angle);
+          return false;
+        }
+        if(angle == 90 || angle == 270)
+        {
+          std::swap(imageWidth, imageHeight);
+        }
+      }
+    }
+  }
   if(DALI_UNLIKELY(imageWidth <= 0 || imageHeight <= 0))
   {
     DALI_LOG_ERROR("[HEIF] Invalid header dimensions: %d x %d.\n", imageWidth, imageHeight);
@@ -210,6 +297,20 @@ bool Decode(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 
   // NewPixelBuffer takes ownership of the malloc-allocated pixelBuffer and releases it with free().
   bitmap = Dali::Integration::NewPixelBuffer(pixelBuffer, bufferSize, width, height, strideByte, alpha ? Pixel::RGBA8888 : Pixel::RGB888);
+  if(DALI_UNLIKELY(!bitmap || bitmap.GetBuffer() != pixelBuffer))
+  {
+    DALI_LOG_ERROR("[HEIF] Failed to create the pixel buffer wrapper: %u bytes, %ux%u, stride %d.\n", bufferSize, width, height, strideByte);
+    std::free(pixelBuffer);
+    return false;
+  }
+  if(!input.reorientationRequested)
+  {
+    Dali::Vector<heif_property_id> properties;
+    if(DALI_UNLIKELY(!GetTransformations(context.get(), handle.get(), properties) || !UndoOrientation(context.get(), handle.get(), properties, bitmap)))
+    {
+      return false;
+    }
+  }
   return true;
 }
 } // namespace HeifDecoder
