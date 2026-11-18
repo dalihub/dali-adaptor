@@ -275,6 +275,14 @@ Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Provides:   libdali2-adaptor.so.2%{elf_suffix}
 
+# Keep the legacy profile names for existing image configurations and upgrades.
+Provides:   dali2-adaptor-profile_common = %{version}-%{release}
+Provides:   dali2-adaptor-profile_mobile = %{version}-%{release}
+Provides:   dali2-adaptor-profile_tv = %{version}-%{release}
+Obsoletes:  dali2-adaptor-profile_common < %{version}-%{release}
+Obsoletes:  dali2-adaptor-profile_mobile < %{version}-%{release}
+Obsoletes:  dali2-adaptor-profile_tv < %{version}-%{release}
+
 %description -n dali2-adaptor
 libdali2-adaptor.so.2, the internal libdali2-adaptor-*.so names, dalireslog.sh and share/dali as links to their dali3 counterparts, for binaries built against DALi 2.x. Goes away once the applications have moved to dali3.
 
