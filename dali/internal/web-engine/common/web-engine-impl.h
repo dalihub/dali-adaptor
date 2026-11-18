@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <memory>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -697,6 +698,11 @@ public:
    */
   void RegisterPlaybackVideoPausedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoPausedCallback callback);
 
+  const std::shared_ptr<void>& GetPluginLibrary() const
+  {
+    return mPluginLibrary;
+  }
+
 private:
   /**
    * @brief Constructor with WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).
@@ -722,6 +728,8 @@ private:
   bool Initialize();
 
 private:
+  std::shared_ptr<void> mPluginLibrary;
+  void (*mDestroyPlugin)(Dali::WebEnginePlugin*) = nullptr;
   Dali::WebEnginePlugin* mPlugin; ///< WebEnginePlugin instance
 };
 

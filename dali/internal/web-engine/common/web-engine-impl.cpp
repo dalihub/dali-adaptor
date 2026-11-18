@@ -24,6 +24,11 @@
 #include <dlfcn.h>
 #include <locale>
 #include <sstream>
+#include <climits>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <dali/devel-api/adaptor-framework/web-engine/web-engine-profile.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
@@ -61,6 +66,10 @@ constexpr char const* const kPluginFullNameDefault  = DALI_LIBRARY_PREFIX "web-e
 constexpr char const* const kPluginFullNameChromium = DALI_LIBRARY_PREFIX "web-engine-chromium-plugin.so";
 constexpr char const* const kPluginFullNameLwe      = DALI_LIBRARY_PREFIX "web-engine-lwe-plugin.so";
 
+std::recursive_mutex runtimeMutex;
+bool initializationStarted = false;
+bool initializationSucceeded = false;
+
 std::string MakePluginName(const char* environmentName)
 {
   std::stringstream fullName;
@@ -86,8 +95,47 @@ struct WebEnginePluginObject
 public:
   static WebEnginePluginObject& GetInstance()
   {
-    static WebEnginePluginObject gPluginHandle;
-    return gPluginHandle;
+    return *GetSharedInstance(webEnginePluginType);
+  }
+
+  static std::shared_ptr<WebEnginePluginObject> GetSharedInstance(int32_t type)
+  {
+    auto& library = Libraries()[type];
+    if(!library)
+    {
+      auto candidate = std::shared_ptr<WebEnginePluginObject>(new WebEnginePluginObject(type));
+      // dlopen resolves environment names and the default symlink to the same
+      // handle. Share the wrapper too: profiles and views compare its identity.
+      if(candidate->mHandle)
+      {
+        for(const auto& entry : Libraries())
+        {
+          if(entry.second && entry.second->mHandle == candidate->mHandle)
+          {
+            library = entry.second;
+            break;
+          }
+        }
+      }
+      if(!library)
+      {
+        library = std::move(candidate);
+      }
+    }
+    return library;
+  }
+
+  static std::shared_ptr<WebEnginePluginObject> FindInstance(int32_t type)
+  {
+    auto& libraries = Libraries();
+    auto found = libraries.find(type);
+    return found == libraries.end() ? nullptr : found->second;
+  }
+
+  static std::map<int32_t, std::shared_ptr<WebEnginePluginObject>>& Libraries()
+  {
+    static std::map<int32_t, std::shared_ptr<WebEnginePluginObject>> libraries;
+    return libraries;
   }
 
   /**
@@ -100,6 +148,22 @@ public:
   explicit operator bool() const
   {
     return mLoadSucceeded;
+  }
+
+  const Dali::WebEngineProfileApi* GetProfileApi()
+  {
+    using GetApi = const Dali::WebEngineProfileApi* (*)(uint32_t);
+    auto getApi = mHandle ? reinterpret_cast<GetApi>(dlsym(mHandle, "GetWebEngineProfileApi")) : nullptr;
+    const auto* api = getApi ? getApi(1) : nullptr;
+    if(!api || api->version != 1 || api->structSize < sizeof(Dali::WebEngineProfileApi) ||
+       !api->storeArguments || !api->readArguments || !api->initialize ||
+       !api->getDefaultProfile || !api->createProfile || !api->destroyProfile ||
+       !api->getContext || !api->getCookieManager || !api->createView)
+    {
+      DALI_LOG_ERROR("Web engine profile API is unavailable\n");
+      return nullptr;
+    }
+    return api;
   }
 
   bool InitializeContextHandle()
@@ -144,7 +208,7 @@ public:
 
 private:
   // Private constructor / destructor
-  WebEnginePluginObject()
+  WebEnginePluginObject(int32_t type)
   : mLoadSucceeded{false},
     mHandle{nullptr},
     mCreateWebEnginePtr{nullptr},
@@ -154,11 +218,11 @@ private:
   {
     std::string pluginName;
 
-    if(webEnginePluginType == USE_CHROMIUM_WEB_ENGINE)
+    if(type == USE_CHROMIUM_WEB_ENGINE)
     {
       pluginName = kPluginFullNameChromium;
     }
-    else if(webEnginePluginType == USE_LIGHT_WEIGHT_WEB_ENGINE)
+    else if(type == USE_LIGHT_WEIGHT_WEB_ENGINE)
     {
       pluginName = kPluginFullNameLwe;
     }
@@ -199,6 +263,7 @@ private:
     mLoadSucceeded = true;
   }
 
+public:
   ~WebEnginePluginObject()
   {
     if(mHandle)
@@ -232,10 +297,35 @@ public:
   GetWebEngineCookieManager mGetWebEngineCookieManagerPtr; ///< Function to get WebEngineCookieManager
 };
 
+const Dali::WebEngineProfileApi* InitializeRuntime()
+{
+  auto& library = WebEnginePluginObject::GetInstance();
+  const auto* api = library.GetProfileApi();
+  if(!api)
+  {
+    return nullptr;
+  }
+  if(!initializationStarted)
+  {
+    initializationStarted = true;
+    initializationSucceeded = api->initialize();
+    if(!initializationSucceeded)
+    {
+      DALI_LOG_ERROR("Web engine initialization failed\n");
+    }
+  }
+  return initializationSucceeded ? api : nullptr;
+}
+
 } // unnamed namespace
 
 WebEnginePtr WebEngine::New(int32_t type)
 {
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  if(!Dali::WebEngineRuntime::SelectType(type))
+  {
+    return nullptr;
+  }
   WebEngine* instance = new WebEngine(type);
   if(!instance->Initialize())
   {
@@ -248,6 +338,11 @@ WebEnginePtr WebEngine::New(int32_t type)
 
 Dali::WebEngineContext* WebEngine::GetContext(bool isIncognito)
 {
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  if(!InitializeRuntime())
+  {
+    return nullptr;
+  }
   if(!WebEnginePluginObject::GetInstance().InitializeContextHandle())
   {
     return nullptr;
@@ -263,6 +358,11 @@ Dali::WebEngineContext* WebEngine::GetContext(bool isIncognito)
 
 Dali::WebEngineCookieManager* WebEngine::GetCookieManager(bool isIncognito)
 {
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  if(!InitializeRuntime())
+  {
+    return nullptr;
+  }
   if(!WebEnginePluginObject::GetInstance().InitializeCookieManagerHandle())
   {
     return nullptr;
@@ -279,7 +379,7 @@ Dali::WebEngineCookieManager* WebEngine::GetCookieManager(bool isIncognito)
 WebEngine::WebEngine(int32_t type)
 : mPlugin(nullptr)
 {
-  webEnginePluginType = type;
+  (void)type;
 }
 
 WebEngine::~WebEngine()
@@ -288,10 +388,7 @@ WebEngine::~WebEngine()
   {
     mPlugin->Destroy();
     // Check whether plugin load sccess or not.
-    if(DALI_LIKELY(WebEnginePluginObject::GetInstance()))
-    {
-      WebEnginePluginObject::GetInstance().mDestroyWebEnginePtr(mPlugin);
-    }
+    mDestroyPlugin(mPlugin);
     mPlugin = nullptr;
   }
 }
@@ -304,7 +401,10 @@ bool WebEngine::Initialize()
     return false;
   }
 
-  mPlugin = WebEnginePluginObject::GetInstance().mCreateWebEnginePtr();
+  auto library = WebEnginePluginObject::GetSharedInstance(webEnginePluginType);
+  mPluginLibrary = library;
+  mDestroyPlugin = library->mDestroyWebEnginePtr;
+  mPlugin = library->mCreateWebEnginePtr();
   if(mPlugin == nullptr)
   {
     DALI_LOG_ERROR("Can't create the WebEnginePlugin object\n");
@@ -315,11 +415,33 @@ bool WebEngine::Initialize()
 
 void WebEngine::Create(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId)
 {
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  auto library = std::static_pointer_cast<WebEnginePluginObject>(mPluginLibrary);
+  if(library != WebEnginePluginObject::GetSharedInstance(webEnginePluginType))
+  {
+    DALI_LOG_ERROR("Cannot create a view from an inactive backend\n");
+    return;
+  }
+  if(!InitializeRuntime())
+  {
+    return;
+  }
   mPlugin->Create(width, height, locale, timezoneId);
 }
 
 void WebEngine::Create(uint32_t width, uint32_t height, uint32_t argc, char** argv)
 {
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  auto library = std::static_pointer_cast<WebEnginePluginObject>(mPluginLibrary);
+  if(library != WebEnginePluginObject::GetSharedInstance(webEnginePluginType))
+  {
+    DALI_LOG_ERROR("Cannot create a view from an inactive backend\n");
+    return;
+  }
+  if(!InitializeRuntime())
+  {
+    return;
+  }
   mPlugin->Create(width, height, argc, argv);
 }
 
@@ -946,3 +1068,149 @@ void WebEngine::RemoveJavaScriptMessageHandler(const std::string& exposedObjectN
 } // namespace Adaptor
 } // namespace Internal
 } //namespace DALI_NAMESPACE
+
+namespace DALI_NAMESPACE
+{
+namespace
+{
+using namespace Internal::Adaptor;
+
+class OwnedWebEngineProfile : public WebEngineProfile
+{
+public:
+  OwnedWebEngineProfile(std::shared_ptr<WebEnginePluginObject> library, const WebEngineProfileApi* api, void* token)
+  : mLibrary(std::move(library)), mApi(api), mToken(token)
+  {
+  }
+
+  ~OwnedWebEngineProfile() override
+  {
+    mApi->destroyProfile(mToken);
+  }
+
+  WebEngineContext* GetContext() const override
+  {
+    return mApi->getContext(mToken);
+  }
+
+  WebEngineCookieManager* GetCookieManager() const override
+  {
+    return mApi->getCookieManager(mToken);
+  }
+
+  std::shared_ptr<WebEnginePluginObject> mLibrary;
+  const WebEngineProfileApi* mApi;
+  void* mToken;
+};
+
+
+}
+
+bool WebEngineRuntime::SelectType(int32_t type)
+{
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  if(type == webEnginePluginType)
+  {
+    return true;
+  }
+  auto previous = WebEnginePluginObject::FindInstance(webEnginePluginType);
+  if(previous && *previous && WebEnginePluginObject::GetSharedInstance(type) == previous)
+  {
+    return true;
+  }
+  if(initializationStarted)
+  {
+    return false;
+  }
+  // Only load the old plugin when it has already been selected/accessed. A failed
+  // initial load must not prevent selecting a working backend.
+  const auto* oldApi = previous && *previous ? previous->GetProfileApi() : nullptr;
+  if(oldApi)
+  {
+    uint32_t argc = 0;
+    const char* const* argv = nullptr;
+    oldApi->readArguments(&argc, &argv);
+    auto next = WebEnginePluginObject::GetSharedInstance(type);
+    const auto* newApi = next->GetProfileApi();
+    if(!newApi || newApi->storeArguments(argc, argv) != WebEngineArgumentsResult::SUCCESS)
+    {
+      return false;
+    }
+  }
+  webEnginePluginType = type;
+  return true;
+}
+
+bool WebEngineRuntime::HasInitializationStarted()
+{
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  return initializationStarted;
+}
+
+WebEngineArgumentsResult WebEngineRuntime::SetArguments(uint32_t argc, char** argv)
+{
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  if(initializationStarted)
+  {
+    return WebEngineArgumentsResult::ALREADY_INITIALIZED;
+  }
+  if(argc > INT_MAX || (argc && !argv))
+  {
+    return WebEngineArgumentsResult::INVALID_ARGUMENT;
+  }
+  for(uint32_t i = 0; i < argc; ++i)
+  {
+    if(!argv[i])
+    {
+      return WebEngineArgumentsResult::INVALID_ARGUMENT;
+    }
+  }
+  const auto* api = WebEnginePluginObject::GetInstance().GetProfileApi();
+  return api ? api->storeArguments(argc, argv) : WebEngineArgumentsResult::BACKEND_UNAVAILABLE;
+}
+
+WebEngineProfilePtr WebEngineRuntime::GetDefaultProfile()
+{
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  static std::weak_ptr<WebEngineProfile> cached;
+  if(auto profile = cached.lock())
+  {
+    return profile->GetContext() ? profile : WebEngineProfilePtr();
+  }
+  const auto* api = InitializeRuntime();
+  void* token = api ? api->getDefaultProfile() : nullptr;
+  if(!token)
+  {
+    DALI_LOG_ERROR("Cannot acquire default web profile\n");
+    return {};
+  }
+  auto profile = std::make_shared<OwnedWebEngineProfile>(WebEnginePluginObject::GetSharedInstance(webEnginePluginType), api, token);
+  cached = profile;
+  return profile;
+}
+
+WebEngineProfilePtr WebEngineRuntime::CreateProfile(bool incognito, const char* bundlePath)
+{
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  const auto* api = InitializeRuntime();
+  void* token = api ? api->createProfile(incognito, bundlePath ? bundlePath : "") : nullptr;
+  if(!token)
+  {
+    DALI_LOG_ERROR("Cannot create web profile\n");
+    return {};
+  }
+  return std::make_shared<OwnedWebEngineProfile>(WebEnginePluginObject::GetSharedInstance(webEnginePluginType), api, token);
+}
+
+bool WebEngineRuntime::CreateView(Dali::WebEngine engine, const WebEngineProfilePtr& profile, uint32_t width, uint32_t height)
+{
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  auto owned = std::dynamic_pointer_cast<OwnedWebEngineProfile>(profile);
+  if(!engine || !owned || !owned->GetContext() ||
+     Dali::GetImplementation(engine).GetPluginLibrary() != owned->mLibrary || !engine.GetPlugin())
+  {
+    return false;
+  }
+  return owned->mApi->createView(engine.GetPlugin(), owned->mToken, width, height);
+}
+} // namespace DALI_NAMESPACE

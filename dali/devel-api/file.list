@@ -119,6 +119,7 @@ SET( devel_api_adaptor_framework_egl_header_files
 )
 
 SET( devel_api_adaptor_framework_web_engine_header_files
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-profile.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-back-forward-list.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-back-forward-list-item.h
