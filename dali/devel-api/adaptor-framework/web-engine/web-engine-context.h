@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <string>
@@ -30,6 +31,30 @@
 
 namespace DALI_NAMESPACE
 {
+/**
+ * @brief Optional context configuration extension for result and precision preservation.
+ *
+ * Backends implement this alongside WebEngineContext. Discover it with dynamic_cast
+ * from a live WebEngineContext; older plugins return null. The existing context
+ * vtable is unchanged. Calls run on the DALi event thread. Boolean results report
+ * native acceptance unless a method explicitly documents dispatch-only success, not
+ * asynchronous completion. Do not emulate success through
+ * the legacy void methods or narrow double offsets to float.
+ */
+class WebEngineContextConfiguration
+{
+public:
+  virtual ~WebEngineContextConfiguration() = default;
+  virtual bool SetCacheEnabled(bool enabled) = 0;
+  virtual bool SetCertificatePath(const std::string& path) = 0;
+  virtual bool RequestDeleteAllWebStorage() = 0;
+  virtual void SetTimeOffset(double offset) = 0;
+  /** Both offsets are in milliseconds. Positive zone offsets are east of UTC. DST is added to the zone offset. */
+  virtual void SetTimeZoneOffset(double zoneOffset, double daylightSavingTime) = 0;
+  /** Requests 1 to 60 FPS through this context. True means dispatched to a live backend, not native application success. */
+  virtual bool SetMaxRefreshRate(int32_t rate) = 0;
+};
+
 /**
  * @brief A class WebEngineContext for context of web engine.
  */
@@ -340,8 +365,8 @@ public:
   /**
    * @brief Set timezone offset
    *
-   * @param[in] timeZoneOffset offset for time zone.
-   * @param[in] daylightSavingTime The value is for daylight saving time use.
+   * @param[in] timeZoneOffset Offset from UTC in milliseconds, positive east of UTC.
+   * @param[in] daylightSavingTime Adjustment in milliseconds added to timeZoneOffset.
    */
   virtual void SetTimeZoneOffset(float timeZoneOffset, float daylightSavingTime) = 0;
 

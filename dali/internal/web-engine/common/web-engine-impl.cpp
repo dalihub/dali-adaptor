@@ -1136,7 +1136,7 @@ bool WebEngine::CreateView(const Dali::WebEngineProfilePtr& profile, const Dali:
 
 Dali::WebEngineDirectRenderingConnection WebEngine::CreateDirectRenderingView(const Dali::WebEngineProfilePtr& profile, const Dali::WebEngineProfileApi& api, void* token, uint32_t width, uint32_t height)
 {
-  if(api.structSize < sizeof(Dali::WebEngineProfileApi) || !api.createDirectRenderingView ||
+  if(api.structSize < offsetof(Dali::WebEngineProfileApi, createDirectRenderingView) + sizeof(api.createDirectRenderingView) || !api.createDirectRenderingView ||
      !IsDirectRenderingSupported() || !PrepareInitialization())
   {
     return {};
