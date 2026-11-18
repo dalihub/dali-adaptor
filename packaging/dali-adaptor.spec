@@ -206,6 +206,13 @@ BuildRequires:  pkgconfig(feedback)
 
 BuildRequires:  pkgconfig(thorvg)
 
+# HEIF support only from Tizen 10 onwards
+%if 0%{?tizen_version_major} >= 10
+BuildRequires:  libheif
+BuildRequires:  libheif-devel
+BuildRequires:  pkgconfig(heif)
+%endif
+
 # For ASAN test
 %if "%{vd_asan}" == "1" || "%{asan}" == "1"
 BuildRequires: asan-force-options

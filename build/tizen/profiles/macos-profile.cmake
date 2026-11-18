@@ -19,6 +19,7 @@ SET( SOURCES
         ${adaptor_graphics_macos_src_files}
         ${adaptor_haptics_common_src_files}
         ${adaptor_imaging_common_src_files}
+        ${adaptor_imaging_heif_decoder_src_files}
         ${adaptor_imaging_macos_src_files}
         ${adaptor_input_common_src_files}
         ${adaptor_input_macos_src_files}

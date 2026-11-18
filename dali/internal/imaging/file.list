@@ -12,6 +12,7 @@ SET( adaptor_imaging_common_src_files
     ${adaptor_imaging_dir}/common/loader-astc.cpp
     ${adaptor_imaging_dir}/common/loader-bmp.cpp
     ${adaptor_imaging_dir}/common/loader-gif.cpp
+    ${adaptor_imaging_dir}/common/loader-heic.cpp
     ${adaptor_imaging_dir}/common/loader-ico.cpp
     ${adaptor_imaging_dir}/common/loader-jpeg-turbo.cpp
     ${adaptor_imaging_dir}/common/loader-ktx.cpp
@@ -112,3 +113,18 @@ SET( adaptor_imaging_macos_src_files
     ${adaptor_imaging_dir}/macos/native-image-factory-mac.cpp
     ${adaptor_imaging_dir}/macos/native-image-impl-mac.cpp
 )
+
+# Select by dependency rather than platform: Tizen can use upstream libheif too.
+IF( HEIF_DECODER_BACKEND STREQUAL "TIZEN" )
+  SET( adaptor_imaging_heif_decoder_src_files
+    ${adaptor_imaging_dir}/tizen/heif-decoder-tizen.cpp
+  )
+ELSEIF( HEIF_DECODER_BACKEND STREQUAL "LIBHEIF" )
+  SET( adaptor_imaging_heif_decoder_src_files
+    ${adaptor_imaging_dir}/common/heif-decoder-libheif.cpp
+  )
+ELSE()
+  SET( adaptor_imaging_heif_decoder_src_files
+    ${adaptor_imaging_dir}/common/heif-decoder-stub.cpp
+  )
+ENDIF()

@@ -22,6 +22,7 @@ SET( SOURCES
         ${adaptor_imaging_common_src_files}
         ${adaptor_imaging_common_dynamic_src_files}
         ${adaptor_imaging_android_src_files}
+        ${adaptor_imaging_heif_decoder_src_files}
         ${adaptor_input_common_src_files}
         ${adaptor_input_generic_src_files}
         ${adaptor_integration_api_src_files}

@@ -22,6 +22,7 @@ SET( SOURCES
     ${adaptor_haptics_common_src_files}
     ${adaptor_imaging_common_src_files}
     ${adaptor_imaging_common_dynamic_src_files}
+    ${adaptor_imaging_heif_decoder_src_files}
     ${adaptor_imaging_tizen_src_files}
     ${adaptor_input_common_src_files}
     ${adaptor_input_tizen_wayland_src_files}
