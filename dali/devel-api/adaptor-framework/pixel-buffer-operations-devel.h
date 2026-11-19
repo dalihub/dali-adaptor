@@ -119,6 +119,22 @@ DALI_ADAPTOR_API void MultiplyColorByAlpha(PixelBuffer pixelBuffer);
 DALI_ADAPTOR_API bool Rotate(PixelBuffer pixelBuffer, Degree angle);
 
 /**
+ * @brief Flips the pixel buffer vertically in place, leaving row padding untouched.
+ *
+ * @param[in] pixelBuffer The pixel buffer to flip
+ * @return @c true if the flip succeeds, @c false for an invalid pixel layout
+ */
+DALI_ADAPTOR_API bool FlipVertical(PixelBuffer pixelBuffer);
+
+/**
+ * @brief Flips the pixel buffer horizontally in place, leaving row padding untouched.
+ *
+ * @param[in] pixelBuffer The pixel buffer to flip
+ * @return @c true if the flip succeeds, @c false for an invalid pixel layout
+ */
+DALI_ADAPTOR_API bool FlipHorizontal(PixelBuffer pixelBuffer);
+
+/**
  * @brief Gets the brightness of the given pixel buffer.
  *
  * @note The range is 255 to 0. The closer to 255, the brighter. 0 is not bright.

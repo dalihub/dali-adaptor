@@ -25,6 +25,7 @@
 #include <dali/public-api/common/dali-utility.h>
 #include <stdlib.h>
 #include <cstring>
+#include <utility>
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/alpha-mask.h>
@@ -45,6 +46,106 @@ namespace
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_IMAGE_PERFORMANCE_MARKER, false);
 
 const float TWO_PI = 2.f * Math::PI; ///< 360 degrees in radians
+
+/**
+ * @brief Checks that the uncompressed pixel buffer has accessible rows and pixels.
+ */
+bool HasValidPixelLayout(const Dali::PixelBuffer& pixelBuffer)
+{
+  const Pixel::Format pixelFormat = pixelBuffer.GetPixelFormat();
+  if(Pixel::IsCompressed(pixelFormat))
+  {
+    DALI_LOG_ERROR("Pixel buffer operation does not support compressed pixel format: %s\n", Platform::GetPixelFormatName(pixelFormat));
+    return false;
+  }
+
+  const uint32_t pixelSize = Pixel::GetBytesPerPixel(pixelFormat);
+  const uint32_t width     = pixelBuffer.GetWidth();
+  const uint32_t height    = pixelBuffer.GetHeight();
+  const uint32_t stride    = pixelBuffer.GetStrideBytes();
+  if(pixelBuffer.GetBuffer() == nullptr || pixelSize == 0u || width == 0u || height == 0u)
+  {
+    DALI_LOG_ERROR("Invalid pixel buffer: buffer=%p, format=%s, pixelSize=%u, dimensions=%ux%u\n", pixelBuffer.GetBuffer(), Platform::GetPixelFormatName(pixelFormat), pixelSize, width, height);
+    return false;
+  }
+
+  if(static_cast<uint64_t>(width) * pixelSize > stride ||
+     static_cast<uint64_t>(height - 1u) * stride + static_cast<uint64_t>(width) * pixelSize > pixelBuffer.GetBufferSize())
+  {
+    DALI_LOG_ERROR("Invalid pixel buffer layout: dimensions=%ux%u, pixelSize=%u, strideBytes=%u, bufferSize=%u\n", width, height, pixelSize, stride, pixelBuffer.GetBufferSize());
+    return false;
+  }
+  return true;
+}
+
+/**
+ * @brief Rotates by 90-degree increments, preserving the input stride for 180 degrees.
+ */
+bool RotateRightAngle(Dali::PixelBuffer& pixelBuffer, uint32_t quarterTurns)
+{
+  const uint32_t width     = pixelBuffer.GetWidth();
+  const uint32_t height    = pixelBuffer.GetHeight();
+  const uint32_t pixelSize = Pixel::GetBytesPerPixel(pixelBuffer.GetPixelFormat());
+  const uint32_t stride    = pixelBuffer.GetStrideBytes();
+  uint8_t* const pixels    = pixelBuffer.GetBuffer();
+
+  if(quarterTurns == 2u)
+  {
+    // Swap only image pixels, preserving any padding at the end of each row.
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_ROTATE_RIGHT_ANGLE", [&](std::ostringstream& oss)
+    { oss << "[" << width << "x" << height << " format " << pixelBuffer.GetPixelFormat() << " angle:180]"; });
+    const uint64_t pixelCount = static_cast<uint64_t>(width) * height;
+    for(uint64_t index = 0u; index < pixelCount / 2u; ++index)
+    {
+      const uint32_t y      = static_cast<uint32_t>(index / width);
+      const uint32_t x      = static_cast<uint32_t>(index % width);
+      uint8_t* const first  = pixels + static_cast<size_t>(y) * stride + static_cast<size_t>(x) * pixelSize;
+      uint8_t* const second = pixels + static_cast<size_t>(height - y - 1u) * stride + static_cast<size_t>(width - x - 1u) * pixelSize;
+      for(uint32_t channel = 0u; channel < pixelSize; ++channel)
+      {
+        std::swap(first[channel], second[channel]);
+      }
+    }
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_ROTATE_RIGHT_ANGLE", [&](std::ostringstream& oss)
+    { oss << "[pixels:" << pixelCount << "]"; });
+    return true;
+  }
+
+  const uint64_t requiredSize = static_cast<uint64_t>(width) * height * pixelSize;
+  if(DALI_UNLIKELY(requiredSize > UINT32_MAX))
+  {
+    DALI_LOG_ERROR("Rotated pixel buffer is too large: %llu bytes\n", static_cast<unsigned long long>(requiredSize));
+    return false;
+  }
+
+  const uint32_t outputSize = static_cast<uint32_t>(requiredSize);
+  uint8_t* const output     = static_cast<uint8_t*>(malloc(outputSize));
+  if(DALI_UNLIKELY(output == nullptr))
+  {
+    DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x %u\n", height, width, pixelSize);
+    return false;
+  }
+
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_ROTATE_RIGHT_ANGLE", [&](std::ostringstream& oss)
+  { oss << "[" << width << "x" << height << " format " << pixelBuffer.GetPixelFormat() << " angle:" << quarterTurns * 90u << "]"; });
+  for(uint32_t y = 0u; y < height; ++y)
+  {
+    for(uint32_t x = 0u; x < width; ++x)
+    {
+      const uint32_t outputX = quarterTurns == 1u ? y : height - y - 1u;
+      const uint32_t outputY = quarterTurns == 1u ? width - x - 1u : x;
+      memcpy(output + (static_cast<size_t>(outputY) * height + outputX) * pixelSize,
+             pixels + static_cast<size_t>(y) * stride + static_cast<size_t>(x) * pixelSize,
+             pixelSize);
+    }
+  }
+  DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_ROTATE_RIGHT_ANGLE", [&](std::ostringstream& oss)
+  { oss << "[output:" << height << "x" << width << "]"; });
+
+  Dali::Integration::ResetPixelBufferData(pixelBuffer, output, outputSize, height, width, height * pixelSize, pixelBuffer.GetPixelFormat());
+  return true;
+}
+
 // based on W3C Recommendations (https://www.w3.org/TR/AERT/#color-contrast)
 constexpr uint32_t BRIGHTNESS_CONSTANT_R = 299;
 constexpr uint32_t BRIGHTNESS_CONSTANT_G = 587;
@@ -435,6 +536,21 @@ bool Rotate(Dali::PixelBuffer& pixelBuffer, Degree angle)
     return true;
   }
 
+  if(!HasValidPixelLayout(pixelBuffer))
+  {
+    return false;
+  }
+
+  // Exact right angles need no resampling.
+  const float quarterTurn = Math::PI_2;
+  for(uint32_t turns = 1u; turns <= 3u; ++turns)
+  {
+    if(fabs(radians - static_cast<float>(turns) * quarterTurn) < Dali::Math::MACHINE_EPSILON_10)
+    {
+      return RotateRightAngle(pixelBuffer, turns);
+    }
+  }
+
   const uint32_t pixelSize = Pixel::GetBytesPerPixel(pixelBuffer.GetPixelFormat());
 
   uint32_t width  = pixelBuffer.GetWidth();
@@ -587,6 +703,65 @@ uint32_t GetBrightness(Dali::PixelBuffer& pixelBuffer)
   }
 
   return brightness;
+}
+
+bool FlipVertical(Dali::PixelBuffer& pixelBuffer)
+{
+  if(!HasValidPixelLayout(pixelBuffer))
+  {
+    return false;
+  }
+
+  const uint32_t rowBytes = pixelBuffer.GetWidth() * Pixel::GetBytesPerPixel(pixelBuffer.GetPixelFormat());
+  const uint32_t stride   = pixelBuffer.GetStrideBytes();
+  const uint32_t height   = pixelBuffer.GetHeight();
+  uint8_t* const pixels   = pixelBuffer.GetBuffer();
+
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_FLIP_VERTICAL", [&](std::ostringstream& oss)
+  { oss << "[" << pixelBuffer.GetWidth() << "x" << height << " format " << pixelBuffer.GetPixelFormat() << "]"; });
+  for(uint32_t y = 0u; y < height / 2u; ++y)
+  {
+    uint8_t* const top    = pixels + static_cast<size_t>(y) * stride;
+    uint8_t* const bottom = pixels + static_cast<size_t>(height - y - 1u) * stride;
+    for(uint32_t byte = 0u; byte < rowBytes; ++byte)
+    {
+      std::swap(top[byte], bottom[byte]);
+    }
+  }
+  DALI_TRACE_END(gTraceFilter, "DALI_PIXEL_BUFFER_FLIP_VERTICAL");
+  return true;
+}
+
+bool FlipHorizontal(Dali::PixelBuffer& pixelBuffer)
+{
+  if(!HasValidPixelLayout(pixelBuffer))
+  {
+    return false;
+  }
+
+  const uint32_t width     = pixelBuffer.GetWidth();
+  const uint32_t height    = pixelBuffer.GetHeight();
+  const uint32_t pixelSize = Pixel::GetBytesPerPixel(pixelBuffer.GetPixelFormat());
+  const uint32_t stride    = pixelBuffer.GetStrideBytes();
+  uint8_t* const pixels    = pixelBuffer.GetBuffer();
+
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_FLIP_HORIZONTAL", [&](std::ostringstream& oss)
+  { oss << "[" << width << "x" << height << " format " << pixelBuffer.GetPixelFormat() << "]"; });
+  for(uint32_t y = 0u; y < height; ++y)
+  {
+    uint8_t* const row = pixels + static_cast<size_t>(y) * stride;
+    for(uint32_t x = 0u; x < width / 2u; ++x)
+    {
+      uint8_t* const left  = row + static_cast<size_t>(x) * pixelSize;
+      uint8_t* const right = row + static_cast<size_t>(width - x - 1u) * pixelSize;
+      for(uint32_t channel = 0u; channel < pixelSize; ++channel)
+      {
+        std::swap(left[channel], right[channel]);
+      }
+    }
+  }
+  DALI_TRACE_END(gTraceFilter, "DALI_PIXEL_BUFFER_FLIP_HORIZONTAL");
+  return true;
 }
 
 Dali::PixelBuffer NewCrop(Dali::PixelBuffer& inBuffer, uint16_t x, uint16_t y, ImageDimensions cropDimensions)

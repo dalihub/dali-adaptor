@@ -1447,6 +1447,61 @@ int UtcDaliPixelBufferOperationsDevelRotate01N(void)
   END_TEST;
 }
 
+int UtcDaliPixelBufferOperationsPaddedTransform01P(void)
+{
+  TestApplication application;
+  const uint32_t  width = 3u, height = 2u, stride = 11u;
+  uint8_t*        data = static_cast<uint8_t*>(malloc(stride * height));
+  memset(data, 0xee, stride * height);
+  for(uint32_t i = 0u; i < width * height; ++i)
+  {
+    memset(data + (i / width) * stride + (i % width) * 3u, static_cast<int>(i), 3u);
+  }
+  Dali::PixelBuffer buffer   = Dali::Integration::NewPixelBuffer(data, stride * height, width, height, stride, Pixel::RGB888);
+  const uint8_t*    original = buffer.GetBuffer();
+  DALI_TEST_CHECK(DevelPixelBufferOperations::FlipHorizontal(buffer));
+  DALI_TEST_CHECK(buffer.GetBuffer() == original);
+  DALI_TEST_EQUALS(buffer.GetBuffer()[0], 2u, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer.GetBuffer()[stride], 5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer.GetBuffer()[9], 0xee, TEST_LOCATION);
+  DALI_TEST_CHECK(DevelPixelBufferOperations::FlipVertical(buffer));
+  DALI_TEST_CHECK(buffer.GetBuffer() == original);
+  DALI_TEST_EQUALS(buffer.GetBuffer()[0], 5u, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer.GetBuffer()[stride], 2u, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer.GetBuffer()[9], 0xee, TEST_LOCATION);
+  DALI_TEST_CHECK(DevelPixelBufferOperations::Rotate(buffer, Degree(180.0f)));
+  DALI_TEST_CHECK(buffer.GetBuffer() == original);
+  DALI_TEST_EQUALS(buffer.GetBuffer()[0], 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer.GetBuffer()[stride], 3u, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer.GetBuffer()[9], 0xee, TEST_LOCATION);
+  END_TEST;
+}
+
+int UtcDaliPixelBufferOperationsPaddedTransform02P(void)
+{
+  TestApplication application;
+  for(float angle : {90.0f, 270.0f})
+  {
+    const uint32_t stride = 5u;
+    uint8_t*       data   = static_cast<uint8_t*>(malloc(stride * 3u));
+    memset(data, 0xee, stride * 3u);
+    for(uint32_t y = 0u; y < 3u; ++y)
+    {
+      data[y * stride]      = static_cast<uint8_t>(y * 2u);
+      data[y * stride + 1u] = static_cast<uint8_t>(y * 2u + 1u);
+    }
+    Dali::PixelBuffer buffer = Dali::Integration::NewPixelBuffer(data, stride * 3u, 2u, 3u, stride, Pixel::L8);
+    DALI_TEST_CHECK(DevelPixelBufferOperations::Rotate(buffer, Degree(angle)));
+    DALI_TEST_EQUALS(buffer.GetWidth(), 3u, TEST_LOCATION);
+    DALI_TEST_EQUALS(buffer.GetHeight(), 2u, TEST_LOCATION);
+    DALI_TEST_EQUALS(buffer.GetStrideBytes(), 3u, TEST_LOCATION);
+    const uint8_t expected90[]  = {1u, 3u, 5u, 0u, 2u, 4u};
+    const uint8_t expected270[] = {4u, 2u, 0u, 5u, 3u, 1u};
+    DALI_TEST_CHECK(memcmp(buffer.GetBuffer(), angle == 90.0f ? expected90 : expected270, 6u) == 0);
+  }
+  END_TEST;
+}
+
 int UtcDaliPixelBufferOperationsDevelGetBrightness01P(void)
 {
   TestApplication application;
