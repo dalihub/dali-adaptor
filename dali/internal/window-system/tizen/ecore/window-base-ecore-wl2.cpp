@@ -18,6 +18,7 @@
 // Ecore is littered with C style cast
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
 // CLASS HEADER
 #include <dali/internal/window-system/tizen/ecore/window-base-ecore-wl2.h>
