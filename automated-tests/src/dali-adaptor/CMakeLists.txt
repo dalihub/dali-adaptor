@@ -13,8 +13,10 @@ SET(TC_SOURCES
     utc-Dali-Accessibility.cpp
     utc-Dali-AsyncTaskManager.cpp
     utc-Dali-ClipboardData.cpp
+    utc-Dali-CanvasRenderer.cpp
     utc-Dali-Constexpr.cpp
     utc-Dali-DragData.cpp
+    utc-Dali-DragAndDrop.cpp
     utc-Dali-EncodedImageBuffer.cpp
     utc-Dali-UiContext.cpp
     utc-Dali-MouseInOutEvent.cpp
@@ -24,6 +26,7 @@ SET(TC_SOURCES
     utc-Dali-GifLoading.cpp
     utc-Dali-WebpLoading.cpp
     utc-Dali-ImageLoading.cpp
+    utc-Dali-InputMethodContext.cpp
     utc-Dali-Key.cpp
     utc-Dali-KeyExtension.cpp
     utc-Dali-Keyboard.cpp

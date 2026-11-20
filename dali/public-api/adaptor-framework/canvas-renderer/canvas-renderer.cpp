@@ -39,6 +39,10 @@ CanvasRenderer::~CanvasRenderer()
 {
 }
 
+CanvasRenderer::CanvasRenderer(CanvasRenderer&& handle) noexcept = default;
+
+CanvasRenderer& CanvasRenderer::operator=(CanvasRenderer&& handle) noexcept = default;
+
 CanvasRenderer::CanvasRenderer(Internal::Adaptor::CanvasRenderer* internal)
 : BaseHandle(internal)
 {

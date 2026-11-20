@@ -84,6 +84,21 @@ public:
   CanvasRenderer(const CanvasRenderer& handle) = default;
 
   /**
+   * @brief Move constructor. Transfers the referenced object from another handle.
+   * @param[in] handle The handle to move from.
+   * @SINCE_3_0.2
+   */
+  CanvasRenderer(CanvasRenderer&& handle) noexcept;
+
+  /**
+   * @brief Move assignment operator. Transfers the referenced object from another handle.
+   * @param[in] handle The handle to move from.
+   * @return A reference to this handle.
+   * @SINCE_3_0.2
+   */
+  CanvasRenderer& operator=(CanvasRenderer&& handle) noexcept;
+
+  /**
    * @brief This assignment operator is required for (smart) pointer semantics.
    *
    * @SINCE_2_5.35

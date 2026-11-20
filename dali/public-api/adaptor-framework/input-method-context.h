@@ -133,6 +133,21 @@ public:
   InputMethodContext(const InputMethodContext& inputMethodContext);
 
   /**
+   * @brief Move constructor. Transfers the referenced object from another handle.
+   * @param[in] handle The handle to move from.
+   * @SINCE_3_0.2
+   */
+  InputMethodContext(InputMethodContext&& handle) noexcept;
+
+  /**
+   * @brief Move assignment operator. Transfers the referenced object from another handle.
+   * @param[in] handle The handle to move from.
+   * @return A reference to this handle.
+   * @SINCE_3_0.2
+   */
+  InputMethodContext& operator=(InputMethodContext&& handle) noexcept;
+
+  /**
    * @brief Assignment operator.
    *
    * @param[in] inputMethodContext The InputMethodContext to assign from.
