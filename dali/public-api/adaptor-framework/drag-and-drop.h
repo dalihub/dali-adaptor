@@ -141,6 +141,29 @@ public:
   DragAndDrop(const DragAndDrop& handle) = default;
 
   /**
+   * @brief Move constructor. Transfers the referenced object from another handle.
+   * @param[in] handle The handle to move from.
+   * @SINCE_3_0.2
+   */
+  DragAndDrop(DragAndDrop&& handle) noexcept;
+
+  /**
+   * @brief Copy assignment operator. Shares the referenced object with another handle.
+   * @param[in] handle The handle to copy from.
+   * @return A reference to this handle.
+   * @SINCE_3_0.2
+   */
+  DragAndDrop& operator=(const DragAndDrop& handle);
+
+  /**
+   * @brief Move assignment operator. Transfers the referenced object from another handle.
+   * @param[in] handle The handle to move from.
+   * @return A reference to this handle.
+   * @SINCE_3_0.2
+   */
+  DragAndDrop& operator=(DragAndDrop&& handle) noexcept;
+
+  /**
    * @brief Retrieve a handle to the DragAndDrop instance.
    *
    * @return A handle to the DragAndDrop

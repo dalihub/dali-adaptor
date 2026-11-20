@@ -32,6 +32,12 @@ DragAndDrop::DragAndDrop()
 DragAndDrop::~DragAndDrop()
 {
 }
+
+DragAndDrop::DragAndDrop(DragAndDrop&& handle) noexcept = default;
+
+DragAndDrop& DragAndDrop::operator=(const DragAndDrop& handle) = default;
+
+DragAndDrop& DragAndDrop::operator=(DragAndDrop&& handle) noexcept = default;
 DragAndDrop::DragAndDrop(Internal::Adaptor::DragAndDrop* impl)
 : BaseHandle(impl)
 {

@@ -27,6 +27,10 @@ InputMethodContext::InputMethodContext() = default;
 
 InputMethodContext::~InputMethodContext() = default;
 
+InputMethodContext::InputMethodContext(InputMethodContext&& handle) noexcept = default;
+
+InputMethodContext& InputMethodContext::operator=(InputMethodContext&& handle) noexcept = default;
+
 InputMethodContext::InputMethodContext(const InputMethodContext& inputMethodContext)
 : BaseHandle(inputMethodContext)
 {
