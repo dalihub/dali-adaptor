@@ -84,6 +84,16 @@ void ApplyLetterbox(Dali::PixelBuffer& pixelBuffer, uint16_t width, uint16_t hei
 bool Rotate(Dali::PixelBuffer& pixelBuffer, Degree angle);
 
 /**
+ * @copydoc Dali::DevelPixelBufferOperations::FlipVertical()
+ */
+bool FlipVertical(Dali::PixelBuffer& pixelBuffer);
+
+/**
+ * @copydoc Dali::DevelPixelBufferOperations::FlipHorizontal()
+ */
+bool FlipHorizontal(Dali::PixelBuffer& pixelBuffer);
+
+/**
  * @copydoc Dali::DevelPixelBufferOperations::MultiplyColorByAlpha()
  */
 void MultiplyColorByAlpha(Dali::PixelBuffer& pixelBuffer);

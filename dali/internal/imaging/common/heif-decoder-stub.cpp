@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/imaging/common/heif-decoder.h>
 
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
+
 namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
@@ -30,6 +33,11 @@ bool ReadHeader(const Dali::ImageLoader::Input&, unsigned int&, unsigned int&)
 }
 
 bool Decode(const Dali::ImageLoader::Input&, Dali::PixelBuffer&)
+{
+  return false;
+}
+
+bool DecodePlanes(const Dali::ImageLoader::Input&, std::vector<Dali::PixelBuffer>&)
 {
   return false;
 }

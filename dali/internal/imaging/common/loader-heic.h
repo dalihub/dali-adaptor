@@ -19,6 +19,7 @@
  */
 
 #include <dali/devel-api/adaptor-framework/image-loader-input.h>
+#include <vector>
 
 namespace DALI_NAMESPACE
 {
@@ -37,6 +38,9 @@ class ResourceLoadingClient;
  * @return True if file loaded successfully, false otherwise
  */
 bool LoadBitmapFromHeic(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap);
+
+/** Load YUV planes when supported, falling back to a single RGB pixel buffer. */
+bool LoadPlanesFromHeic(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers);
 
 /**
  * Loads the header of a HEIC file and fills in the width and height appropriately.

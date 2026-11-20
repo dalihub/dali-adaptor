@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/imaging/common/loader-heic.h>
 
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
+
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/heif-decoder.h>
 
@@ -33,6 +36,25 @@ bool LoadHeicHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
 bool LoadBitmapFromHeic(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 {
   return HeifDecoder::Decode(input, bitmap);
+}
+
+bool LoadPlanesFromHeic(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers)
+{
+  pixelBuffers.clear();
+  if(HeifDecoder::DecodePlanes(input, pixelBuffers))
+  {
+    return true;
+  }
+
+  pixelBuffers.clear();
+  Dali::PixelBuffer bitmap;
+  if(!HeifDecoder::Decode(input, bitmap))
+  {
+    DALI_LOG_ERROR("[HEIF] RGB fallback after YUV plane decoding failed.\n");
+    return false;
+  }
+  pixelBuffers.push_back(bitmap);
+  return true;
 }
 } // namespace TizenPlatform
 } // namespace DALI_NAMESPACE

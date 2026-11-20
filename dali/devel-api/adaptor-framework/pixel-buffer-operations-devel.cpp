@@ -55,6 +55,16 @@ bool Rotate(PixelBuffer pixelBuffer, Degree angle)
   return Internal::Adaptor::PixelBufferOperations::Rotate(pixelBuffer, angle);
 }
 
+bool FlipVertical(PixelBuffer pixelBuffer)
+{
+  return Internal::Adaptor::PixelBufferOperations::FlipVertical(pixelBuffer);
+}
+
+bool FlipHorizontal(PixelBuffer pixelBuffer)
+{
+  return Internal::Adaptor::PixelBufferOperations::FlipHorizontal(pixelBuffer);
+}
+
 uint32_t GetBrightness(PixelBuffer pixelBuffer)
 {
   return Internal::Adaptor::PixelBufferOperations::GetBrightness(pixelBuffer);
