@@ -25,6 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-plugin.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine.h>
+#include <dali/devel-api/adaptor-framework/web-engine/web-engine-profile.h>
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 
 namespace DALI_NAMESPACE
@@ -40,6 +41,7 @@ namespace Internal
 namespace Adaptor
 {
 class WebEngine;
+class WebEngineDirectRenderingState;
 
 typedef IntrusivePtr<WebEngine> WebEnginePtr;
 
@@ -702,6 +704,19 @@ public:
   {
     return mPluginLibrary;
   }
+  /**
+   * @copydoc Dali::WebEngine::InitializeNativeImageRendering()
+   */
+  bool InitializeNativeImageRendering(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId);
+  /**
+   * @copydoc Dali::WebEngine::InitializeDirectRendering()
+   */
+  Dali::WebEngineDirectRenderingConnection InitializeDirectRendering(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId);
+  bool CreateView(const Dali::WebEngineProfilePtr& profile, const Dali::WebEngineProfileApi& api, void* token, uint32_t width, uint32_t height);
+  Dali::WebEngineDirectRenderingConnection CreateDirectRenderingView(const Dali::WebEngineProfilePtr& profile, const Dali::WebEngineProfileApi& api, void* token, uint32_t width, uint32_t height);
+
+  /// Event-thread completion: detach the retired state and destroy its plugin session.
+  void DirectRenderingStopped(WebEngineDirectRenderingState& state);
 
 private:
   /**
@@ -726,10 +741,15 @@ private:
    * @return Whether the initialization succeed or not.
    */
   bool Initialize();
+  bool PrepareInitialization();
+  Dali::WebEngineDirectRenderingConnection ConnectDirectRendering(Dali::WebEngineDirectRenderingSessionPtr session);
 
 private:
+  Dali::WebEngineProfilePtr mProfile;
   std::shared_ptr<void> mPluginLibrary;
   void (*mDestroyPlugin)(Dali::WebEnginePlugin*) = nullptr;
+  WebEngineDirectRenderingState* mDirectRenderingState{nullptr};
+  bool                           mInitialized{false};
   Dali::WebEnginePlugin* mPlugin; ///< WebEnginePlugin instance
 };
 

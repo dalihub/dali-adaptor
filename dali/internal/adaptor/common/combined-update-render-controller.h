@@ -369,6 +369,7 @@ private:                                  // Attributes
   UpdateStatusLogger mUpdateStatusLogger; ///< Object that logs the update-status as required.
 
   Semaphore<>     mEventThreadSemaphore;   ///< Used by the event thread to ensure all threads have been initialised, and when replacing the surface.
+  bool            mGraphicsInitialized{false}; ///< Protected by mGraphicsInitializeWait.
   ConditionalWait mGraphicsInitializeWait; ///< Used by the render thread to ensure the graphics has been initialised.
   Semaphore<>     mSurfaceSemaphore;       ///< Used by the event thread to ensure the surface has been deleted or replaced.
 

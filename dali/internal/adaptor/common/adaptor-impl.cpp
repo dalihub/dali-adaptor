@@ -810,6 +810,19 @@ Dali::Graphics::GraphicsInterface& Adaptor::GetGraphicsInterface()
   return mGraphicsLibraryHandle->GetGraphicsInterface();
 }
 
+bool Adaptor::IsResourceContextSupported()
+{
+  if(mState == STOPPED || !mThreadController)
+  {
+    return false;
+  }
+  // Initialize() starts the render thread before the application's InitSignal.
+  // This existing wait returns immediately when no render thread was started.
+  mThreadController->WaitForGraphicsInitialization();
+  auto& graphics = GetGraphicsInterface();
+  return graphics.IsInitialized() && graphics.IsResourceContextSupported();
+}
+
 Dali::Integration::PlatformAbstraction& Adaptor::GetPlatformAbstractionInterface()
 {
   return *mPlatformAbstraction;

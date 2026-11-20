@@ -718,4 +718,14 @@ void WebEngine::RegisterPlaybackVideoPausedCallback(Dali::WebEnginePlugin::WebEn
   GetImplementation(*this).RegisterPlaybackVideoPausedCallback(callback);
 }
 
+bool WebEngine::InitializeNativeImageRendering(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId)
+{
+  return GetImplementation(*this).InitializeNativeImageRendering(width, height, locale, timezoneId);
+}
+
+Dali::WebEngineDirectRenderingConnection WebEngine::InitializeDirectRendering(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId)
+{
+  return GetImplementation(*this).InitializeDirectRendering(width, height, locale, timezoneId);
+}
+
 } //namespace DALI_NAMESPACE

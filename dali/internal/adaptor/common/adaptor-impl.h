@@ -540,6 +540,12 @@ public: // AdaptorInternalServices
   Dali::Graphics::GraphicsInterface& GetGraphicsInterface() override;
 
   /**
+   * Event-thread query of the live resource-context capability after graphics
+   * initialization. Returns false before initialization or after Stop().
+   */
+  bool IsResourceContextSupported();
+
+  /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventInterface()
    */
   TriggerEventInterface& GetProcessCoreEventsTrigger() override;

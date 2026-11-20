@@ -205,6 +205,7 @@ void CombinedUpdateRenderController::Initialize()
 
   // Create Update/Render Thread
   ConditionalWait::ScopedLock lock(mGraphicsInitializeWait);
+  mGraphicsInitialized = false;
   mUpdateRenderThread = new pthread_t();
   int error           = pthread_create(mUpdateRenderThread, nullptr, InternalUpdateRenderThreadEntryFunc, this);
   DALI_ASSERT_ALWAYS(!error && "Return code from pthread_create() when creating UpdateRenderThread");
@@ -410,7 +411,7 @@ void CombinedUpdateRenderController::WaitForGraphicsInitialization()
   ConditionalWait::ScopedLock lk(mGraphicsInitializeWait);
   LOG_EVENT_TRACE;
 
-  if(mUpdateRenderThread)
+  if(mUpdateRenderThread && !mGraphicsInitialized)
   {
     LOG_EVENT("Waiting for graphics initialisation, event-thread blocked");
 
@@ -1376,7 +1377,9 @@ void CombinedUpdateRenderController::NotifyThreadInitialised()
 void CombinedUpdateRenderController::NotifyGraphicsInitialised()
 {
   DALI_LOG_RELEASE_INFO("NotifyGraphicsInitialised\n");
-  mGraphicsInitializeWait.Notify();
+  ConditionalWait::ScopedLock lock(mGraphicsInitializeWait);
+  mGraphicsInitialized = true;
+  mGraphicsInitializeWait.Notify(lock);
 }
 
 void CombinedUpdateRenderController::AddPerformanceMarker(PerformanceInterface::MarkerType type)

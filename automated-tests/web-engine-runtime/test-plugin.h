@@ -28,6 +28,8 @@ namespace Dali
 class RuntimeTestPlugin : public WebEnginePlugin
 {
 public:
+  bool InitializeNativeImageRendering(uint32_t, uint32_t, const std::string&, const std::string&) override { return true; }
+  WebEngineDirectRenderingSessionPtr InitializeDirectRendering(uint32_t, uint32_t, const std::string&, const std::string&) override { return {}; }
   void Create(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId) override
   {
     throw std::logic_error("Unexpected WebEnginePlugin call");

@@ -60,7 +60,9 @@ int main(int argc, char** argv)
     assert(Runtime::CreateView(second, profile, 10, 10));
     assert(!Runtime::SelectType(1 - explicitType));
     assert(!Dali::WebEngine::New(1 - explicitType));
-    assert(Runtime::CreateView(first, profile, 10, 10));
+    assert(!Runtime::CreateView(first, profile, 10, 10));
+    auto third = Dali::WebEngine::New(explicitType);
+    assert(Runtime::CreateView(third, profile, 10, 10));
     void* selected = dlopen(explicitType == 0 ? TEST_PLUGIN_NAME : TEST_LWE_PLUGIN_NAME, RTLD_NOW);
     assert(selected);
     auto api = reinterpret_cast<const Dali::WebEngineProfileApi* (*)(uint32_t)>(dlsym(selected, "GetWebEngineProfileApi"))(1);
@@ -81,7 +83,60 @@ int main(int argc, char** argv)
   auto initCalls = reinterpret_cast<int (*)()>(dlsym(library, "InitializationCalls"));
   auto releases = reinterpret_cast<int (*)()>(dlsym(library, "ProfileReleases"));
   assert(getApi && initCalls && releases);
-  if(scenario == "unsupported")
+  if(scenario == "legacy-create-arguments")
+  {
+    char program[] = "browser";
+    char option[] = "--stored-option";
+    char* arguments[] = {program, option};
+    assert(Runtime::SetArguments(2, arguments) == Result::SUCCESS);
+    auto engine = Dali::WebEngine::New(0);
+    assert(engine && !Runtime::HasInitializationStarted());
+    // Legacy view arguments must never be dereferenced or replace static settings.
+    setenv("TEST_VIEW_FAILURE", "1", 1);
+    engine.Create(10, 10, UINT32_MAX, reinterpret_cast<char**>(1));
+    unsetenv("TEST_VIEW_FAILURE");
+    auto profile = Runtime::GetDefaultProfile();
+    assert(profile);
+    assert(Runtime::CreateView(engine, profile, 10, 10));
+    engine.Destroy();
+    engine.Create(10, 10, UINT32_MAX, reinterpret_cast<char**>(1));
+    assert(!Runtime::CreateView(engine, profile, 10, 10));
+    assert(initCalls() == 1);
+    uint32_t count = 0;
+    const char* const* stored = nullptr;
+    getApi(1)->readArguments(&count, &stored);
+    assert(count == 2 && std::strcmp(stored[1], option) == 0);
+    assert(Runtime::SetArguments(0, nullptr) == Result::ALREADY_INITIALIZED);
+  }
+  else if(scenario == "rendering-profile" || scenario == "rendering-legacy-profile")
+  {
+    if(scenario == "rendering-legacy-profile")
+    {
+      setenv("TEST_LEGACY_PROFILE_API", "1", 1);
+    }
+    auto engine = Dali::WebEngine::New(0);
+    auto profile = Runtime::CreateProfile(true, "");
+    assert(engine && profile);
+    assert(!Runtime::CreateDirectRenderingView(engine, profile, 10, 10));
+    setenv("TEST_VIEW_FAILURE", "1", 1);
+    assert(!Runtime::CreateView(engine, profile, 10, 10));
+    unsetenv("TEST_VIEW_FAILURE");
+    assert(Runtime::CreateView(engine, profile, 10, 10));
+    assert(!Runtime::CreateView(engine, profile, 10, 10));
+    assert(!Runtime::CreateDirectRenderingView(engine, profile, 10, 10));
+    profile.reset();
+    assert(releases() == 0);
+    engine.Destroy();
+    assert(releases() == 1);
+    engine.Destroy();
+    assert(releases() == 1);
+    auto retained = Runtime::CreateProfile(false, "");
+    assert(Runtime::CreateView(engine, retained, 10, 10));
+    retained.reset();
+    engine.Reset();
+    assert(releases() == 2);
+  }
+  else if(scenario == "unsupported")
   {
     setenv("TEST_UNSUPPORTED", "1", 1);
     assert(Runtime::SetArguments(0, nullptr) == Result::BACKEND_UNAVAILABLE);
