@@ -163,6 +163,7 @@ void ColorGlyphCpalParser::ResolveColor(FT_Face ftFace, uint16_t paletteIndex, u
   // CPAL v0 header (same structure as SelectPalette)
   const uint16_t numPaletteEntries       = ReadU16(table + 2);
   const uint16_t numPalettes             = ReadU16(table + 4);
+  const uint16_t numColorRecords         = ReadU16(table + 6);
   const uint32_t colorRecordsArrayOffset = ReadU32(table + 8);
 
   if(paletteIndex >= numPalettes)
@@ -188,23 +189,26 @@ void ColorGlyphCpalParser::ResolveColor(FT_Face ftFace, uint16_t paletteIndex, u
 
   const uint16_t firstColorIndex = ReadU16(table + indexOffset);
 
-  // Color record offset = colorRecordsArrayOffset + (firstColorIndex + colorIndex) * 4
-  // Each color record is 4 bytes: B, G, R, A
-  // Use 64-bit arithmetic so that a large colorRecordsArrayOffset cannot wrap around the range check.
-  const uint32_t recordIndex  = firstColorIndex + colorIndex;
-  const uint64_t recordOffset = static_cast<uint64_t>(colorRecordsArrayOffset) + recordIndex * 4;
+  const uint32_t recordIndex = firstColorIndex + colorIndex;
 
-  if(recordOffset + 4 > length)
+  // Validate the 4-byte record array against the remaining table length.
+  if(colorRecordsArrayOffset > length ||
+     numColorRecords > (length - colorRecordsArrayOffset) / 4u ||
+     recordIndex >= numColorRecords)
   {
     free(table);
     return;
   }
 
+  // recordIndex < numColorRecords <= 65535, so the multiplication fits in uint32_t.
+  const uint32_t recordByteOffset = recordIndex * 4u;
+  const uint8_t* record           = table + colorRecordsArrayOffset + recordByteOffset;
+
   // CPAL color record: B, G, R, A (in CPAL binary order)
-  outColor.b     = table[recordOffset + 0];
-  outColor.g     = table[recordOffset + 1];
-  outColor.r     = table[recordOffset + 2];
-  outColor.a     = table[recordOffset + 3];
+  outColor.b     = record[0];
+  outColor.g     = record[1];
+  outColor.r     = record[2];
+  outColor.a     = record[3];
   outColor.valid = true;
 
   free(table);
