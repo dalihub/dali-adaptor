@@ -18,6 +18,7 @@
 // C style cast suppression
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
 // CLASS HEADER
 #include <dali/internal/window-system/tizen/tcore/window-base-tcore-wl.h>

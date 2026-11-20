@@ -61,7 +61,7 @@ public:
     TxEventType           type;
     void*                 data;
     ImfContext*           imfContext;
-    Dali::Property::Array eventValue;
+    Dali::Property::Array eventValue{};
 
     static TxEvent Commit(void* data, ImfContext* imfContext, std::string commitText)
     {

@@ -84,6 +84,8 @@ glslang_shader_t* SPIRVGenerator::CompileSource(glslang_stage_t stage, std::stri
     .forward_compatible                = false,
     .messages                          = GLSLANG_MSG_DEFAULT_BIT,
     .resource                          = glslang_default_resource(),
+    .callbacks                         = {},
+    .callbacks_ctx                     = nullptr,
   };
 
   glslang_shader_t* shader = glslang_shader_create(&input);
