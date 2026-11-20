@@ -42,7 +42,7 @@
 
 Name:       dali3-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    3.0.0
+Version:    3.0.1
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT and CC0-1.0 and Unlicense and Zlib
@@ -533,7 +533,7 @@ exit 0
 # Files in Binary Packages
 ##############################
 # The Lua scriptlet runs up to the next section, so nothing but %files may
-# follow it. Every earlier package (DALi 2.x and dali3 3.0.0 alike) installed
+# follow it. Every earlier package (DALi 2.x and dali3 3.0.1 alike) installed
 # share/dali as a real directory; rpm cannot replace a directory with a link,
 # so the alias package clears it before the transaction unpacks.
 %if %{with dali2_aliases}
@@ -557,7 +557,7 @@ end
 %defattr(-,root,root,-)
 %{_libdir}/libdali3-adaptor.so
 %{_libdir}/libdali3-adaptor.so.3
-%{_libdir}/libdali3-adaptor.so.3.0.0
+%{_libdir}/libdali3-adaptor.so.3.0.1
 
 # Internal so files
 # Separate graphics libraries exist only in the DYNAMIC configuration;
