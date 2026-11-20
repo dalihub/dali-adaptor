@@ -149,7 +149,7 @@ void ApplySettings(const Property::Map& settingsMap)
   for(unsigned long i = 0, count = settingsMap.Count(); i < count; ++i)
   {
     Property::Key key = settingsMap.GetKeyAt(i);
-    if(key.type == Property::Key::INDEX)
+    if(key.type == Property::Key::Type::INDEX)
     {
       continue;
     }
