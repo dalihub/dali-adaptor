@@ -328,12 +328,12 @@ public:
   bool            mIsLocalResource;
 
 #ifdef DALI_WEBP_AVAILABLE
-  WebPData mWebPData{0};
+  WebPData mWebPData{};
 #endif
 
 #ifdef DALI_ANIMATED_WEBP_ENABLED
   WebPAnimDecoder*  mWebPAnimDecoder{nullptr};
-  WebPAnimInfo      mWebPAnimInfo{0};
+  WebPAnimInfo      mWebPAnimInfo{};
   Dali::PixelBuffer mPreLoadedFrame{};
 #endif
 };
