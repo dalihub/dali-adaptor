@@ -170,15 +170,21 @@ public:                          // Type definitions. Make it public so unnamed 
   // Dependencies for FBO write -> Surface read synchronization
   struct FramebufferTextureForwardDependency
   {
-    std::vector<Texture*> textures;
-    Context*              writeContext{nullptr};
-    Framebuffer*          framebuffer{nullptr};
-    SyncObjectId          agingSyncObjectId{INVALID_SYNC_OBJECT_ID};
-    bool                  syncing{false};
+    // Server waits are required once per reading context.
+    std::unordered_set<const Context*> waitingContexts;
+    std::vector<Texture*>              textures;
+    Context*                           writeContext{nullptr};
+    Framebuffer*                       framebuffer{nullptr};
+    SyncObjectId                       agingSyncObjectId{INVALID_SYNC_OBJECT_ID};
+    bool                               syncing{false};
   };
   using ForwardDependenciesList = std::vector<FramebufferTextureForwardDependency>;
 
   // Dependency info for textures that were read (Surface read -> FBO write sync)
+  using ReadTexturesByContext       = std::unordered_map<const Context*, std::unordered_set<const Texture*>>;
+  using ReadContextsByTexture       = std::unordered_map<const Texture*, std::unordered_set<const Context*>>;
+  using BackwardSyncReferenceCounts = std::unordered_map<SyncObjectId, size_t>;
+
   struct FramebufferTextureBackwardDependency
   {
     const Context* readContext{nullptr};
@@ -194,12 +200,18 @@ private:
   // Single-buffered map: track wrote textures at current frame to sync subsequent Surface read.
   ForwardDependenciesList mForwardDependencies;
 
-  // Textures read during current frame (used for Surface read -> FBO write sync)
-  std::vector<const GLES::Texture*> mReadTextures;
+  // Textures read by each surface context before that context is presented.
+  ReadTexturesByContext mReadTextures;
+
+  // Contexts with a pending read of each texture, for texture removal.
+  ReadContextsByTexture mReadContextsByTexture;
 
   // Double-buffered map: tracks read textures per frame to sync subsequent FBO writes
   // Index 0/1 swapped each frame; previous frame's syncs are freed after use
   BackwardDependenciesMap mBackwardDependencies[2];
+
+  // Number of backward texture dependencies that still reference each sync object.
+  BackwardSyncReferenceCounts mBackwardSyncReferenceCounts;
 
   NativeTextureDependenciesList mNativeTextureDependencies;
   NativeTextureSet              mUsedNativeTextureSet;

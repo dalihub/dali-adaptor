@@ -20,6 +20,7 @@
 // External Headers
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/integration-api/gl-abstraction.h>
+#include <dali/integration-api/graphics-sync-abstraction.h>
 #include <memory>
 #include <unordered_map>
 
@@ -225,8 +226,8 @@ private:
 
     union
     {
-      GLsync                            glSyncObject;
-      Internal::Adaptor::EglSyncObject* eglSyncObject;
+      GLsync                                            glSyncObject;
+      Integration::GraphicsSyncAbstraction::SyncObject* eglSyncObject;
     };
 
     uint8_t age{3u};

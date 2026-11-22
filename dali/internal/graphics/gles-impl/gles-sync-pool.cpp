@@ -225,7 +225,7 @@ SyncPool::AgingSyncObject::AgingSyncObject(Graphics::EglGraphicsController& init
 {
   if(egl)
   {
-    eglSyncObject = static_cast<Internal::Adaptor::EglSyncObject*>(initController.GetEglSyncImplementation().CreateSyncObject(Integration::GraphicsSyncAbstraction::SyncObject::SyncType::FENCE_SYNC));
+    eglSyncObject = initController.GetEglSyncImplementation().CreateSyncObject(Integration::GraphicsSyncAbstraction::SyncObject::SyncType::FENCE_SYNC);
     DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgingSyncObject::cons; EGL::CreateSyncObject: %p\n", eglSyncObject);
   }
   else
@@ -328,7 +328,8 @@ void SyncPool::AgingSyncObject::Wait()
       gl->WaitSync(glSyncObject, 0, GL_TIMEOUT_IGNORED);
     }
   }
-  synced = true;
+  // A server wait only orders commands in the current context. Other contexts
+  // must be able to wait on the same fence until a client wait confirms completion.
 }
 
 uint8_t SyncPool::AgingSyncObject::Age()

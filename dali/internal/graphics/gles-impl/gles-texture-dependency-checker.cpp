@@ -31,6 +31,7 @@ namespace
 Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_FENCE_SYNC");
 #endif
 
+// Forward sync uses this fence type; backward sync uses the same choice.
 SyncPool::SyncContext GetTextureDependencySyncContext(EglGraphicsController& controller)
 {
   return controller.GetEglSyncImplementation().UseGlSyncForTextureDependencies()
@@ -38,19 +39,94 @@ SyncPool::SyncContext GetTextureDependencySyncContext(EglGraphicsController& con
            : SyncPool::SyncContext::EGL;
 }
 
-void FreeAllBackwardSyncObjectSyncs(EglGraphicsController& controller, TextureDependencyChecker::BackwardDependenciesMap& dependencies)
+// Remove pending reads of one texture using its reverse context index.
+void RemoveTextureFromPendingReads(TextureDependencyChecker::ReadTexturesByContext& readTexturesByContext, TextureDependencyChecker::ReadContextsByTexture& readContextsByTexture, const Texture* texture)
+{
+  auto readContexts = readContextsByTexture.find(texture);
+  if(readContexts == readContextsByTexture.end())
+  {
+    return;
+  }
+
+  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::RemoveTextureFromPendingReads texture=%p contexts=%zu\n", texture, readContexts->second.size());
+  for(const auto* context : readContexts->second)
+  {
+    auto readTextures = readTexturesByContext.find(context);
+    if(readTextures != readTexturesByContext.end())
+    {
+      readTextures->second.erase(texture);
+      if(readTextures->second.empty())
+      {
+        readTexturesByContext.erase(readTextures);
+      }
+    }
+  }
+  readContextsByTexture.erase(readContexts);
+}
+
+// Remove a context's pending reads from both directions of the index.
+void RemoveContextFromPendingReads(TextureDependencyChecker::ReadTexturesByContext& readTexturesByContext, TextureDependencyChecker::ReadContextsByTexture& readContextsByTexture, const Context* context)
+{
+  auto readTextures = readTexturesByContext.find(context);
+  if(readTextures == readTexturesByContext.end())
+  {
+    return;
+  }
+
+  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::RemoveContextFromPendingReads context=%p textures=%zu\n", context, readTextures->second.size());
+  for(const auto* texture : readTextures->second)
+  {
+    auto readContexts = readContextsByTexture.find(texture);
+    if(readContexts != readContextsByTexture.end())
+    {
+      readContexts->second.erase(context);
+      if(readContexts->second.empty())
+      {
+        readContextsByTexture.erase(readContexts);
+      }
+    }
+  }
+  readTexturesByContext.erase(readTextures);
+}
+
+// Remove a backward texture reference and report whether it was the last one for its fence.
+bool ReleaseBackwardSyncReference(TextureDependencyChecker::BackwardSyncReferenceCounts& referenceCounts, TextureDependencyChecker::SyncObjectId syncId)
+{
+  if(syncId == TextureDependencyChecker::INVALID_SYNC_OBJECT_ID)
+  {
+    return false;
+  }
+
+  auto count = referenceCounts.find(syncId);
+  DALI_ASSERT_DEBUG(count != referenceCounts.end() && count->second > 0u);
+  if(DALI_UNLIKELY(count == referenceCounts.end() || count->second == 0u))
+  {
+    return false;
+  }
+
+  const size_t remainingReferences = --count->second;
+  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::ReleaseBackwardSyncReference syncId=%u remaining=%zu\n", syncId, remainingReferences);
+  if(remainingReferences == 0u)
+  {
+    referenceCounts.erase(count);
+    return true;
+  }
+  return false;
+}
+
+// Retire the previous frame's backward dependencies and their fences.
+void FreeAllBackwardSyncObjectSyncs(EglGraphicsController& controller, TextureDependencyChecker::BackwardDependenciesMap& dependencies, TextureDependencyChecker::BackwardSyncReferenceCounts& referenceCounts)
 {
   if(DALI_LIKELY(!Dali::Graphics::EglGraphicsController::IsShuttingDown()))
   {
-    std::unordered_set<TextureDependencyChecker::SyncObjectId> called;
     for(auto& item : dependencies)
     {
       for(auto& backwardDependency : item.second)
       {
         auto syncId = backwardDependency.agingSyncObjectId;
-        if(DALI_LIKELY(called.insert(syncId).second))
+        if(ReleaseBackwardSyncReference(referenceCounts, syncId))
         {
-          DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::Backward FreeSyncObject");
+          DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::FreeAllBackwardSyncObjectSyncs syncId=%u\n", syncId);
           controller.GetSyncPool().FreeSyncObject(syncId);
         }
       }
@@ -58,7 +134,34 @@ void FreeAllBackwardSyncObjectSyncs(EglGraphicsController& controller, TextureDe
     dependencies.clear();
   }
 }
-void FreeBackwardSyncObjectSyncs(EglGraphicsController& controller, TextureDependencyChecker::BackwardDependenciesMap& dependencies, const GLES::Texture* texture)
+
+// Discard one texture's backward dependencies without freeing shared fences early.
+void FreeBackwardSyncObjectSyncs(EglGraphicsController& controller, TextureDependencyChecker::BackwardDependenciesMap (&dependencies)[2], TextureDependencyChecker::BackwardSyncReferenceCounts& referenceCounts, const Texture* texture)
+{
+  if(DALI_LIKELY(!Dali::Graphics::EglGraphicsController::IsShuttingDown()))
+  {
+    for(auto& frameDependencies : dependencies)
+    {
+      auto iter = frameDependencies.find(texture);
+      if(iter != frameDependencies.end())
+      {
+        for(const auto& dependency : iter->second)
+        {
+          const auto syncId = dependency.agingSyncObjectId;
+          if(ReleaseBackwardSyncReference(referenceCounts, syncId))
+          {
+            DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::FreeBackwardSyncObjectSyncs texture=%p syncId=%u\n", texture, syncId);
+            controller.GetSyncPool().FreeSyncObject(syncId);
+          }
+        }
+        frameDependencies.erase(iter);
+      }
+    }
+  }
+}
+
+// Insert a shared-context wait for each distinct backward fence on this texture.
+void WaitBackwardSyncObjectSyncs(EglGraphicsController& controller, TextureDependencyChecker::BackwardDependenciesMap& dependencies, TextureDependencyChecker::BackwardSyncReferenceCounts& referenceCounts, const Context* writeContext, const GLES::Texture* texture)
 {
   if(DALI_LIKELY(!Dali::Graphics::EglGraphicsController::IsShuttingDown()))
   {
@@ -69,41 +172,23 @@ void FreeBackwardSyncObjectSyncs(EglGraphicsController& controller, TextureDepen
       for(auto& backwardDependency : iter->second)
       {
         auto syncId = backwardDependency.agingSyncObjectId;
-        if(DALI_LIKELY(called.insert(syncId).second))
-        {
-          DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::Backward FreeSyncObject");
-          controller.GetSyncPool().FreeSyncObject(syncId);
-        }
-      }
-      dependencies.erase(iter);
-    }
-  }
-}
-void WaitBackwardSyncObjectSyncs(EglGraphicsController& controller, TextureDependencyChecker::BackwardDependenciesMap& dependencies, const Context* writeContext, const GLES::Texture* texture)
-{
-  if(DALI_LIKELY(!Dali::Graphics::EglGraphicsController::IsShuttingDown()))
-  {
-    auto iter = dependencies.find(texture);
-    if(iter != dependencies.end())
-    {
-      std::unordered_set<TextureDependencyChecker::SyncObjectId> called;
-      for(auto& backwardDependency : iter->second)
-      {
         if(writeContext != backwardDependency.readContext)
         {
-          auto syncId = backwardDependency.agingSyncObjectId;
           if(DALI_LIKELY(called.insert(syncId).second))
           {
-            DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::Backward Insert GPU WAIT");
+            DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::Backward Insert GPU WAIT syncId=%u texture=%p readContext=%p writeContext=%p\n", syncId, texture, backwardDependency.readContext, writeContext);
             controller.GetSyncPool().Wait(syncId);
 
-            // Now we can remove sync object.
-            // Note that DALi use only single context for FBO case.
-            // If FBO be used for multiple context, we cannot free sync object & remove backwardDependency now.
-            // Also, we could call Wait(syncId) as already freed sync object. It will be ignored internall.
+            // DevNote: All FBO writes use the single shared resource context. A GPU wait
+            // in that context orders subsequent FBO writes, so one wait per backward
+            // fence is sufficient even when other textures still reference it.
+            // If FBO writes ever use multiple contexts, track waits per writer context
+            // and retain the fence until every required context has inserted its wait.
+            // A later Wait(syncId) on this shared context is ignored after the free.
             controller.GetSyncPool().FreeSyncObject(syncId);
           }
         }
+        ReleaseBackwardSyncReference(referenceCounts, syncId);
       }
       dependencies.erase(iter);
     }
@@ -140,6 +225,7 @@ void TextureDependencyChecker::Reset()
       }
       if(!forwardDependency.syncing)
       {
+        DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::Reset() syncId=%u writeContext=%p textures=%zu Ignored since nobody is waiting\n", forwardDependency.agingSyncObjectId, forwardDependency.writeContext, forwardDependency.textures.size());
         mController.GetSyncPool().FreeSyncObject(forwardDependency.agingSyncObjectId);
       }
     }
@@ -178,7 +264,7 @@ void TextureDependencyChecker::Reset()
   }
 
   // Free sync objects from previous frame's read texture dependencies
-  FreeAllBackwardSyncObjectSyncs(mController, mBackwardDependencies[mPrevFrameIndex]);
+  FreeAllBackwardSyncObjectSyncs(mController, mBackwardDependencies[mPrevFrameIndex], mBackwardSyncReferenceCounts);
 
   // Swap frame indices for double buffering
   mCurrentFrameIndex ^= 1;
@@ -188,17 +274,21 @@ void TextureDependencyChecker::Reset()
 void TextureDependencyChecker::DiscardTexture(const GLES::Texture* texture)
 {
   DiscardNativeTexture(texture);
-
-  FreeBackwardSyncObjectSyncs(mController, mBackwardDependencies[mPrevFrameIndex], texture);
-  FreeBackwardSyncObjectSyncs(mController, mBackwardDependencies[mCurrentFrameIndex], texture);
+  RemoveTextureFromPendingReads(mReadTextures, mReadContextsByTexture, texture);
+  FreeBackwardSyncObjectSyncs(mController, mBackwardDependencies, mBackwardSyncReferenceCounts, texture);
 }
 
 void TextureDependencyChecker::InvalidateContext(const GLES::Context* invalidatedContext)
 {
+  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::InvalidateContext invalidatedContext=%p\n", invalidatedContext);
+
+  RemoveContextFromPendingReads(mReadTextures, mReadContextsByTexture, invalidatedContext);
+
   // Invalidate forward dependencies
   // Make CheckNeedsSync() create a new sync object always.
   for(auto& forwardDependency : mForwardDependencies)
   {
+    forwardDependency.waitingContexts.erase(invalidatedContext);
     if(forwardDependency.writeContext == invalidatedContext)
     {
       forwardDependency.writeContext = nullptr;
@@ -286,10 +376,10 @@ void TextureDependencyChecker::AllocateForwardDependencySync(const GLES::Context
 
   // Allocate sync object for cross-context synchronization
   // The shared resource context writes to FBOs, but they are drawn on separate scene contexts
-  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::AddTextures() Allocating sync object\n");
   forwardDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(
     writeContext,
     GetTextureDependencySyncContext(mController));
+  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::AllocateForwardDependencySync syncId=%u writeContext=%p textures=%zu\n", forwardDependency.agingSyncObjectId, writeContext, forwardDependency.textures.size());
 
   // For native image texture
   CreateNativeTextureSync(writeContext);
@@ -304,14 +394,12 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
     if(forwardDependency.writeContext != readContext)
     {
       // Different context is reading this texture - may need sync
-      if(!forwardDependency.syncing && forwardDependency.agingSyncObjectId != INVALID_SYNC_OBJECT_ID)
+      if(forwardDependency.agingSyncObjectId != INVALID_SYNC_OBJECT_ID)
       {
-        forwardDependency.syncing = true;
-
         if(cpu)
         {
           // CPU-side wait (blocks until complete)
-          DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync Insert CPU WAIT");
+          DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync Insert CPU WAIT syncId=%u texture=%p readContext=%p writeContext=%p\n", forwardDependency.agingSyncObjectId, texture, readContext, forwardDependency.writeContext);
           const bool synced = mController.GetSyncPool().ClientWait(forwardDependency.agingSyncObjectId);
           if(DALI_LIKELY(synced))
           {
@@ -319,16 +407,20 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
             forwardDependency.agingSyncObjectId = INVALID_SYNC_OBJECT_ID;
           }
         }
-        else
+        else if(forwardDependency.waitingContexts.insert(readContext).second)
         {
           // GPU-side wait (non-blocking from CPU perspective)
-          DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync Insert GPU WAIT");
+          DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync Insert GPU WAIT syncId=%u texture=%p readContext=%p writeContext=%p\n", forwardDependency.agingSyncObjectId, texture, readContext, forwardDependency.writeContext);
           mController.GetSyncPool().Wait(forwardDependency.agingSyncObjectId);
+          forwardDependency.syncing = true;
         }
       }
 
       // Track this texture for Surface read -> FBO write synchronization
-      mReadTextures.push_back(texture);
+      if(mReadTextures[readContext].insert(texture).second)
+      {
+        mReadContextsByTexture[texture].insert(readContext);
+      }
     }
   }
 }
@@ -337,7 +429,8 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
 
 bool TextureDependencyChecker::MarkFramebufferTextureRead(const Context* readContext)
 {
-  if(mReadTextures.empty())
+  auto readTextures = mReadTextures.find(readContext);
+  if(readTextures == mReadTextures.end())
   {
     return false;
   }
@@ -346,30 +439,44 @@ bool TextureDependencyChecker::MarkFramebufferTextureRead(const Context* readCon
   FramebufferTextureBackwardDependency backwardDependency;
   backwardDependency.readContext = readContext;
 
-  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::MarkTextureReaded() Allocating sync object\n");
   backwardDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(
     readContext,
     GetTextureDependencySyncContext(mController));
+  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::MarkFramebufferTextureRead syncId=%u readContext=%p textures=%zu\n", backwardDependency.agingSyncObjectId, readContext, readTextures->second.size());
 
-  // Record all textures that were read in this frame
-  // Note that all textures share the single sync object id.
-  auto&                                    currentFrameDependencies = mBackwardDependencies[mCurrentFrameIndex];
-  std::unordered_set<const GLES::Texture*> called;
-  for(const auto* texture : mReadTextures)
+  // Each texture occurs once in this context's pending read set. A texture read
+  // by another context has a separate dependency with that context's sync object.
+  auto& currentFrameDependencies = mBackwardDependencies[mCurrentFrameIndex];
+  for(const auto* texture : readTextures->second)
   {
-    if(DALI_LIKELY(called.insert(texture).second))
+    currentFrameDependencies[texture].push_back(backwardDependency);
+
+    auto readContexts = mReadContextsByTexture.find(texture);
+    DALI_ASSERT_DEBUG(readContexts != mReadContextsByTexture.end());
+    if(DALI_LIKELY(readContexts != mReadContextsByTexture.end()))
     {
-      currentFrameDependencies[texture].push_back(backwardDependency);
+      readContexts->second.erase(readContext);
+      if(readContexts->second.empty())
+      {
+        mReadContextsByTexture.erase(readContexts);
+      }
     }
   }
 
-  mReadTextures.clear();
+  if(backwardDependency.agingSyncObjectId != INVALID_SYNC_OBJECT_ID)
+  {
+    mBackwardSyncReferenceCounts[backwardDependency.agingSyncObjectId] += readTextures->second.size();
+  }
+
+  mReadTextures.erase(readTextures);
 
   return true;
 }
 
 void TextureDependencyChecker::CheckFramebufferNeedsSync(const Context* writeContext, const Framebuffer* framebuffer)
 {
+  // DevNote: writeContext must be the single shared resource context for every
+  // FBO write. If this changes, backward waits must be tracked per writer context.
   // Check all attachments (color, depth, stencil) for pending read syncs
   for(int i = 0; i < 3; ++i)
   {
@@ -394,8 +501,8 @@ void TextureDependencyChecker::CheckFramebufferNeedsSync(const Context* writeCon
     if(texture != nullptr)
     {
       // Wait on any pending read syncs from previous frames
-      WaitBackwardSyncObjectSyncs(mController, mBackwardDependencies[mPrevFrameIndex], writeContext, texture);
-      WaitBackwardSyncObjectSyncs(mController, mBackwardDependencies[mCurrentFrameIndex], writeContext, texture);
+      WaitBackwardSyncObjectSyncs(mController, mBackwardDependencies[mPrevFrameIndex], mBackwardSyncReferenceCounts, writeContext, texture);
+      WaitBackwardSyncObjectSyncs(mController, mBackwardDependencies[mCurrentFrameIndex], mBackwardSyncReferenceCounts, writeContext, texture);
     }
   }
 }

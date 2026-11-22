@@ -25,6 +25,7 @@
 
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
+#include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <dali/public-api/common/dali-common.h>
 
 #include <test-gl-abstraction.h>
@@ -352,6 +353,28 @@ public:
   TraceCallStack mCallstack{true, "GraphicsImpl"};
 };
 
+class TestEglGraphicsSyncImplementation : public Internal::Adaptor::EglSyncImplementation
+{
+public:
+  Integration::GraphicsSyncAbstraction::SyncObject* CreateSyncObject(Integration::GraphicsSyncAbstraction::SyncObject::SyncType type) override
+  {
+    return mTestSyncImplementation.CreateSyncObject(type);
+  }
+
+  void DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject) override
+  {
+    mTestSyncImplementation.DestroySyncObject(syncObject);
+  }
+
+  TraceCallStack& GetTrace()
+  {
+    return mTestSyncImplementation.GetTrace();
+  }
+
+private:
+  TestGraphicsSyncImplementation mTestSyncImplementation;
+};
+
 class TestGraphicsApplication : public ConnectionTracker
 {
 public:
@@ -378,12 +401,16 @@ public:
   void CreateScene();
   void InitializeCore();
   ~TestGraphicsApplication() override;
-  static void              LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message);
-  static void              LogContext(bool start, const char* tag, const char* message);
-  Dali::Integration::Core& GetCore();
-  TestPlatformAbstraction& GetPlatform();
-  TestRenderController&    GetRenderController();
-  Graphics::Controller&    GetGraphicsController();
+  static void                        LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message);
+  static void                        LogContext(bool start, const char* tag, const char* message);
+  Dali::Integration::Core&           GetCore();
+  TestPlatformAbstraction&           GetPlatform();
+  TestRenderController&              GetRenderController();
+  Graphics::Controller&              GetGraphicsController();
+  TestEglGraphicsSyncImplementation& GetGraphicsSyncImplementation()
+  {
+    return mGraphicsSyncImplementation;
+  }
 
   TestGlAbstraction& GetGlAbstraction();
 
@@ -417,7 +444,7 @@ protected:
   TestRenderController                        mRenderController;
   Graphics::EglGraphicsController             mGraphicsController; // Use real controller in Adaptor
   TestGlAbstraction                           mGlAbstraction;
-  TestGraphicsSyncImplementation              mGraphicsSyncImplementation;
+  TestEglGraphicsSyncImplementation           mGraphicsSyncImplementation;
   TestGraphicsImpl                            mGraphics;
   Graphics::UniquePtr<Graphics::RenderTarget> mRenderTarget{nullptr};
   Dali::DisplayConnection*                    mDisplayConnection{nullptr};
