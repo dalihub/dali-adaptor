@@ -193,18 +193,3 @@ int UtcDaliCaptureStart4Negative(void)
   }
   END_TEST;
 }
-
-int UtcDaliCaptureGetNativeImageNegative(void)
-{
-  Dali::Capture instance;
-  try
-  {
-    instance.GetNativeImage();
-    DALI_TEST_CHECK(false); // Should not get here
-  }
-  catch(...)
-  {
-    DALI_TEST_CHECK(true); // We expect an assert
-  }
-  END_TEST;
-}

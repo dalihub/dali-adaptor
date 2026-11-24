@@ -101,16 +101,6 @@ Dali::PixelBuffer Capture::GetCapturedBuffer()
   return GetImpl(*this).GetCapturedBuffer();
 }
 
-Dali::NativeImagePtr Capture::GetNativeImage()
-{
-  return GetImpl(*this).GetNativeImage();
-}
-
-Dali::Texture Capture::GetTexture() const
-{
-  return GetImpl(*this).GetTexture();
-}
-
 Capture::CaptureFinishedSignalType& Capture::FinishedSignal()
 {
   return GetImpl(*this).FinishedSignal();

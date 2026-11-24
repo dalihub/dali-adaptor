@@ -61,16 +61,6 @@ Window UiContext::GetDefaultWindow()
   return Internal::Adaptor::GetImplementation(*this).GetDefaultWindow();
 }
 
-bool UiContext::AddIdle(CallbackBase* callback)
-{
-  return Internal::Adaptor::GetImplementation(*this).AddIdle(callback);
-}
-
-void UiContext::RemoveIdle(CallbackBase* callback)
-{
-  Internal::Adaptor::GetImplementation(*this).RemoveIdle(callback);
-}
-
 UiContext::IdleCallbackId UiContext::AddIdle(Callback<bool()> callback)
 {
   return Internal::Adaptor::GetImplementation(*this).AddIdle(std::move(callback));

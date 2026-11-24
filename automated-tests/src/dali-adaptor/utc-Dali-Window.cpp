@@ -1434,23 +1434,6 @@ int UtcDaliWindowVisibilityChangedSignalNegative(void)
   END_TEST;
 }
 
-int UtcDaliWindowAddFrameRenderedCallbackNegative(void)
-{
-  try
-  {
-    Dali::Window        arg1;
-    Dali::CallbackBase* arg2 = nullptr;
-    int                 arg3(0);
-    arg1.AddFrameRenderedCallback(arg2, arg3);
-    DALI_TEST_CHECK(false); // Should not get here
-  }
-  catch(...)
-  {
-    DALI_TEST_CHECK(true); // We expect an assert
-  }
-  END_TEST;
-}
-
 int UtcDaliWindowAddFrameRenderedCallbackTypedNegative(void)
 {
   try
@@ -1485,23 +1468,6 @@ int UtcDaliWindowSetAvailableOrientationsNegative(void)
     Dali::Window                          arg1;
     Dali::Vector<Dali::WindowOrientation> arg2;
     arg1.SetAvailableOrientations(arg2);
-    DALI_TEST_CHECK(false); // Should not get here
-  }
-  catch(...)
-  {
-    DALI_TEST_CHECK(true); // We expect an assert
-  }
-  END_TEST;
-}
-
-int UtcDaliWindowAddFramePresentedCallbackNegative(void)
-{
-  try
-  {
-    Dali::Window        arg1;
-    Dali::CallbackBase* arg2 = nullptr;
-    int                 arg3(0);
-    arg1.AddFramePresentedCallback(arg2, arg3);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)

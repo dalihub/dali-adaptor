@@ -76,16 +76,6 @@ public:
   Dali::Window GetDefaultWindow();
 
   /**
-   * @copydoc Dali::UiContext::AddIdle()
-   */
-  bool AddIdle(CallbackBase* callback);
-
-  /**
-   * @copydoc Dali::UiContext::RemoveIdle()
-   */
-  void RemoveIdle(CallbackBase* callback);
-
-  /**
    * @copydoc Dali::UiContext::AddIdle(Callback<bool()>)
    */
   Dali::UiContext::IdleCallbackId AddIdle(Dali::Callback<bool()> callback);

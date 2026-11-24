@@ -30,7 +30,6 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 #include <dali/devel-api/adaptor-framework/graphics-backend.h>
-#include <dali/devel-api/adaptor-framework/native-image-devel.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
@@ -161,25 +160,6 @@ void Capture::SetExclusive(bool exclusive)
 bool Capture::IsExclusive() const
 {
   return mIsExclusive;
-}
-
-Dali::NativeImagePtr Capture::GetNativeImage()
-{
-  Dali::NativeImagePtr result;
-  if(mRenderTask)
-  {
-    Dali::PixelBuffer renderResult = mRenderTask.GetRenderResultBuffer();
-    if(renderResult)
-    {
-      Dali::NativeImagePtr nativeImagePtr = Dali::NativeImage::New(renderResult.GetWidth(), renderResult.GetHeight(), Dali::NativeImage::COLOR_DEPTH_32); // Texture pixel format is RGBA8888
-
-      if(Dali::DevelNativeImage::SetPixels(*nativeImagePtr, renderResult.GetBuffer(), renderResult.GetPixelFormat()))
-      {
-        result = nativeImagePtr;
-      }
-    }
-  }
-  return result;
 }
 
 Dali::Texture Capture::GetTexture() const

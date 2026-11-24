@@ -90,17 +90,13 @@ public:
   bool IsExclusive() const;
 
   /**
-   * @copydoc Dali::Capture::GetNativeImage
-   */
-  Dali::NativeImagePtr GetNativeImage();
-
-  /**
    * @copydoc Dali::Capture::GetCapturedBuffer
    */
   Dali::PixelBuffer GetCapturedBuffer();
 
   /**
-   * @copydoc Dali::Capture::GetTexture
+   * @brief Gets the texture the capture is rendered into.
+   * @return The texture, or an empty handle before Start()
    */
   Dali::Texture GetTexture() const;
 

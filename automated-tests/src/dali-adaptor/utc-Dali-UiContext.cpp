@@ -129,42 +129,6 @@ int UtcDaliUiContextGetDefaultWindowN(void)
   END_TEST;
 }
 
-int UtcDaliUiContextAddIdleN(void)
-{
-  UiContext uiContext;
-
-  try
-  {
-    CallbackBase* callback = nullptr;
-    uiContext.AddIdle(callback);
-    DALI_TEST_CHECK(false); // Should not get here
-  }
-  catch(...)
-  {
-    DALI_TEST_CHECK(true);
-  }
-
-  END_TEST;
-}
-
-int UtcDaliUiContextRemoveIdleN(void)
-{
-  UiContext uiContext;
-
-  try
-  {
-    CallbackBase* callback = nullptr;
-    uiContext.RemoveIdle(callback);
-    DALI_TEST_CHECK(false); // Should not get here
-  }
-  catch(...)
-  {
-    DALI_TEST_CHECK(true);
-  }
-
-  END_TEST;
-}
-
 int UtcDaliUiContextAddIdleTypedN(void)
 {
   UiContext uiContext;
