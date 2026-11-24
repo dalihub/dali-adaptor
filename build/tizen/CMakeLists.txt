@@ -758,6 +758,20 @@ INSTALL( FILES ${devel_api_text_abstraction_header_files} DESTINATION ${tizentex
 # Install Android framework headers for Android build
 INSTALL( FILES ${adaptor_integration_api_android_header_files} DESTINATION ${androidadaptorintegrationapidir} )
 
+# Keep the existing integration-api/adaptors include path in the DALi 3 SDK,
+# independently of the optional DALi 2 package and library aliases.
+GET_FILENAME_COMPONENT( adaptor_integration_install_dir "${INCLUDE_DIR}/dali/integration-api" ABSOLUTE BASE_DIR "${CMAKE_INSTALL_PREFIX}" )
+INSTALL( CODE "
+  set(_integration_dir \"\$ENV{DESTDIR}${adaptor_integration_install_dir}\")
+  set(_adaptors \"\${_integration_dir}/adaptors\")
+  file(REMOVE_RECURSE \"\${_adaptors}\")
+  file(CREATE_LINK adaptor-framework \"\${_adaptors}\" SYMBOLIC RESULT _result)
+  if(NOT _result EQUAL 0)
+    # Windows installations may not have permission to create symbolic links.
+    file(COPY \"\${_integration_dir}/adaptor-framework/\" DESTINATION \"\${_adaptors}\")
+  endif()
+" )
+
 # Install DOXY
 SET( packagedoxydir ${INCLUDE_DIR}/dali/doc )
 SET( package_doxy_dir ${ADAPTOR_ROOT}/doc )
@@ -816,8 +830,6 @@ IF( ENABLE_PKG_CONFIGURE )
   dali_legacy_pkgconfig_alias(${ADAPTOR_PKG_CFG_FILE} dali2-adaptor)
   dali_legacy_pkgconfig_alias(${ADAPTOR_INTEGRATION_PKG_CFG_FILE} dali2-adaptor-integration)
 ENDIF()
-# 2.x shipped integration-api/adaptors as a link to adaptor-framework.
-dali_legacy_alias(${INCLUDE_DIR}/dali/integration-api/adaptors adaptor-framework)
 # The data directory under its 2.x name: share/dali -> share/dali<major>.
 IF( UNIX AND NOT ANDROID_PROFILE )
   STRING(REGEX REPLACE "/+$" "" DALI_DATA_DIR_PATH "${dataReadOnlyDir}")

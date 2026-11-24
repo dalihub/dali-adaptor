@@ -606,6 +606,7 @@ end
 %defattr(-,root,root,-)
 %{_includedir}/dali3/dali/devel-api/*
 %{_includedir}/dali3/dali/integration-api/adaptor-framework/*
+%{_includedir}/dali3/dali/integration-api/adaptors
 %{_includedir}/dali3/dali/integration-api/system/*
 %{_libdir}/pkgconfig/dali3-adaptor-integration.pc
 
@@ -656,7 +657,6 @@ end
 
 %files -n dali2-adaptor-integration-devel
 %defattr(-,root,root,-)
-%{_includedir}/dali3/dali/integration-api/adaptors
 %{_libdir}/pkgconfig/dali2-adaptor-integration.pc
 %if %{with dali2_include_copy}
 %{_includedir}/dali/devel-api/*
