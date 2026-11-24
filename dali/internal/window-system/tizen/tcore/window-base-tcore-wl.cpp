@@ -168,6 +168,37 @@ void GetMouseData(tizen_core_wl_event_input_base_h ev, int* x, int* y, unsigned 
   }
 }
 
+/**
+ * @brief Gets the position and modifiers from a mouse in or out event.
+ * @note The mouse in / out event is not a mouse button event, so the mouse_io accessors should be used.
+ *       (The mouse_button accessors return TIZEN_CORE_WL_ERROR_INVALID_PARAMETER and the position is not filled.)
+ */
+void GetMouseInOutData(tizen_core_wl_event_input_base_h ev, int* x, int* y, unsigned int* modifiers)
+{
+  int tmpX = 0, tmpY = 0;
+  int ret  = tizen_core_wl_event_mouse_io_get_position(ev, &tmpX, &tmpY);
+  if(ret != TIZEN_CORE_WL_ERROR_NONE)
+  {
+    DALI_LOG_ERROR("GetMouseInOutData::mouse_io_get_position failed. ret=%d\n", ret);
+  }
+  if(x)
+  {
+    *x = tmpX;
+  }
+  if(y)
+  {
+    *y = tmpY;
+  }
+  if(modifiers)
+  {
+    ret = tizen_core_wl_event_mouse_io_get_modifiers(ev, modifiers);
+    if(ret != TIZEN_CORE_WL_ERROR_NONE)
+    {
+      DALI_LOG_ERROR("GetMouseInOutData::mouse_io_get_modifiers failed. ret=%d\n", ret);
+    }
+  }
+}
+
 inline void DisconnectAndDestroyDisplay(tizen_core_wl_display_h& display)
 {
   if(!display)
@@ -1846,7 +1877,7 @@ void WindowBaseTcoreWl::OnMouseInOut(void* data, int type, void* event)
 
     GetBaseData(ev, &eventType, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, &name, &tizenClass, &tizenSubclass);
-    GetMouseData(ev, &x, &y, nullptr, nullptr, &modifiers, false);
+    GetMouseInOutData(ev, &x, &y, &modifiers);
     GetDeviceClass(tizenClass, deviceClass);
     GetDeviceSubclass(tizenSubclass, deviceSubclass);
     Dali::String deviceName(name);
