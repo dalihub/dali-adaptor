@@ -470,12 +470,12 @@ public:
   std::string GetName() const override
   {
     // A Window is not an Actor, so its accessibility name is exposed through the root layer.
-    if(!mRoot)
+    if(mRoot && IsImeWindow())
     {
-      return ActorAccessible::GetName();
+      return "keyboard";
     }
 
-    return IsImeWindow() ? "keyboard" : "window";
+    return ActorAccessible::GetName();
   }
 
   Dali::Integration::Accessibility::States GetStates() override
