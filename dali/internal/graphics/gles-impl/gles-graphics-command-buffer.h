@@ -164,11 +164,13 @@ struct Command
     struct
     {
       IndirectPtr<GLES::BeginRenderPassDescriptor> descriptor;
+      bool                                         isFirstRenderPass;
     } beginRenderPass;
 
     struct
     {
       Graphics::SyncObject* syncObject;
+      bool                  isLastRenderPass;
     } endRenderPass;
 
     struct
@@ -484,6 +486,8 @@ private:
 
   struct GlStateCommandCache;
   std::unique_ptr<GlStateCommandCache> mGlStateCommandCache; ///< Stack of GL state caches
+
+  Command* mLastEndRenderPassCommand{nullptr}; ///< Pointer to the last EndRenderPass command in the command list
 };
 } //namespace DALI_NAMESPACE::Graphics::GLES
 

@@ -305,7 +305,8 @@ private:
 };
 
 CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, EglGraphicsController& controller)
-: CommandBufferResource(createInfo, controller)
+: CommandBufferResource(createInfo, controller),
+  mLastEndRenderPassCommand(nullptr)
 {
   mCommandPool         = std::make_unique<CommandPool>(createInfo.fixedCapacity);
   mGlStateCommandCache = std::make_unique<GlStateCommandCache>();
@@ -315,11 +316,27 @@ CommandBuffer::~CommandBuffer() = default;
 
 void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
 {
+  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  {
+    mController.IncreaseCommandBufferDepth();
+  }
   mGlStateCommandCache->ResetCache();
 }
 
 void CommandBuffer::End()
 {
+  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  {
+    mController.DecreaseCommandBufferDepth();
+    if(mController.GetCommandBufferDepth() == 0)
+    {
+      if(DALI_LIKELY(mLastEndRenderPassCommand))
+      {
+        mLastEndRenderPassCommand->endRenderPass.isLastRenderPass = true;
+      }
+      mLastEndRenderPassCommand = nullptr;
+    }
+  }
   mGlStateCommandCache->ResetCache();
 }
 
@@ -495,6 +512,8 @@ void CommandBuffer::BeginRenderPass(
   auto& cmd                      = *command;
   cmd.beginRenderPass.descriptor = mCommandPool->Allocate<GLES::BeginRenderPassDescriptor>(1);
 
+  cmd.beginRenderPass.isFirstRenderPass = (DALI_LIKELY(!EglGraphicsController::IsShuttingDown()) && mController.GetCommandBufferDepth() == 1);
+
   auto& descriptor = *(cmd.beginRenderPass.descriptor);
 
   descriptor.renderPass   = static_cast<GLES::RenderPass*>(renderPass);
@@ -511,8 +530,14 @@ void CommandBuffer::BeginRenderPass(
 
 void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
 {
-  auto command                      = mCommandPool->AllocateCommand(CommandType::END_RENDERPASS);
-  command->endRenderPass.syncObject = static_cast<GLES::SyncObject*>(syncObject);
+  auto command                            = mCommandPool->AllocateCommand(CommandType::END_RENDERPASS);
+  command->endRenderPass.syncObject       = static_cast<GLES::SyncObject*>(syncObject);
+  command->endRenderPass.isLastRenderPass = false; ///< Will be set as true at End() command
+
+  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  {
+    mLastEndRenderPassCommand = command;
+  }
 
   mGlStateCommandCache->ResetCache(); // Reset GL state cache after end render pass
 }
@@ -604,6 +629,8 @@ void CommandBuffer::Reset()
 {
   mCommandPool->Rollback(false);
   mGlStateCommandCache->ResetCache(); // Reset GL state cache
+
+  mLastEndRenderPassCommand = nullptr;
 }
 
 void CommandBuffer::SetScissor(Graphics::Rect2D value)

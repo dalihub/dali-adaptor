@@ -18,9 +18,13 @@
 #include <dali/dali.h>
 
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-framebuffer.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
+#include <dali/internal/graphics/gles-impl/gles-texture-dependency-checker.h>
 #include <test-actor-utils.h>
 #include <test-graphics-egl-application.h>
 #include <test-graphics-framebuffer.h>
+#include <test-render-surface.h>
 
 using namespace Dali;
 
@@ -406,6 +410,95 @@ int UtcDaliGraphicsFramebufferAttachStencilAndDepthTexture(void)
   DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+
+  END_TEST;
+}
+
+int UtcDaliGraphicsFramebufferSyncAcrossSurfaceContexts(void)
+{
+  TestGraphicsApplication app;
+  auto&                   controller = static_cast<Graphics::EglGraphicsController&>(app.GetGraphicsController());
+  auto&                   syncTrace  = app.GetGraphicsSyncImplementation().GetTrace();
+  syncTrace.Enable(true);
+  syncTrace.Reset();
+
+  TestRenderSurface surfaceA({0, 0, 16, 16});
+  TestRenderSurface surfaceB({0, 0, 16, 16});
+  controller.CreateSurfaceContext(&surfaceA);
+  controller.CreateSurfaceContext(&surfaceB);
+
+  auto* writeContext = controller.GetCurrentContext();
+  controller.ActivateSurfaceContext(&surfaceA);
+  auto* contextA = controller.GetCurrentContext();
+  controller.ActivateSurfaceContext(&surfaceB);
+  auto* contextB = controller.GetCurrentContext();
+  controller.ActivateResourceContext();
+
+  auto                            texture     = controller.CreateTexture(Graphics::TextureCreateInfo{}, {});
+  auto*                           glesTexture = static_cast<Graphics::GLES::Texture*>(texture.get());
+  Graphics::FramebufferCreateInfo framebufferInfo;
+  framebufferInfo.SetColorAttachments({{0u, glesTexture, 0u, 0u, Pixel::RGBA8888}});
+  auto  framebuffer     = controller.CreateFramebuffer(framebufferInfo, {});
+  auto* glesFramebuffer = static_cast<Graphics::GLES::Framebuffer*>(framebuffer.get());
+
+  Graphics::GLES::TextureDependencyChecker checker(controller);
+  checker.PrepareForwardDependencySync(writeContext);
+  checker.AddTextures(writeContext, glesFramebuffer);
+  checker.AllocateForwardDependencySync(writeContext);
+
+  controller.ActivateSurfaceContext(&surfaceA);
+  checker.CheckNeedsSync(contextA, glesTexture);
+  checker.CheckNeedsSync(contextA, glesTexture);
+  controller.ActivateSurfaceContext(&surfaceB);
+  checker.CheckNeedsSync(contextB, glesTexture);
+  DALI_TEST_EQUALS(syncTrace.CountMethod("SyncObject::Wait"), 2, TEST_LOCATION);
+
+  controller.ActivateSurfaceContext(&surfaceA);
+  DALI_TEST_CHECK(checker.MarkFramebufferTextureRead(contextA));
+  controller.ActivateSurfaceContext(&surfaceB);
+  DALI_TEST_CHECK(checker.MarkFramebufferTextureRead(contextB));
+
+  controller.ActivateResourceContext();
+  checker.CheckFramebufferNeedsSync(writeContext, glesFramebuffer);
+  DALI_TEST_EQUALS(syncTrace.CountMethod("SyncObject::Wait"), 4, TEST_LOCATION);
+
+  auto  otherTexture     = controller.CreateTexture(Graphics::TextureCreateInfo{}, {});
+  auto* otherGlesTexture = static_cast<Graphics::GLES::Texture*>(otherTexture.get());
+  otherGlesTexture->SetDependencyIndex(glesTexture->GetDependencyIndex());
+  Graphics::FramebufferCreateInfo otherFramebufferInfo;
+  otherFramebufferInfo.SetColorAttachments({{0u, otherGlesTexture, 0u, 0u, Pixel::RGBA8888}});
+  auto  otherFramebuffer     = controller.CreateFramebuffer(otherFramebufferInfo, {});
+  auto* otherGlesFramebuffer = static_cast<Graphics::GLES::Framebuffer*>(otherFramebuffer.get());
+
+  controller.ActivateSurfaceContext(&surfaceA);
+  checker.CheckNeedsSync(contextA, glesTexture);
+  checker.CheckNeedsSync(contextA, otherGlesTexture);
+  DALI_TEST_CHECK(checker.MarkFramebufferTextureRead(contextA));
+  checker.DiscardTexture(glesTexture);
+
+  controller.ActivateResourceContext();
+  checker.CheckFramebufferNeedsSync(writeContext, otherGlesFramebuffer);
+  DALI_TEST_EQUALS(syncTrace.CountMethod("SyncObject::Wait"), 5, TEST_LOCATION);
+
+  auto  discardedTexture     = controller.CreateTexture(Graphics::TextureCreateInfo{}, {});
+  auto* discardedGlesTexture = static_cast<Graphics::GLES::Texture*>(discardedTexture.get());
+  discardedGlesTexture->SetDependencyIndex(otherGlesTexture->GetDependencyIndex());
+
+  controller.ActivateSurfaceContext(&surfaceA);
+  checker.CheckNeedsSync(contextA, discardedGlesTexture);
+  controller.ActivateSurfaceContext(&surfaceB);
+  checker.CheckNeedsSync(contextB, discardedGlesTexture);
+  checker.CheckNeedsSync(contextB, otherGlesTexture);
+  checker.DiscardTexture(discardedGlesTexture);
+
+  controller.ActivateSurfaceContext(&surfaceA);
+  DALI_TEST_CHECK(!checker.MarkFramebufferTextureRead(contextA));
+  controller.ActivateSurfaceContext(&surfaceB);
+  DALI_TEST_CHECK(checker.MarkFramebufferTextureRead(contextB));
+
+  controller.ActivateResourceContext();
+  checker.CheckFramebufferNeedsSync(writeContext, otherGlesFramebuffer);
+  DALI_TEST_EQUALS(syncTrace.CountMethod("SyncObject::Wait"), 6, TEST_LOCATION);
 
   END_TEST;
 }
