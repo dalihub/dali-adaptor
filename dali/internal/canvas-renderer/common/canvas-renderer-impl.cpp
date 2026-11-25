@@ -620,9 +620,9 @@ void CanvasRenderer::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawabl
   }
 
   tvg::Paint*     tvgDuplicatedObject = tvgObject->duplicate();
-  Drawable::Types type                = drawableImpl.GetType();
+  Drawable::Types drawableType        = drawableImpl.GetType();
 
-  if(type == Drawable::Types::DRAWABLE_GROUP)
+  if(drawableType == Drawable::Types::DRAWABLE_GROUP)
   {
     Dali::CanvasRenderer::DrawableGroup& group             = static_cast<Dali::CanvasRenderer::DrawableGroup&>(drawable);
     Internal::Adaptor::DrawableGroup&    drawableGroupImpl = Dali::GetImplementation(group);
@@ -632,7 +632,7 @@ void CanvasRenderer::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawabl
       PushDrawableToGroup(it, static_cast<tvg::Scene*>(tvgDuplicatedObject));
     }
   }
-  else if(type == Drawable::Types::SHAPE)
+  else if(drawableType == Drawable::Types::SHAPE)
   {
     // FillGradient
     Dali::CanvasRenderer::Shape&   shape        = static_cast<Dali::CanvasRenderer::Shape&>(drawable);
