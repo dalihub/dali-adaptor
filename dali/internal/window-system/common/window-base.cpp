@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/time-service.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 namespace DALI_NAMESPACE
 {
@@ -126,6 +127,11 @@ void WindowBase::SetSuppressedMouseButtons(uint32_t pressedButtons)
 int32_t WindowBase::AccumulateMouseWheel(int32_t delta, bool horizontal, int32_t deltaPerStep)
 {
   return mMouseInputState.OnWheel(delta, horizontal, deltaPerStep);
+}
+
+void WindowBase::GetScreenSize(int32_t& width, int32_t& height) const
+{
+  WindowSystem::GetScreenSize(width, height);
 }
 
 WindowBase::IconifySignalType& WindowBase::IconifyChangedSignal()

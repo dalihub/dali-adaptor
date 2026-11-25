@@ -422,6 +422,11 @@ cmake_flags="$cmake_flags -DENABLE_WARNING_TO_ERROR=OFF"
 CXXFLAGS+=" -DOVER_TIZEN_VERSION_11"
 %endif
 
+# Use this conditional when Tizen version is 10.1 or greater
+%if ( 0%{?tizen_version_major} == 10 && 0%{?tizen_version_minor} >= 1 ) || 0%{?tizen_version_major} >= 11
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_10_1"
+%endif
+
 %if "%{vd_asan}" == "1" || "%{asan}" == "1"
 CFLAGS="$CFLAGS -fsanitize=address"
 CXXFLAGS="$CXXFLAGS -fsanitize=address"

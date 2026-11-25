@@ -363,6 +363,11 @@ Dali::String Window::GetScreen() const
   return ToDaliString(GetImplementation(*this).GetScreen());
 }
 
+Int32Pair Window::GetScreenSize() const
+{
+  return GetImplementation(*this).GetScreenSize();
+}
+
 void Window::FeedTouchEvent(const Dali::TouchEvent& touchEvent)
 {
   Integration::TouchEvent convertedEvent(touchEvent);

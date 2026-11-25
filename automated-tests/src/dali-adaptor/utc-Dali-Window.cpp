@@ -1282,6 +1282,21 @@ int UtcDaliWindowGetDpiNegative(void)
   END_TEST;
 }
 
+int UtcDaliWindowGetScreenSizeNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetScreenSize();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
 int UtcDaliWindowGetSizeNegative(void)
 {
   Dali::Window instance;
