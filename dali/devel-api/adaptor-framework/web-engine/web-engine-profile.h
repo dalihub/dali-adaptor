@@ -20,6 +20,8 @@
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-direct-rendering-session.h>
 #include <cstdint>
+#include <string>
+#include <vector>
 #include <memory>
 
 namespace DALI_NAMESPACE

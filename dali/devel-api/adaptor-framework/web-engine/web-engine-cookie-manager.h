@@ -102,7 +102,12 @@ public:
   /**
    * @brief Watch for cookies' changes in @a manager.
    *
-   * @param[in] callback function that will be called every time cookies are added, removed or modified.
+   * @param[in] callback Replaces the callback; empty to stop watching.
+   * @note Register and clear on the event thread. The callback may execute on
+   * an engine thread, without cookie identity or change details. It must not
+   * access UI handles. A dispatch that already acquired the callback may begin or finish invoking it after removal.
+   * Backends must release the registered callback on manager destruction and
+   * prevent later native notifications from accessing the destroyed manager.
    */
   virtual void ChangesWatch(WebEngineCookieManagerChangesWatchCallback callback) = 0;
 };
