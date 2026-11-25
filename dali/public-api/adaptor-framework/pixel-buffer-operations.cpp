@@ -18,39 +18,11 @@
 // CLASS HEADER
 #include <dali/public-api/adaptor-framework/pixel-buffer-operations.h>
 
-// EXTERNAL INCLUDES
-#include <dali/integration-api/pixel-buffer-integ.h>
-
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/pixel-buffer-operations.h>
 
 namespace DALI_NAMESPACE
 {
-namespace
-{
-// Keeps the deprecated member functions Dali::PixelBuffer::ApplyGaussianBlur() and
-// Dali::PixelBuffer::Resize() working: their implementations live here, and dali-core
-// calls them through this registration, made when this library is loaded.
-bool ApplyGaussianBlurOperation(Dali::PixelBuffer& pixelBuffer, float blurRadius)
-{
-  return Internal::Adaptor::PixelBufferOperations::ApplyGaussianBlur(pixelBuffer, blurRadius);
-}
-
-bool ResizeOperation(Dali::PixelBuffer& pixelBuffer, uint16_t width, uint16_t height)
-{
-  return Internal::Adaptor::PixelBufferOperations::Resize(pixelBuffer, ImageDimensions(width, height));
-}
-
-struct ImageOperationsRegistrar
-{
-  ImageOperationsRegistrar()
-  {
-    Dali::Integration::RegisterPixelBufferImageOperations(ApplyGaussianBlurOperation, ResizeOperation);
-  }
-};
-ImageOperationsRegistrar gImageOperationsRegistrar;
-} // namespace
-
 namespace PixelBufferOperations
 {
 bool ApplyGaussianBlur(PixelBuffer pixelBuffer, float blurRadius)

@@ -186,34 +186,14 @@ public:
 private:
   /// @cond internal
   friend struct Internal::Adaptor::WindowDataAccess;
-  /// @endcond
 
-public: // Deprecated internal API
-  /// @cond internal
   /**
    * @brief Internal implementation type.
-   * @DEPRECATED_2_5.47 will be private
    */
   struct Impl;
 
-  /**
-   * @brief Retrieves the internal implementation.
-   * @DEPRECATED_2_5.47 will be private
-   *
-   * @return The internal implementation
-   * @note Not intended for application use.
-   */
-  Impl& GetImplementation();
-
-  /**
-   * @copydoc Dali::WindowData::GetImplementation()
-   * @DEPRECATED_2_5.47 will be private
-   */
-  const Impl& GetImplementation() const;
-  /// @endcond
-
-private:
   UniquePtr<Impl> mImpl;
+  /// @endcond
 };
 
 } //namespace DALI_NAMESPACE

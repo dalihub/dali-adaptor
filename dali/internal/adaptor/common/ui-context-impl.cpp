@@ -133,16 +133,6 @@ Dali::Window UiContext::GetDefaultWindow()
   return mDefaultWindow;
 }
 
-bool UiContext::AddIdle(CallbackBase* callback)
-{
-  return mAdaptor->AddIdle(callback, true);
-}
-
-void UiContext::RemoveIdle(CallbackBase* callback)
-{
-  mAdaptor->RemoveIdle(callback);
-}
-
 Dali::UiContext::IdleCallbackId UiContext::AddIdle(Dali::Callback<bool()> callback)
 {
   CallbackBase* innerCallback = callback.Release();

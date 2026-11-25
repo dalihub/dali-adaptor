@@ -124,38 +124,6 @@ public:
   Dali::Window GetDefaultWindow();
 
   /**
-   * @brief Ensures that the function passed in is called from the main loop when it is idle.
-   *
-   * @param[in] callback The function to call
-   * @return @c true if added successfully, @c false otherwise
-   *
-   * @note Function must be called from main event thread only
-   *
-   * A callback of the following type may be used:
-   * @code
-   *   bool MyFunction();
-   * @endcode
-   * This callback will be called repeatedly as long as it returns true. A return of false deletes this callback.
-   *
-   * @note Ownership of the callback is passed onto this class.
-   * @SINCE_2_5.10
-   * @DEPRECATED_2_5.46 Use AddIdle(Callback<bool()>) instead.
-   */
-  bool AddIdle(CallbackBase* callback);
-
-  /**
-   * @brief Removes a previously added idle callback.
-   *
-   * @param[in] callback The callback to remove
-   *
-   * @note Function must be called from main event thread only
-   * @note Ownership of the callback is NOT returned; the callback is deleted.
-   * @SINCE_2_5.20
-   * @DEPRECATED_2_5.46 Use RemoveIdle(IdleCallbackId) instead.
-   */
-  void RemoveIdle(CallbackBase* callback);
-
-  /**
    * @brief Ensures that the given callback is called from the main loop when it is idle.
    *
    * The callback is called repeatedly as long as it returns @c true. Returning

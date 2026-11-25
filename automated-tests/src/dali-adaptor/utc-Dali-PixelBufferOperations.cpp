@@ -1256,26 +1256,6 @@ int UtcDaliPixelBufferOperationsResize01N(void)
   END_TEST;
 }
 
-int UtcDaliPixelBufferOperationsDeprecatedMemberFunctions(void)
-{
-  TestApplication application;
-
-  // The deprecated member functions route to the same implementations as the free functions.
-  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(10, 10, Pixel::RGBA8888);
-  FillCheckerboard(imageData);
-
-  unsigned char* buffer = imageData.GetBuffer();
-  DALI_TEST_EQUALS(imageData.ApplyGaussianBlur(1.0f), true, TEST_LOCATION);
-  DALI_TEST_EQUALS(buffer[43], 0x7Au, TEST_LOCATION);
-  DALI_TEST_EQUALS(buffer[55], 0x7Eu, TEST_LOCATION);
-
-  DALI_TEST_EQUALS(imageData.Resize(5, 5), true, TEST_LOCATION);
-  DALI_TEST_EQUALS(imageData.GetWidth(), 5u, TEST_LOCATION);
-  DALI_TEST_EQUALS(imageData.GetHeight(), 5u, TEST_LOCATION);
-
-  END_TEST;
-}
-
 int UtcDaliPixelBufferOperationsDevelCrop01P(void)
 {
   TestApplication application;

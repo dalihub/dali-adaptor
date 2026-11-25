@@ -903,24 +903,6 @@ public:
   /**
    * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
    *
-   * @SINCE_2_5.27
-   * @DEPRECATED_2_5.46 Use the Callback<void(int32_t)> overload instead.
-   * @param[in] callback The function to call.
-   * @param[in] frameId The ID to specify the frame. It will be passed when the callback is called.
-   *
-   * @note A callback of the following type may be used:
-   * @code
-   *   void MyFunction( int32_t frameId );
-   * @endcode
-   * This callback will be deleted once it is called.
-   *
-   * @note Ownership of the callback is passed onto this class.
-   */
-  void AddFrameRenderedCallback(CallbackBase* callback, int32_t frameId);
-
-  /**
-   * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
-   *
    * The callback is called once with the frame ID and destroyed afterwards.
    *
    * @SINCE_2_5.46
@@ -930,24 +912,6 @@ public:
    * @note An empty callback is ignored.
    */
   void AddFrameRenderedCallback(Callback<void(int32_t)> callback, int32_t frameId);
-
-  /**
-   * @brief Adds a callback that is called when the frame is displayed on the display.
-   *
-   * @SINCE_2_5.27
-   * @DEPRECATED_2_5.46 Use the Callback<void(int32_t)> overload instead.
-   * @param[in] callback The function to call.
-   * @param[in] frameId The ID to specify the frame. It will be passed when the callback is called.
-   *
-   * @note A callback of the following type may be used:
-   * @code
-   *   void MyFunction( int32_t frameId );
-   * @endcode
-   * This callback will be deleted once it is called.
-   *
-   * @note Ownership of the callback is passed onto this class.
-   */
-  void AddFramePresentedCallback(CallbackBase* callback, int32_t frameId);
 
   /**
    * @brief Adds a callback that is called when the frame is displayed on the display.

@@ -512,22 +512,12 @@ bool Window::IsScreenReaderAutoReadEnabled() const
   return GetImplementation(*this).IsScreenReaderAutoReadEnabled();
 }
 
-void Window::AddFrameRenderedCallback(CallbackBase* callback, int32_t frameId)
-{
-  GetImplementation(*this).AddFrameRenderedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
-}
-
 void Window::AddFrameRenderedCallback(Callback<void(int32_t)> callback, int32_t frameId)
 {
   if(callback)
   {
     GetImplementation(*this).AddFrameRenderedCallback(std::unique_ptr<CallbackBase>(callback.Release()), frameId);
   }
-}
-
-void Window::AddFramePresentedCallback(CallbackBase* callback, int32_t frameId)
-{
-  GetImplementation(*this).AddFramePresentedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
 }
 
 void Window::AddFramePresentedCallback(Callback<void(int32_t)> callback, int32_t frameId)

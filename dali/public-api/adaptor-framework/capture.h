@@ -283,31 +283,6 @@ public:
   Dali::PixelBuffer GetCapturedBuffer();
 
   /**
-   * @DEPRECATED_2_5.47 Use GetCapturedBuffer() instead.
-   *
-   * @brief Get NativeImagePtr that is saved captured image.
-   *
-   * @SINCE_2_5.13
-   *
-   * @return NativeImagePtr Captured result that can be rendered with DALi
-   * @note GetNativeImage is only available inside FinishedSignal.
-   */
-  Dali::NativeImagePtr GetNativeImage();
-
-  /**
-   * @DEPRECATED_2_5.47 Use GetCapturedBuffer() for the captured pixels. To render a scene
-   * into a texture without reading the pixels back, use an offscreen RenderTask instead
-   * of Capture, which always reads the result back.
-   *
-   * @brief Get Texture of captured image.
-   *
-   * @SINCE_2_3.26
-   * @return Texture Captured result
-   * @note GetTexture is only available inside FinishedSignal.
-   */
-  Dali::Texture GetTexture() const;
-
-  /**
    * @brief Get finished signal.
    *
    * @SINCE_1_3_4
