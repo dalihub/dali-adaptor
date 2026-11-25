@@ -710,6 +710,11 @@ public: // It is only for window-impl. Need not public for the others.
   std::string GetScreen() const;
 
   /**
+   * @copydoc Dali::Window::GetScreenSize()
+   */
+  Dali::Int32Pair GetScreenSize() const;
+
+  /**
    * @brief Initialize for Ime window and surface.
    * It should be called when the window is only used for Ime keyboard window.
    */

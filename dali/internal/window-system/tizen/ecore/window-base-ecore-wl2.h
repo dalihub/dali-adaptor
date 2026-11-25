@@ -769,6 +769,11 @@ public:
    */
   std::string GetScreen() const override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenSize()
+   */
+  void GetScreenSize(int32_t& width, int32_t& height) const override;
+
 public:
   /**
    * @brief Update the screen rotation angle.

@@ -808,7 +808,7 @@ public:
    * @brief Sets window's maximum size.
    *
    * It is to set the maximized size when window is maximized.
-   * Although the size is set by this function, window's size can be increased beyond the limitation by SetSize().
+   * Although the size is set by this function, window's size can be increased beyond the limitation by SetPositionSize().
    *
    * After setting, if Maximize() is called, window is resized with the setting size and centered.
    *
@@ -844,7 +844,7 @@ public:
    * @brief Sets window's minimum size.
    *
    * It is to set the minimum size when window's size is decreased by the display server.
-   * Although the size is set by this function, window's size can be decreased below the limitation by SetSize().
+   * Although the size is set by this function, window's size can be decreased below the limitation by SetPositionSize().
    *
    * @SINCE_2_5.27
    * @param[in] size The minimum size.
@@ -945,6 +945,20 @@ public:
    * @return The name of the screen.
    */
   Dali::String GetScreen() const;
+
+  /**
+   * @brief Retrieves the size of the screen the window is on.
+   *
+   * Windows on different screens can report different sizes. When the window
+   * system does not report a per-window screen, the size of the main screen is
+   * returned, which equals WindowSystem::GetMainScreenSize().
+   * The size is the physical size of the screen in pixels. It is not affected by
+   * window rotation or screen rotation.
+   *
+   * @SINCE_3_0.2
+   * @return The size of the screen in pixels, or a zero size if it cannot be retrieved
+   */
+  Int32Pair GetScreenSize() const;
 
   /**
    * @brief Feeds a touch event to the window.

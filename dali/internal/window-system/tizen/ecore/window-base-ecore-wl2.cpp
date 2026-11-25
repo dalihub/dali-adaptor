@@ -4345,6 +4345,29 @@ std::string WindowBaseEcoreWl2::GetScreen() const
   return screenName;
 }
 
+void WindowBaseEcoreWl2::GetScreenSize(int32_t& width, int32_t& height) const
+{
+#ifdef OVER_TIZEN_VERSION_10_1
+  int       screenWidth  = 0;
+  int       screenHeight = 0;
+  Eina_Bool result;
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_app_screen_size_get");
+    result = ecore_wl2_window_app_screen_size_get(mEcoreWindow, &screenWidth, &screenHeight);
+  }
+  if(result)
+  {
+    DALI_LOG_RELEASE_INFO("Screen size of window [%p]: %d x %d\n", mEcoreWindow, screenWidth, screenHeight);
+    width  = screenWidth;
+    height = screenHeight;
+    return;
+  }
+  DALI_LOG_ERROR("Failed to get the screen size of window [%p], use the main screen size\n", mEcoreWindow);
+#endif
+
+  WindowBase::GetScreenSize(width, height);
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

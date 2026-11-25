@@ -177,9 +177,10 @@ void Window::Initialize(Any surface, const PositionSize& positionSize)
 
   mWindowBase->InsetsChangedSignal().Connect(this, &Window::OnInsetsChanged);
 
-  // Get OrientationMode
-  int screenWidth, screenHeight;
-  WindowSystem::GetScreenSize(screenWidth, screenHeight);
+  // Get OrientationMode from the screen this window is on
+  int32_t screenWidth  = 0;
+  int32_t screenHeight = 0;
+  mWindowBase->GetScreenSize(screenWidth, screenHeight);
   if(screenWidth > screenHeight)
   {
     mOrientationMode = Internal::Adaptor::Window::OrientationMode::LANDSCAPE;
@@ -1932,6 +1933,14 @@ void Window::SetScreen(const std::string& screenName)
 std::string Window::GetScreen() const
 {
   return mWindowBase->GetScreen();
+}
+
+Dali::Int32Pair Window::GetScreenSize() const
+{
+  int32_t width  = 0;
+  int32_t height = 0;
+  mWindowBase->GetScreenSize(width, height);
+  return Dali::Int32Pair(width, height);
 }
 
 void Window::InitializeImeInfo()

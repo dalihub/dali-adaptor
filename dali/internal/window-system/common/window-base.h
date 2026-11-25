@@ -777,6 +777,16 @@ public:
    */
   virtual std::string GetScreen() const = 0;
 
+  /**
+   * @brief Gets the size of the screen that the window is on.
+   *
+   * The default implementation returns the main screen size of the window system.
+   *
+   * @param[out] width The width of the screen in pixels
+   * @param[out] height The height of the screen in pixels
+   */
+  virtual void GetScreenSize(int32_t& width, int32_t& height) const;
+
   // Signals
   /**
    * @brief This signal is emitted when the window becomes iconified or deiconified.
