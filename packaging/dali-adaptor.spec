@@ -73,18 +73,17 @@ Requires:       glslang
 %endif
 
 %define tizen_platform_config_supported 1
-# BUILD_TCORE_ENABLE: 0 (default) = ECORE, 1 = TCORE, for Tizen 11 only.
+# BUILD_TCORE_ENABLE: 0 (default) = ECORE, 1 = TCORE.
+# The backend is decided by this build config only (regardless of the Tizen version).
 # Example: gbs build ... --define "BUILD_TCORE_ENABLE 1"
 # Resolve the backend here for both dependencies and build options.
 %{!?BUILD_TCORE_ENABLE:%global BUILD_TCORE_ENABLE 0}
 %global tizen_wayland_backend ECORE
-%if 0%{?tizen_version_major} == 11
 %if "%{BUILD_TCORE_ENABLE}" != "0" && "%{BUILD_TCORE_ENABLE}" != "1"
 %{error:BUILD_TCORE_ENABLE must be 0 or 1}
 %endif
 %if "%{BUILD_TCORE_ENABLE}" == "1"
 %global tizen_wayland_backend TCORE
-%endif
 %endif
 
 BuildRequires:  pkgconfig(libtzplatform-config)
