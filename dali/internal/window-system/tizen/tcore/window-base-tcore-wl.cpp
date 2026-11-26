@@ -176,7 +176,7 @@ void GetMouseData(tizen_core_wl_event_input_base_h ev, int* x, int* y, unsigned 
 void GetMouseInOutData(tizen_core_wl_event_input_base_h ev, int* x, int* y, unsigned int* modifiers)
 {
   int tmpX = 0, tmpY = 0;
-  int ret  = tizen_core_wl_event_mouse_io_get_position(ev, &tmpX, &tmpY);
+  int ret = tizen_core_wl_event_mouse_io_get_position(ev, &tmpX, &tmpY);
   if(ret != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_ERROR("GetMouseInOutData::mouse_io_get_position failed. ret=%d\n", ret);
@@ -1967,7 +1967,7 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
       // as a fallback. Every other backend resolves a key code this way round, so a named key such
       // as XF86Back arrives as DALI_KEY_BACK here too. Keep this in step with WindowBaseEcoreWl2;
       // the two Tizen backends must report the same code for the same key name.
-      int daliKeyCode = KeyLookup::GetKeyCode(name);
+      int daliKeyCode = name ? KeyLookup::GetKeyCode(name) : -1;
       if(daliKeyCode != -1)
       {
         keyCode = static_cast<unsigned int>(daliKeyCode);
@@ -1978,11 +1978,11 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
       // Legacy order, for a framework carrying applications written against the old behaviour: the
       // code the window system reported wins and the look up table is only a fallback.
       // See Integration::Key.
-      int dalyKeyCode = KeyLookup::GetKeyCode(name);
+      int dalyKeyCode = name ? KeyLookup::GetKeyCode(name) : -1;
       keyCode         = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
     }
 
-    if(!strncmp(name, "Keycode-", 8))
+    if(name && !strncmp(name, "Keycode-", 8))
     {
       keyCode = atoi(name + 8);
     }
@@ -2047,6 +2047,10 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
     if(flags & TIZEN_CORE_WL_EVENT_FLAG_CANCEL)
     {
       DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseTcoreWl::OnKeyUp: This event flag indicates the event is canceled. \n");
+      free(name);
+      free(compose);
+      free(symbol);
+      free(dev);
       return;
     }
 
@@ -2063,7 +2067,7 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
       // as a fallback. Every other backend resolves a key code this way round, so a named key such
       // as XF86Back arrives as DALI_KEY_BACK here too. Keep this in step with WindowBaseEcoreWl2;
       // the two Tizen backends must report the same code for the same key name.
-      int daliKeyCode = KeyLookup::GetKeyCode(name);
+      int daliKeyCode = name ? KeyLookup::GetKeyCode(name) : -1;
       if(daliKeyCode != -1)
       {
         keyCode = static_cast<unsigned int>(daliKeyCode);
@@ -2074,10 +2078,10 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
       // Legacy order, for a framework carrying applications written against the old behaviour: the
       // code the window system reported wins and the look up table is only a fallback.
       // See Integration::Key.
-      int dalyKeyCode = KeyLookup::GetKeyCode(name);
+      int dalyKeyCode = name ? KeyLookup::GetKeyCode(name) : -1;
       keyCode         = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
     }
-    if(!strncmp(name, "Keycode-", 8))
+    if(name && !strncmp(name, "Keycode-", 8))
     {
       keyCode = atoi(name + 8);
     }
