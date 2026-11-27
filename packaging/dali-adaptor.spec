@@ -559,9 +559,7 @@ end
 %license LICENSE.Unlicense
 %license LICENSE.Zlib
 %defattr(-,root,root,-)
-%{_libdir}/libdali3-adaptor.so
-%{_libdir}/libdali3-adaptor.so.3
-%{_libdir}/libdali3-adaptor.so.3.0.0
+%{_libdir}/libdali3-adaptor.so*
 
 # Internal so files
 # Separate graphics libraries exist only in the DYNAMIC configuration;
