@@ -42,7 +42,7 @@
 
 Name:       dali3-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    3.0.1
+Version:    3.0.2
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT and CC0-1.0 and Unlicense and Zlib
